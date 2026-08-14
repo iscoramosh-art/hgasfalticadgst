@@ -1,0 +1,175 @@
+/* estilo.css — Herramienta de Selección de Grado PG · SICT/DGST
+   Identidad Gob. México 2026 (guinda #611232, verde #1e5b4f, dorado #a57f2c). */
+
+:root{
+  --guinda:#611232; --guinda-claro:#9b2247; --verde:#1e5b4f; --dorado:#a57f2c;
+  --beige:#e6d194; --gris:#98989a; --tinta:#161a1d; --bg:#f4f3f1; --linea:#e4e0da;
+  --sombra:0 1px 3px rgba(0,0,0,.07),0 1px 2px rgba(0,0,0,.05);
+  --sombra2:0 6px 20px rgba(97,18,50,.10); --radio:12px;
+}
+*{box-sizing:border-box}
+html,body{margin:0}
+body{font-family:'Noto Sans','Segoe UI',Arial,sans-serif;color:var(--tinta);background:var(--bg);
+     line-height:1.45;-webkit-font-smoothing:antialiased}
+
+/* ---- Encabezado ---- */
+.barra-gob{height:6px;background:linear-gradient(90deg,var(--guinda) 0 62%,var(--verde) 62% 100%)}
+header.sitio{background:#fff;border-bottom:1px solid var(--linea)}
+header.sitio .contenido{max-width:1220px;margin:0 auto;padding:15px 24px;display:flex;align-items:center;gap:16px;flex-wrap:wrap}
+header.sitio .logo{height:44px;width:auto;display:block;flex:none;margin-left:auto;border-left:4px solid var(--verde);padding-left:16px}
+header.sitio .marca{border-left:4px solid var(--verde);padding-left:15px}
+header.sitio h1{font-size:20px;margin:0;color:var(--guinda);font-weight:800;letter-spacing:.2px;line-height:1.2}
+header.sitio p{font-size:12.5px;margin:3px 0 0;color:var(--gris)}
+header.sitio .anio{margin-left:auto;font-size:12px;color:var(--dorado);font-style:italic;white-space:nowrap}
+.intro{max-width:1220px;margin:14px auto 0;padding:0 24px;font-size:13.5px;color:#555}
+.intro strong{color:var(--guinda)}
+
+/* ---- Pestañas ---- */
+.tabs{max-width:1220px;margin:14px auto 0;padding:0 24px;display:flex;gap:8px;flex-wrap:wrap;position:sticky;top:0;z-index:600;background:var(--bg);padding-top:6px;padding-bottom:6px}
+.tabs button{border:1px solid var(--linea);background:#fff;color:var(--guinda);padding:10px 18px;font-size:13.5px;
+  font-weight:700;border-radius:var(--radio);cursor:pointer;transition:.15s}
+.tabs button:hover{background:#faf6f7;border-color:var(--verde)}
+.tabs button.activa{background:var(--guinda);color:#fff;box-shadow:var(--sombra);border-color:var(--guinda)}
+
+/* Separador entre pasos (captura única en una sola página) */
+.paso{margin-top:22px;padding-top:20px;border-top:2px dashed var(--linea);scroll-margin-top:64px}
+#panel-carretera{scroll-margin-top:64px}
+
+/* ---- Módulos (Captura / Análisis) ---- */
+.modtabs{max-width:1220px;margin:16px auto 0;padding:0 24px;display:flex;gap:10px}
+.modtabs button{flex:1;border:1px solid var(--linea);background:#fff;color:var(--guinda);padding:14px 18px;
+  font-size:15px;font-weight:800;border-radius:var(--radio);cursor:pointer;transition:.15s}
+.modtabs button:hover{background:#faf6f7;border-color:var(--verde)}
+.modtabs button.activa{background:var(--guinda);color:#fff;box-shadow:var(--sombra);border-color:var(--guinda)}
+.modulo{max-width:1220px;margin:0 auto}
+.modulo>.intro{margin-top:14px}
+.cap-grid{max-width:1220px;margin:14px auto 0;padding:0 24px;display:grid;grid-template-columns:1fr 1fr;gap:20px;align-items:start}
+.cap-grid .tarjeta{border-radius:var(--radio)}
+.ub-grp{margin-top:6px}
+.segmented{display:flex;flex-wrap:wrap;gap:8px;margin:4px 0 6px}
+.segmented label{display:flex;align-items:center;gap:6px;font-weight:600;color:var(--guinda);font-size:12.5px;
+  border:1px solid var(--linea);background:var(--bg);border-radius:8px;padding:8px 11px;cursor:pointer;margin:0}
+.segmented input{width:auto;margin:0}
+.btn-grande{max-width:1220px;display:block;margin:20px auto 30px;width:calc(100% - 48px);padding:16px;font-size:16px}
+.acc-bar{max-width:1220px;margin:16px auto 0;padding:0 24px;display:flex;gap:12px;justify-content:flex-end;align-items:center}
+.btn-sec{border:1px solid var(--linea);background:#fff;color:var(--guinda);padding:11px 16px;font-size:14px;
+  font-weight:700;border-radius:9px;cursor:pointer;transition:.15s}
+.btn-sec:hover{background:#faf6f7;border-color:var(--verde)}
+.btn-pdf{width:auto;margin:0;padding:11px 20px}
+.acc-bar .btn{margin-top:0}
+@media(max-width:860px){.cap-grid{grid-template-columns:1fr}.modtabs button{font-size:13px;padding:12px 8px}.btn-grande{width:calc(100% - 48px)}}
+
+/* ---- Estructura ---- */
+.panel-doble{max-width:1220px;margin:0 auto;padding:0 24px 28px;display:grid;
+  grid-template-columns:minmax(330px,440px) 1fr;gap:20px;align-items:start}
+.tarjeta{background:#fff;border:1px solid var(--linea);border-radius:0 var(--radio) var(--radio) var(--radio);
+  box-shadow:var(--sombra);padding:20px}
+.tarjeta.mapa{padding:16px}
+
+h2.seccion{font-size:15px;color:var(--verde);margin:0 0 14px;padding-bottom:8px;border-bottom:2px solid var(--beige);
+  display:flex;align-items:center;gap:8px}
+label{display:block;font-size:12.5px;font-weight:600;color:var(--verde);margin:13px 0 4px}
+input,select{width:100%;padding:9px 11px;border:1px solid #ccc;border-radius:8px;font-size:14px;background:#fff;transition:.12s}
+input:focus,select:focus{outline:none;border-color:var(--verde);box-shadow:0 0 0 3px rgba(30,91,79,.14)}
+.fila{display:flex;gap:11px}.fila>div{flex:1}
+.nota{font-size:11.5px;color:var(--gris);margin-top:5px}
+.oculto{display:none}
+
+/* ayuda contextual */
+.ayuda{display:inline-flex;align-items:center;justify-content:center;width:16px;height:16px;border-radius:50%;
+  background:var(--verde);color:#fff;font-size:10px;font-weight:700;cursor:help;font-style:normal;flex:none}
+.ayuda:hover{background:var(--guinda)}
+.tip-pop{position:fixed;z-index:3000;max-width:320px;background:var(--guinda);color:#fff;font-size:12px;
+  font-weight:500;line-height:1.45;padding:9px 12px;border-radius:9px;box-shadow:0 6px 20px rgba(97,18,50,.28)}
+
+.btn{width:100%;margin-top:18px;padding:13px;border:none;border-radius:9px;background:var(--guinda);color:#fff;
+  font-size:15px;font-weight:700;cursor:pointer;transition:.15s;box-shadow:var(--sombra)}
+.btn:hover{background:var(--guinda-claro)}
+
+/* preajustes vehiculares */
+.presets{display:flex;gap:7px;flex-wrap:wrap;margin-top:2px}
+.presets button{flex:1;min-width:96px;border:1px solid var(--linea);background:var(--bg);color:var(--guinda);
+  padding:8px 6px;font-size:12px;font-weight:600;border-radius:7px;cursor:pointer;transition:.12s}
+.presets button:hover{background:#fff;border-color:var(--verde)}
+.grid-veh{display:grid;grid-template-columns:1fr 1fr;gap:8px 11px}
+.suma{margin-top:10px;text-align:center;font-size:12.5px;font-weight:700;padding:5px;border-radius:7px}
+.suma.ok{background:#e8f2ef;color:var(--verde)} .suma.mal{background:#fbe9ec;color:var(--guinda-claro)}
+.fuente{margin:2px 0 6px;padding:8px 11px;border-radius:8px;font-size:12px;line-height:1.4;
+  background:#f3eef1;border:1px solid #e3d5dc;color:#5a4650}
+.fuente b{color:var(--guinda)}
+.fuente.manual{background:#eef3f1;border-color:#cfe0d9;color:#3d5a50}
+.criterios{margin-top:14px;border:1px solid var(--linea);border-radius:9px;background:#faf8f9;padding:4px 12px}
+.criterios summary{cursor:pointer;font-weight:700;color:var(--guinda);font-size:12.5px;padding:7px 0}
+.criterios ul{margin:4px 0 10px;padding-left:18px}
+.criterios li{font-size:12px;color:#4a4a4a;line-height:1.45;margin:5px 0}
+.criterios strong{color:var(--verde)}
+.metarep{max-width:1220px;margin:12px auto 0;padding:2px 24px}
+.metarep>summary{cursor:pointer;font-weight:700;color:var(--guinda);font-size:13px;padding:6px 0}
+.metarep-grid{display:grid;grid-template-columns:1fr 1fr;gap:4px 16px;padding-bottom:8px}
+@media(max-width:860px){.metarep-grid{grid-template-columns:1fr}}
+
+/* ---- Buscador ---- */
+.lista{max-height:280px;overflow:auto;border:1px solid var(--linea);border-radius:8px;margin-top:8px;background:#fff}
+.lista:empty{display:none}
+.lista .item{padding:9px 12px;font-size:13px;border-bottom:1px solid #f2f0ec;cursor:pointer;line-height:1.35}
+.lista .item:last-child{border-bottom:none}
+.lista .item:hover,.lista .item.activo{background:#f6eef1}
+.lista .item b{color:var(--guinda);display:block}
+.lista .item span{color:#666;font-size:12px}
+.lista .item em{color:var(--verde);font-style:normal;font-weight:600}
+.lista .item.vacio{color:#999;cursor:default}
+
+/* ---- Resultado ---- */
+.resultado{margin-top:16px;padding:18px;border:1px solid var(--linea);border-radius:11px;
+  background:linear-gradient(180deg,#fff,var(--bg));box-shadow:var(--sombra)}
+.pg-grande{font-size:38px;font-weight:800;color:var(--guinda);text-align:center;margin:2px 0;letter-spacing:.5px}
+.pg-ajuste{text-align:center;font-size:15px;font-weight:700;color:var(--verde);margin-bottom:6px}
+table.kv{width:100%;border-collapse:collapse;font-size:13px;margin-top:10px}
+table.kv td{padding:5px 4px;border-bottom:1px solid #eceae6}
+table.kv td:last-child{text-align:right;font-weight:600}
+table.kv tr.sep td{border-top:1px solid var(--linea);padding-top:8px}
+
+/* ---- Mapa (Leaflet) ---- */
+#mapa{width:100%;height:600px;border:1px solid var(--linea);border-radius:10px;background:#eef0ee;z-index:0}
+.leaflet-container{font-family:'Noto Sans','Segoe UI',Arial,sans-serif}
+/* logo sobre el mapa (arriba-izquierda) */
+.logo-mapa{background:rgba(255,255,255,.92);border:1px solid var(--linea);border-radius:8px;padding:5px 9px;
+  box-shadow:var(--sombra);backdrop-filter:blur(1px)}
+.logo-mapa img{height:26px;width:auto;display:block}
+/* rosa de los vientos */
+.brujula{filter:drop-shadow(0 1px 2px rgba(0,0,0,.25))}
+/* controles Leaflet con identidad */
+.leaflet-bar a{color:var(--guinda)}
+.leaflet-control-layers{border:1px solid var(--linea);border-radius:8px;box-shadow:var(--sombra);font-size:12.5px}
+.leaflet-control-layers-list{padding:4px 6px}
+.leaflet-control-layers label{margin:3px 0;color:var(--tinta);font-weight:600}
+.leaflet-control-scale-line{border-color:var(--guinda);color:var(--guinda);font-weight:600}
+/* etiquetas de cadenamiento (inicio/fin) y nombre de carretera sobre el trazo */
+.leaflet-tooltip.etq-cad{background:var(--guinda);color:#fff;border:none;border-radius:4px;font-weight:700;
+  font-size:11px;padding:2px 6px;box-shadow:0 1px 3px rgba(0,0,0,.35)}
+.leaflet-tooltip.etq-cad::before{display:none}
+.leaflet-tooltip.etq-nom{background:rgba(255,255,255,.94);color:var(--guinda);border:1px solid var(--guinda);
+  border-radius:5px;font-weight:700;font-size:11px;padding:2px 8px;box-shadow:var(--sombra)}
+.leaflet-tooltip.etq-nom::before{display:none}
+.leyenda{display:flex;flex-wrap:wrap;gap:6px 16px;margin-top:12px;font-size:12px;color:#555}
+.leyenda span{display:flex;align-items:center;gap:5px}
+.leyenda i{width:12px;height:12px;border-radius:3px;display:inline-block}
+.mapa-nota{margin-top:8px}
+.chips-resumen{display:flex;flex-wrap:wrap;gap:10px;margin-top:12px}
+.chips-resumen .c{flex:1;min-width:130px;background:var(--bg);border:1px solid var(--linea);border-radius:9px;
+  padding:10px 12px;text-align:center;font-size:12px;color:#555}
+.chips-resumen .c b{display:block;color:var(--guinda);font-size:20px;font-weight:800;margin-top:2px}
+
+/* ---- Pie ---- */
+footer.sitio{max-width:1220px;margin:0 auto;padding:16px 24px 34px;font-size:11.5px;color:var(--gris);border-top:1px solid var(--linea)}
+footer.sitio strong{color:#777}
+
+/* ---- Responsivo ---- */
+@media (max-width:860px){
+  .panel-doble{grid-template-columns:1fr}
+  header.sitio .anio{margin-left:0;width:100%}
+  header.sitio .logo{height:36px}
+  .tabs button{flex:1;padding:11px 6px;font-size:12.5px}
+  header.sitio h1{font-size:17px}
+  #mapa{height:440px}
+}
