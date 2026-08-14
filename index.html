@@ -1,0 +1,230 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>HG Asfáltica DGST — Herramienta Guía Asfáltica (cemento asfáltico, material pétreo y mezcla) · SICT</title>
+  <meta name="description" content="Herramienta guía de la DGST/SICT para la selección de cemento asfáltico (Grado PG), material pétreo y tipo de mezcla asfáltica, con requisitos de calidad y cantidades.">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans:wght@400;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
+  <link rel="stylesheet" href="css/estilo.css">
+</head>
+<body>
+  <div class="barra-gob"></div>
+  <header class="sitio">
+    <div class="contenido">
+      <div class="marca">
+        <h1>HG Asfáltica DGST</h1>
+        <p>Herramienta Guía Asfáltica de la Dirección General de Servicios Técnicos — selección de cemento asfáltico, material pétreo y tipo de mezcla asfáltica · SICT</p>
+      </div>
+      <img id="logo-sict" class="logo" alt="Gobierno de México · SICT">
+    </div>
+  </header>
+
+  <nav class="modtabs" aria-label="Módulos">
+    <button id="mt-captura" class="activa" data-mod="captura">① Captura de datos</button>
+    <button id="mt-analisis" data-mod="analisis">② Análisis y reporte</button>
+  </nav>
+
+  <main>
+    <!-- ===================== MÓDULO 1 · CAPTURA ===================== -->
+    <section id="modulo-captura" class="modulo">
+      <p class="intro">Carga aquí <strong>todos</strong> los datos del estudio. Al terminar presiona <strong>«Analizar y ver resultados»</strong> para pasar al módulo de análisis y generar el reporte.</p>
+
+      <div class="cap-grid">
+
+        <!-- Datos del reporte -->
+        <section class="tarjeta">
+          <h2 class="seccion">Datos del reporte</h2>
+          <div class="fila">
+            <div><label for="m-proy">Nombre del proyecto</label><input id="m-proy" type="text" placeholder="p. ej. Modernización tramo…"></div>
+            <div><label for="m-unidad">Unidad responsable</label><input id="m-unidad" type="text" placeholder="p. ej. Centro SICT…"></div>
+          </div>
+          <div class="fila">
+            <div><label for="m-dirigido">Dirigido a</label><input id="m-dirigido" type="text" placeholder="Nombre / cargo"></div>
+            <div><label for="m-resp">Elaboró / responsable técnico</label><input id="m-resp" type="text" placeholder="Nombre"></div>
+          </div>
+        </section>
+
+        <!-- Ubicación -->
+        <section class="tarjeta">
+          <h2 class="seccion">Ubicación <span class="ayuda" title="Elige el modo: carretera del Anexo A, un punto por coordenadas, o un segmento por coordenadas de inicio y fin.">ⓘ</span></h2>
+          <label>Modo de ubicación</label>
+          <div class="segmented" role="radiogroup">
+            <label><input type="radio" name="modoUb" value="carretera" checked> Carretera (Anexo A)</label>
+            <label><input type="radio" name="modoUb" value="punto"> Punto por coordenadas</label>
+            <label><input type="radio" name="modoUb" value="segmento"> Segmento por coordenadas</label>
+          </div>
+
+          <div id="ub-carretera" class="ub-grp">
+            <label for="edo">Estado (entidad)</label>
+            <select id="edo"><option value="">Todos los estados</option></select>
+            <label for="q">Carretera, tramo o clave (PARCF / DGCC)</label>
+            <input id="q" type="search" placeholder="Haz clic para ver la lista del Anexo A…" autocomplete="off" role="combobox" aria-expanded="true" aria-controls="q-lista">
+            <div class="lista" id="q-lista" role="listbox"></div>
+            <div id="cad-bloque" class="oculto">
+              <h2 class="seccion" style="margin-top:16px">Segmento por cadenamiento (opcional) <span class="ayuda" title="El PG se evalúa en los DOS extremos del segmento (M·MMP·4·05·064/22). Captura el subtramo; ej. 0+000 a 1+700.">ⓘ</span></h2>
+              <p class="nota" id="cad-rango"></p>
+              <div class="fila">
+                <div><label for="cad-ini">Cadenamiento inicial</label><input id="cad-ini" type="text" inputmode="decimal" placeholder="0+000"></div>
+                <div><label for="cad-fin">Cadenamiento final</label><input id="cad-fin" type="text" inputmode="decimal" placeholder="1+700"></div>
+              </div>
+              <p class="nota">Formato <strong>K+MMM</strong> (p. ej. <em>1+700</em>) o kilómetros decimales (<em>1.7</em>). Déjalo vacío para usar el tramo completo.</p>
+            </div>
+          </div>
+
+          <div id="ub-punto" class="ub-grp oculto">
+            <div class="fila">
+              <div><label for="plat">Latitud</label><input id="plat" type="number" step="0.0001" placeholder="19.4326"></div>
+              <div><label for="plon">Longitud</label><input id="plon" type="number" step="0.0001" placeholder="-99.1332"></div>
+            </div>
+            <p class="nota">También puedes fijar el punto haciendo clic sobre el mapa (módulo de análisis).</p>
+          </div>
+
+          <div id="ub-segmento" class="ub-grp oculto">
+            <p class="nota">El PG se rige por el extremo más desfavorable (T. máx mayor y T. mín menor).</p>
+            <div class="fila">
+              <div><label for="plat3">Latitud (inicio)</label><input id="plat3" type="number" step="0.0001" placeholder="19.4326"></div>
+              <div><label for="plon3">Longitud (inicio)</label><input id="plon3" type="number" step="0.0001" placeholder="-99.1332"></div>
+            </div>
+            <div class="fila">
+              <div><label for="plat2">Latitud (fin)</label><input id="plat2" type="number" step="0.0001" placeholder="19.5000"></div>
+              <div><label for="plon2">Longitud (fin)</label><input id="plon2" type="number" step="0.0001" placeholder="-99.2000"></div>
+            </div>
+          </div>
+        </section>
+
+        <!-- Aforo / tránsito -->
+        <section class="tarjeta">
+          <h2 class="seccion">Aforo / tránsito <span class="ayuda" title="Con el TDPA y la composición vehicular se calculan los ejes equivalentes (∑L) por el método II-UNAM y el nivel de ajuste (S/H/V/E).">ⓘ</span></h2>
+          <p class="nota">Se <strong>precarga de Datos Viales 2024</strong> al elegir la ubicación (estación más cercana en la misma carretera) y el ajuste se calcula solo. Edítalo si tienes un aforo más reciente.</p>
+          <div id="aforo-fuente" class="fuente oculto"></div>
+          <label>Preajuste de composición vehicular</label>
+          <div class="presets">
+            <button type="button" data-preset="corredor">Corredor troncal</button>
+            <button type="button" data-preset="basica">Red básica</button>
+            <button type="button" data-preset="turistica">Turística</button>
+          </div>
+          <label for="tdpa">TDPA (vehículos/día)</label><input id="tdpa" type="number" value="5000" min="1">
+          <div class="grid-veh">
+            <div><label for="v-a">% A (autos)</label><input id="v-a" type="number" value="60"></div>
+            <div><label for="v-b">% B (bus)</label><input id="v-b" type="number" value="5"></div>
+            <div><label for="v-c2">% C2</label><input id="v-c2" type="number" value="12"></div>
+            <div><label for="v-c3">% C3</label><input id="v-c3" type="number" value="8"></div>
+            <div><label for="v-t3s2">% T3S2</label><input id="v-t3s2" type="number" value="8"></div>
+            <div><label for="v-t3s3">% T3S3</label><input id="v-t3s3" type="number" value="4"></div>
+            <div><label for="v-t3s2r4">% T3S2R4</label><input id="v-t3s2r4" type="number" value="2"></div>
+            <div><label for="v-otros">% Otros</label><input id="v-otros" type="number" value="1"></div>
+          </div>
+          <div id="suma-pct" class="suma ok">Σ = 100 %</div>
+          <div class="fila">
+            <div><label for="sc">Sentido (SC) <span class="ayuda" title="SC=0 ambos sentidos ⇒ el TDPA se divide entre 2; SC=1 asc.; SC=2 desc.">ⓘ</span></label>
+              <select id="sc"><option value="1">1 · asc.</option><option value="2">2 · desc.</option><option value="0">0 · ambos (÷2)</option></select></div>
+            <div><label for="carriles">Carriles/sentido</label><select id="carriles"><option>1</option><option selected>2</option><option>3</option><option>4</option></select></div>
+          </div>
+          <div class="fila">
+            <div><label for="vel">Velocidad (km/h) <span class="ayuda" title="Se precarga la velocidad de operación (camiones) de la estación más cercana de Velocidades de Punto DGST 2025. Editable.">ⓘ</span></label><input id="vel" type="number" value="90"></div>
+            <div><label for="anios">Periodo (años) <span class="ayuda" title="Periodo de acumulación de ejes equivalentes en el carril de diseño (mínimo 10 años, M·MMP·4·05·064/22).">ⓘ</span></label><select id="anios"><option>10</option><option>15</option><option selected>20</option></select></div>
+          </div>
+          <label for="tasa">Tasa de crecimiento anual (%) <span class="ayuda" title="Se autoajusta por región (CAGR Datos Viales 2013-2024). Editable.">ⓘ</span></label>
+          <input id="tasa" type="number" step="0.1" value="2.6">
+        </section>
+
+        <!-- Diseño de mezcla y cantidades -->
+        <section class="tarjeta">
+          <h2 class="seccion">Diseño de mezcla y cantidades <span class="ayuda" title="Con el espesor, ancho y longitud se calcula el volumen y las toneladas de mezcla y de cemento asfáltico. El tipo de capa y método se derivan del espesor y del ∑L.">ⓘ</span></h2>
+          <div class="fila">
+            <div><label for="d-esp">Espesor compactado (cm)</label><input id="d-esp" type="number" step="0.5" value="7" min="1"></div>
+            <div><label for="d-ancho">Ancho de trabajo (m)</label><input id="d-ancho" type="number" step="0.1" value="7"></div>
+          </div>
+          <div class="fila">
+            <div><label for="d-long">Longitud (m) <span class="ayuda" title="Se toma la longitud del tramo o segmento; editable.">ⓘ</span></label><input id="d-long" type="number" step="1" value=""></div>
+            <div><label for="d-ca">% CA de diseño</label><input id="d-ca" type="number" step="0.1" value="5.5"></div>
+          </div>
+          <div class="fila">
+            <div><label for="d-dens">Densidad compactada (t/m³)</label><input id="d-dens" type="number" step="0.01" value="2.35"></div>
+            <div id="d-metodo-cont"><label for="d-metodo">Método de diseño</label><select id="d-metodo"><option value="Marshall">Marshall</option><option value="Desempeño">Alto Desempeño</option></select></div>
+          </div>
+          <div id="d-tipo-cont" class="oculto"><label for="d-tipo">Tipo de mezcla discontinua (rodadura)</label>
+            <select id="d-tipo"><option value="SMA">SMA — con fibra (M·MMP·4·05·043)</option><option value="CASAA">CASAA — sin fibra (M·MMP·4·05·056)</option></select></div>
+          <div class="fila">
+            <div><label for="d-abund">Abundamiento (suelto/compacto) <span class="ayuda" title="Informativo: relación de densidad suelta a compactada para estimar el espesor SUELTO. NO cambia el tonelaje. Calíbrelo en el tramo de prueba.">ⓘ</span></label><input id="d-abund" type="number" step="0.01" value="1.20"></div>
+            <div><label for="d-denspet">Densidad material pétreo (t/m³)</label><input id="d-denspet" type="number" step="0.01" value="2.65"></div>
+          </div>
+          <label for="d-agg">Agregado de la mezcla <span class="ayuda" title="Virgen 100% o con RAP (pavimento recuperado). Con RAP se estima el ligante virgen y las toneladas de asfalto NUEVO.">ⓘ</span></label>
+          <select id="d-agg"><option value="virgen">100% virgen</option><option value="rap">Con RAP (reciclado)</option></select>
+          <div id="d-rap-cont" class="oculto">
+            <div class="fila">
+              <div><label for="d-rap">% RAP (masa de mezcla)</label><input id="d-rap" type="number" step="1" value="20"></div>
+              <div><label for="d-rapca">% asfalto del RAP</label><input id="d-rapca" type="number" step="0.1" value="5.0"></div>
+            </div>
+            <div class="fila">
+              <div><label for="d-rap-ga">PG recuperado alto (opc.)</label><input id="d-rap-ga" type="number" step="1" placeholder="p.ej. 88"></div>
+              <div><label for="d-rap-gb">PG recuperado bajo (opc.)</label><input id="d-rap-gb" type="number" step="1" placeholder="p.ej. -10"></div>
+            </div>
+            <p class="nota">Estimación preliminar: el RAP debe caracterizarse en laboratorio (extracción/recuperación → PG, % asfalto y granulometría).</p>
+          </div>
+          <details class="criterios">
+            <summary>Criterios para seleccionar el tipo de mezcla (NAPA IS-128, FHWA, AI, AMAAC, SICT)</summary>
+            <ul>
+              <li><strong>Por tránsito:</strong> bajo → solo densa; moderado → densa; alto → densa estructural y, en rodadura, SMA u OGFC/discontinua.</li>
+              <li><strong>Por función:</strong> base e intermedia → densa; rodadura → densa, SMA (rodera/tránsito pesado) o discontinua/abierta (fricción, drenaje, ruido).</li>
+              <li><strong>Espesor vs tamaño nominal:</strong> espesor ≥ 3× (grueso) a 4× (fino) el TNM (N·CMT·4·05·003 E.6).</li>
+              <li><strong>Método por ∑L:</strong> ≤ 10⁷ Marshall o Desempeño; &gt; 10⁷ obligatorio Desempeño.</li>
+            </ul>
+          </details>
+        </section>
+      </div>
+
+      <button class="btn btn-grande" id="btn-analizar">Analizar y ver resultados →</button>
+    </section>
+
+    <!-- ===================== MÓDULO 2 · ANÁLISIS Y REPORTE ===================== -->
+    <section id="modulo-analisis" class="modulo oculto">
+      <div class="acc-bar">
+        <button class="btn-sec" id="btn-volver">← Volver a captura</button>
+        <button class="btn btn-pdf" id="btn-pdf2">⭳ Descargar PDF del reporte</button>
+      </div>
+      <div class="panel-doble">
+        <section class="tarjeta controles">
+          <div id="res-ubicacion"></div>
+          <div id="res-aforo"></div>
+          <div id="res-diseno"></div>
+          <p class="nota" id="res-vacio">Aún no hay resultados. Regresa a «Captura de datos», completa la información y presiona «Analizar y ver resultados».</p>
+        </section>
+        <section class="tarjeta mapa">
+          <div id="mapa" aria-label="Mapa de la Red Carretera Federal por grado PG"></div>
+          <div class="leyenda" id="leyenda"></div>
+          <p class="nota mapa-nota">Cambia el fondo (Claro / Calle / Satélite) arriba a la derecha. Rueda para acercar · arrastra para desplazar · clic para fijar un punto. Escala y norte se muestran en el mapa.</p>
+          <div class="chips-resumen" id="chips"></div>
+        </section>
+      </div>
+    </section>
+  </main>
+
+  <footer class="sitio">
+    Método <strong>M·MMP·4·05·064/22</strong> y Norma <strong>N·CMT·4·05·004/25</strong>. Temperaturas de pavimento a H = 20 mm y 98 % de confiabilidad;
+    grado alto {64, 70, 76} (mayor a 76 °C = diseño especial), grado bajo con piso en −10.
+    El grado bajo indicado es el <strong>mínimo requerido</strong>: puede emplearse un cemento asfáltico de grado bajo más frío (<strong>−16 o −22</strong>) siempre que cumpla todos los requisitos de calidad a temperaturas alta y baja (Norma <strong>N·CMT·4·05·004</strong>).
+    Ejes equivalentes por el método del Instituto de Ingeniería UNAM (factores de daño superficial a 6.0 kg/cm²; camión, eje estándar 5.8). Clima: estaciones del SMN con ≥ 20 años.
+    Herramienta de referencia; el criterio del proyectista prevalece.
+  </footer>
+
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+  <script src="js/logo.js"></script>
+  <script src="js/datos.js"></script>
+  <script src="js/anexoA.js"></script>
+  <script src="js/edos.js"></script>
+  <script src="js/cadenamientos.js"></script>
+  <script src="js/estados_geo.js"></script>
+  <script src="js/dv2024.js"></script>
+  <script src="js/velocidades.js"></script>
+  <script src="js/factores_iiunam.js"></script>
+  <script src="js/pg-engine.js"></script>
+  <script src="js/app.js"></script>
+</body>
+</html>
