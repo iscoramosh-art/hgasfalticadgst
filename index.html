@@ -345,10 +345,10 @@ footer.sitio strong{color:#777}
           <details class="criterios">
             <summary>Criterios para seleccionar el tipo de mezcla (NAPA IS-128, FHWA, AI, AMAAC, SICT)</summary>
             <ul>
-              <li><strong>Por tránsito:</strong> bajo → solo densa; moderado → densa; alto → densa estructural y, en rodadura, SMA u OGFC/discontinua.</li>
-              <li><strong>Por función:</strong> base e intermedia → densa; rodadura → densa, SMA (rodera/tránsito pesado) o discontinua/abierta (fricción, drenaje, ruido).</li>
+              <li><strong>Por tránsito:</strong> bajo → solo densa; moderado → densa; alto → densa estructural y, en rodadura, SMA o discontinua.</li>
+              <li><strong>Por función:</strong> base e intermedia → densa; rodadura → densa, SMA (rodera/tránsito pesado) o discontinua (fricción, drenaje, ruido).</li>
               <li><strong>Espesor vs tamaño nominal:</strong> espesor ≥ 3× (grueso) a 4× (fino) el TNM (N·CMT·4·05·003 E.6).</li>
-              <li><strong>Método por ∑L:</strong> ≤ 10⁷ Marshall o Desempeño; &gt; 10⁷ obligatorio Desempeño.</li>
+              <li><strong>Selección del método de diseño por ejes equivalentes (∑L):</strong> ∑L ≤ 10⁷ → Marshall o Alto Desempeño; ∑L &gt; 10⁷ → obligatorio Alto Desempeño.</li>
             </ul>
           </details>
         </section>
@@ -869,7 +869,7 @@ if (typeof module !== "undefined" && module.exports) module.exports = PG;
     const _c = $("cad-res"); if (_c) _c.innerHTML = "";
     const r = rangoCad(t.cp);
     if (!r) { blo.classList.add("oculto"); return; }
-    const fuente = r.src === "D" ? "clave DGCC" : "trazo (warehouse)";
+    const fuente = r.src === "D" ? "clave DGCC" : "trazo (PARCF)";
     $("cad-rango").innerHTML = `Rango del tramo <strong>${t.cp}</strong>: <strong>${fmtCad(r.ini)}</strong> a <strong>${fmtCad(r.fin)}</strong> (${(r.fin - r.ini).toFixed(1)} km · ${fuente}).`;
     $("cad-ini").value = fmtCad(r.ini); $("cad-fin").value = fmtCad(r.fin);
     blo.classList.remove("oculto");
@@ -1545,12 +1545,12 @@ if (typeof module !== "undefined" && module.exports) module.exports = PG;
       if (p > 222) { doc.addPage(); p = 20; } else p += 3;
       head(mx, p, cwd, "Criterios para seleccionar el tipo de mezcla (NAPA IS-128, FHWA, AI, AMAAC, SICT)"); p += 5;
       const crit = [
-        "Por nivel de tránsito: bajo -> solo mezcla densa; moderado -> densa (preferente); alto -> densa estructural y, en rodadura, SMA u OGFC/discontinua. SMA/OGFC no se justifican en bajo volumen por el costo de agregados y ligante premium (NAPA IS-128; N·CMT·4·05·003).",
-        "Por función de la capa: base e intermedia (binder) -> densa (estructura); rodadura -> densa, SMA (rodera / tránsito pesado o canalizado) o discontinua/abierta (fricción, drenaje, ruido, antihidroplaneo).",
+        "Por nivel de tránsito: bajo -> solo mezcla densa; moderado -> densa (preferente); alto -> densa estructural y, en rodadura, SMA o discontinua. La SMA no se justifica en bajo volumen por el costo de agregados y ligante premium (NAPA IS-128; N·CMT·4·05·003).",
+        "Por función de la capa: base e intermedia (binder) -> densa (estructura); rodadura -> densa, SMA (rodera / tránsito pesado o canalizado) o discontinua (fricción, drenaje, ruido, antihidroplaneo).",
         "Espesor vs tamaño nominal: espesor compactado >= 3x (grueso) a 4x (fino) el tamaño nominal máximo (TNM); elegir el TNM acorde al espesor de la capa (N·CMT·4·05·003 E.6; NAPA IS-128).",
-        "Método por intensidad de tránsito (∑L): <= 10^7 Marshall o Desempeño; > 10^7 obligatorio Desempeño (SUPERPAVE / AMAAC PA·MA 01-2013).",
+        "Selección del método de diseño por ejes equivalentes (∑L): ∑L <= 10^7 -> Marshall o Alto Desempeño; ∑L > 10^7 -> obligatorio Alto Desempeño (SUPERPAVE / AMAAC PA·MA 01-2013).",
         "SMA (con fibra): esqueleto pétreo con contacto piedra-piedra, 100% caras fracturadas, sin arenas naturales, agregado de alto pulimento, fibra y ligante modificado; alta resistencia a rodera.",
-        "OGFC/abierta y discontinua sin fibra (CASAA): rodadura funcional (fricción, drenaje, ruido); NO en zonas de congelamiento ni precipitación < 600 mm/año; sin función estructural (N·CMT·4·05·003).",
+        "Discontinua sin fibra (CASAA): rodadura funcional (fricción, drenaje, ruido); NO en zonas de congelamiento ni precipitación < 600 mm/año; sin función estructural (N·CMT·4·05·003).",
         "Clima: alta temperatura / rodera -> ligante duro o modificado y SMA; baja temperatura / agrietamiento -> grado bajo más frío; ver Grado PG.",
         "Preservación (FHWA): sobrecarpetas delgadas, microaglomerados y riegos según la condición del pavimento; una rodadura delgada sobre un pavimento estructuralmente deficiente reduce su vida útil.",
       ];
