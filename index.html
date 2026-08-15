@@ -130,6 +130,13 @@ input:focus,select:focus{outline:none;border-color:var(--verde);box-shadow:0 0 0
 /* ---- Iconos de sección ---- */
 .sec-ico{width:19px;height:19px;flex:none;color:var(--verde)}
 
+/* ---- Aviso flotante (toast) no bloqueante ---- */
+.toast{position:fixed;left:50%;bottom:26px;transform:translateX(-50%) translateY(18px);opacity:0;pointer-events:none;
+  background:var(--guinda);color:#fff;font-size:13px;font-weight:600;line-height:1.4;padding:12px 18px;border-radius:10px;
+  box-shadow:0 8px 28px rgba(97,18,50,.32);max-width:600px;width:calc(100% - 40px);z-index:5000;transition:.25s;text-align:center}
+.toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
+.toast.warn{background:#9b6a00} .toast.ok{background:var(--verde)}
+
 /* ---- Mapa protagonista ---- */
 .mapa .seccion.mapa-titulo{margin-bottom:10px}
 
@@ -9156,6 +9163,13 @@ if (typeof module !== "undefined" && module.exports) module.exports = PG;
   // Déjalo en "" para usar el validador (VALIDADOR_URL) con los datos embebidos en el QR.
   const CARPETA_REPORTES_URL = "";
   const $ = (id) => document.getElementById(id);
+  // Aviso flotante no bloqueante (reemplaza alert() en avisos informativos)
+  function toast(msg, tipo) {
+    let t = document.getElementById("hga-toast");
+    if (!t) { t = document.createElement("div"); t.id = "hga-toast"; document.body.appendChild(t); }
+    t.textContent = msg; t.className = "toast " + (tipo || "") + " show";
+    clearTimeout(t._to); t._to = setTimeout(function () { t.className = "toast " + (tipo || ""); }, 6000);
+  }
   const gradoDe = (pg) => { const m = /PG (\d+)/.exec(pg || ""); return m ? +m[1] : 0; };
 
   let estudio = null;   // punto de estudio
@@ -9311,19 +9325,19 @@ if (typeof module !== "undefined" && module.exports) module.exports = PG;
   function analizarTodo() {
     const modo = modoUbicacion();
     if (modo === "carretera") {
-      if (!tramoActual) { alert("Selecciona una carretera del Anexo A en el buscador."); return; }
+      if (!tramoActual) { toast("Selecciona una carretera del Anexo A en el buscador."); return; }
       const ci = parseCad($("cad-ini").value), cf = parseCad($("cad-fin").value);
       if (ci != null && cf != null && cf - ci > 1e-6) analizarSegmento(); // segmento por cadenamiento
     } else if (modo === "punto") {
       const la = parseFloat($("plat").value), lo = parseFloat($("plon").value);
-      if (isNaN(la) || isNaN(lo)) { alert("Captura la latitud y la longitud del punto."); return; }
+      if (isNaN(la) || isNaN(lo)) { toast("Captura la latitud y la longitud del punto."); return; }
       calcularPunto();
     } else {
       const a = [parseFloat($("plat3").value), parseFloat($("plon3").value), parseFloat($("plat2").value), parseFloat($("plon2").value)];
-      if (a.some(isNaN)) { alert("Captura las coordenadas de inicio y de fin del segmento."); return; }
+      if (a.some(isNaN)) { toast("Captura las coordenadas de inicio y de fin del segmento."); return; }
       calcularSegmentoCoords();
     }
-    if (!estudio) { alert("Define la ubicación del estudio."); return; }
+    if (!estudio) { toast("Define la ubicación del estudio."); return; }
     const rv = $("res-vacio"); if (rv) rv.style.display = "none";
     if (estudio.ga !== "ESP") { calcularAforo(false); if (!aforoRes) { mostrarModulo("captura"); return; } }
     if (aforoRes) { try { calcularDiseno(); } catch (e) {} }
@@ -9471,12 +9485,12 @@ if (typeof module !== "undefined" && module.exports) module.exports = PG;
 
   // Analiza el subsegmento: PG por los DOS extremos (M·MMP·4·05·064/22)
   function analizarSegmento() {
-    const t = tramoActual; if (!t) { alert("Primero selecciona una carretera del Anexo A."); return; }
-    const r = rangoCad(t.cp); if (!r) { alert("Este tramo no tiene cadenamiento disponible."); return; }
+    const t = tramoActual; if (!t) { toast("Primero selecciona una carretera del Anexo A."); return; }
+    const r = rangoCad(t.cp); if (!r) { toast("Este tramo no tiene cadenamiento disponible."); return; }
     const ci = parseCad($("cad-ini").value), cf = parseCad($("cad-fin").value);
-    if (ci == null || cf == null) { alert("Cadenamiento inválido. Usa formato 0+000 o kilómetros decimales (1.7)."); return; }
-    if (ci < r.ini - 1e-6 || cf > r.fin + 1e-6) { alert("Fuera del rango del tramo (" + fmtCad(r.ini) + " a " + fmtCad(r.fin) + ")."); return; }
-    if (cf - ci <= 1e-6) { alert("El cadenamiento final debe ser mayor al inicial."); return; }
+    if (ci == null || cf == null) { toast("Cadenamiento inválido. Usa formato 0+000 o kilómetros decimales (1.7)."); return; }
+    if (ci < r.ini - 1e-6 || cf > r.fin + 1e-6) { toast("Fuera del rango del tramo (" + fmtCad(r.ini) + " a " + fmtCad(r.fin) + ")."); return; }
+    if (cf - ci <= 1e-6) { toast("El cadenamiento final debe ser mayor al inicial."); return; }
     const L2 = r.fin - r.ini, f1 = (ci - r.ini) / L2, f2 = (cf - r.ini) / L2;
     const p1 = puntoEnFraccion(t.g, f1), p2 = puntoEnFraccion(t.g, f2);
     const e1 = evalTemp(p1[0], p1[1]), e2 = evalTemp(p2[0], p2[1]);
@@ -9506,7 +9520,7 @@ if (typeof module !== "undefined" && module.exports) module.exports = PG;
   /* =============== Calcular PG en un punto =============== */
   function calcularPunto() {
     const lat = parseFloat($("plat").value), lon = parseFloat($("plon").value);
-    if (isNaN(lat) || isNaN(lon)) { alert("Ingresa latitud y longitud, o haz clic en el mapa."); return; }
+    if (isNaN(lat) || isNaN(lon)) { toast("Ingresa latitud y longitud, o haz clic en el mapa."); return; }
     tramoActual = null; segSel = null; capaSel = quitar(capaSel); capaSeg = quitar(capaSeg); limpiarEtiq();
     const cb = $("cad-bloque"); if (cb) cb.classList.add("oculto");
     const { s, distKm, tx, tn, ga, gb } = evaluarPunto(lat, lon, null);
@@ -9525,8 +9539,8 @@ if (typeof module !== "undefined" && module.exports) module.exports = PG;
   function calcularSegmentoCoords() {
     const la1 = parseFloat($("plat3").value), lo1 = parseFloat($("plon3").value);
     const la2 = parseFloat($("plat2").value), lo2 = parseFloat($("plon2").value);
-    if ([la1, lo1, la2, lo2].some(isNaN)) { alert("Captura las coordenadas de INICIO (arriba) y de FIN del segmento."); return; }
-    if (la1 === la2 && lo1 === lo2) { alert("Las coordenadas de inicio y de fin no pueden ser iguales."); return; }
+    if ([la1, lo1, la2, lo2].some(isNaN)) { toast("Captura las coordenadas de INICIO (arriba) y de FIN del segmento."); return; }
+    if (la1 === la2 && lo1 === lo2) { toast("Las coordenadas de inicio y de fin no pueden ser iguales."); return; }
     tramoActual = null; segSel = null; capaSel = quitar(capaSel);
     const cb = $("cad-bloque"); if (cb) cb.classList.add("oculto");
     const e1 = evalTemp(la1, lo1), e2 = evalTemp(la2, lo2);
@@ -9630,11 +9644,11 @@ if (typeof module !== "undefined" && module.exports) module.exports = PG;
   document.querySelectorAll("[data-preset]").forEach((b) => b.addEventListener("click", () => aplicarPreset(b.dataset.preset)));
 
   function calcularAforo(auto) {
-    if (!estudio || estudio.ga === undefined) { if (!auto) alert("Primero fija un punto o una carretera (pestañas anteriores o clic en el mapa)."); return; }
+    if (!estudio || estudio.ga === undefined) { if (!auto) toast("Primero fija un punto o una carretera (pestañas anteriores o clic en el mapa)."); return; }
     if (estudio.ga === "ESP") { aforoRes = null; $("res-aforo").innerHTML = tarjeta("Diseño especial", "T. máx pavimento > 76 °C — aprobación de la Secretaría", "", ""); return; }
     const mx = mezcla(), suma = sumaPct();
     const tdpa = +$("tdpa").value;
-    if (!(tdpa > 0)) { if (!auto) alert("El TDPA debe ser mayor que cero."); return; }
+    if (!(tdpa > 0)) { if (!auto) toast("El TDPA debe ser mayor que cero."); return; }
     const comun = { tdpaDir: PG.tdpaSentido(tdpa, $("sc").value), mezcla: mx, tasa: (+$("tasa").value) / 100, anios: +$("anios").value, carriles: +$("carriles").value };
     const Lu = PG.esal({ ...comun, factores: PG.FD_UNAM });
     const vel = +$("vel").value, nu = PG.nivelAjuste(Lu, vel);
@@ -9694,9 +9708,9 @@ if (typeof module !== "undefined" && module.exports) module.exports = PG;
     actualizarTipo();
   }
   function calcularDiseno() {
-    if (!aforoRes) { alert("Primero calcula el aforo (∑L) en la pestaña ③."); mostrarPanel("aforo"); return; }
+    if (!aforoRes) { toast("Primero calcula el aforo (∑L) en la pestaña ③."); mostrarPanel("aforo"); return; }
     const esp = +$("d-esp").value, ancho = +$("d-ancho").value, largo = +$("d-long").value, ca = +$("d-ca").value, dens = +$("d-dens").value, abund = +$("d-abund").value || 1.2, densPet = +$("d-denspet").value || 1.5;
-    if (!(esp > 0 && ancho > 0 && largo > 0 && ca > 0 && dens > 0)) { alert("Captura espesor, ancho, longitud, % CA y densidad válidos."); return; }
+    if (!(esp > 0 && ancho > 0 && largo > 0 && ca > 0 && dens > 0)) { toast("Captura espesor, ancho, longitud, % CA y densidad válidos."); return; }
     const sumaL = aforoRes.Lu, tc = tipoCapa(esp), nom = nominalMax(esp);
     // Espesor < 3 cm: tratamiento superficial / capa delgada — se cuantifica por m² (no por volumen)
     if (tc.clase === "delgada") {
@@ -9729,7 +9743,7 @@ if (typeof module !== "undefined" && module.exports) module.exports = PG;
     const fdz = fdProfundidad(esp);
     const Lestr = (fdz && aforoRes) ? PG.esal({ tdpaDir: PG.tdpaSentido(aforoRes.tdpa, aforoRes.sc), mezcla: aforoRes.mezcla, factores: fdz, tasa: aforoRes.tasa / 100, anios: aforoRes.anios, carriles: aforoRes.carriles }) : null;
     diseno = { esp, ancho, largo, ca, dens, abund, densPet, tonPetreo, volPetreo, V, tonMezcla, tonCA, espSuelto, tipo: tc, nom, metodo, forzado, tipoMezcla, sumaL, rap, Lestr };
-    if (forzado) alert("∑L = " + (sumaL / 1e6).toFixed(1) + " ×10⁶ (> 10 millones): por la Norma N·CMT·4·05·003 (Tabla 1, nota 5) el diseño DEBE ser por MÉTODO DE DESEMPEÑO. Se desactivó la opción Marshall.");
+    if (forzado) toast("∑L = " + (sumaL / 1e6).toFixed(1) + " ×10⁶ (> 10 millones): el diseño debe ser por Alto Desempeño (N·CMT·4·05·003); se desactivó Marshall.", "warn");
     const etqTipo = tc.clase === "densa" ? "Densa estructural" : (tc.clase === "discontinua" ? tipoMezcla + " (rodadura, no estructural)" : "Delgada");
     const filasRap = rap ? `
       <tr class="sep"><td><b>RAP ${rap.pRap}% · reemplazo de ligante</b></td><td><b>${rap.brr.toFixed(0)} %</b></td></tr>
@@ -9790,28 +9804,13 @@ if (typeof module !== "undefined" && module.exports) module.exports = PG;
 
   /* =============== Reporte PDF =============== */
   function generarPDF() {
-    if (!estudio) { alert("Realiza primero un cálculo (punto o carretera)."); return; }
-    if (!window.jspdf) { alert("No se pudo cargar la librería de PDF (revisa la conexión a internet)."); return; }
+    if (!estudio) { toast("Realiza primero un cálculo (punto o carretera)."); return; }
+    if (!window.jspdf) { toast("No se pudo cargar la librería de PDF (revisa la conexión a internet)."); return; }
     // El reporte incluye el ajuste por intensidad vehicular (salvo diseño especial > 76 °C).
     // Se precarga de Datos Viales 2026; antes de imprimir se avisa y se ofrece cargar un aforo más reciente.
     if (estudio.ga !== "ESP") {
       if (!aforoRes) precargarAforo(estudio.carretera && estudio.carretera.car);
-      if (!aforoRes) {
-        alert("No se encontró aforo para el AJUSTE POR INTENSIDAD VEHICULAR.\n\nCaptura el aforo en la pestaña ③ y presiona «Calcular ESAL y PG final».");
-        mostrarPanel("aforo"); return;
-      }
-      const f = aforoRes.fuente || {};
-      let msg;
-      if (f.tipo === "DV2026") {
-        msg = "El AJUSTE POR INTENSIDAD VEHICULAR se calculó con la Base de Datos Viales 2026 (DV2026).\n"
-            + "Estación de aforo: " + f.est + (f.dist != null ? " — " + f.dist.toFixed(0) + " km" : "")
-            + (f.misma ? " (misma carretera)" : " (carretera más cercana)") + ".\n\n"
-            + "¿Deseas cargar un aforo MÁS RECIENTE? Presiona «Cancelar» para capturarlo en la pestaña ③.\n\n"
-            + "«Aceptar» = generar el PDF con los Datos Viales 2026.";
-      } else {
-        msg = "El ajuste por intensidad vehicular usa el aforo capturado manualmente.\n\n¿Generar el PDF?";
-      }
-      if (!confirm(msg)) { mostrarPanel("aforo"); return; }
+      if (!aforoRes) { toast("No se encontró aforo para el ajuste por intensidad vehicular. Captura el aforo y vuelve a analizar.", "warn"); return; }
     }
     const btnPDF = document.activeElement;
     if (btnPDF && btnPDF.tagName === "BUTTON") { btnPDF.disabled = true; btnPDF.textContent = "Generando PDF…"; }
