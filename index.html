@@ -9400,10 +9400,10 @@ if (typeof module !== "undefined" && module.exports) module.exports = PG;
   function analizarSegmentacion(modo){
     const box=$("res-segmentos"); if(!box) return;
     const crit=(document.querySelector('input[name="critAnal"]:checked')||{}).value||"peor";
-    if(crit!=="seg"||modo!=="carretera"||!tramoActual||!tramoActual.g||tramoActual.g.length<2){ box.classList.add("oculto"); box.innerHTML=""; limpiarMapaSeg(); return; }
+    if(crit!=="seg"||modo!=="carretera"||!tramoActual||!tramoActual.g||tramoActual.g.length<2){ box.classList.add("oculto"); box.innerHTML=""; limpiarMapaSeg(); ultimaSeg=null; return; }
     const ci=parseCad($("cad-ini")?$("cad-ini").value:""), cf=parseCad($("cad-fin")?$("cad-fin").value:"");
     let R=null; try{ R=segmentosHomogeneos(tramoActual, (ci!=null?ci:null),(cf!=null?cf:null), +$("anios").value||10, +$("carriles").value||2); }catch(e){ R=null; }
-    if(!R||!R.segs||!R.segs.length){ box.classList.add("oculto"); box.innerHTML=""; limpiarMapaSeg(); return; }
+    if(!R||!R.segs||!R.segs.length){ box.classList.add("oculto"); box.innerHTML=""; limpiarMapaSeg(); ultimaSeg=null; return; }
     box.innerHTML=renderSegmentos(R); box.classList.remove("oculto"); try{ dibujarMapaSegmentos(R, tramoActual); }catch(e){}
   }
   function renderSegmentos(R){
@@ -9463,7 +9463,7 @@ if (typeof module !== "undefined" && module.exports) module.exports = PG;
     }catch(e){}
   }
   /* =============== Mapa temático: trazo por PG-segmento + estaciones por ∑L =============== */
-  let capaSegPG=null, capaEst=null;
+  let capaSegPG=null, capaEst=null, ultimaSeg=null;
   function colorEsal(v){ if(v>=100e6)return "#611232"; if(v>=30e6)return "#e8590c"; if(v>=10e6)return "#f2b705"; if(v>=1e6)return "#7ec636"; return "#2ec7a5"; }
   function restaurarLeyenda(){ const el=$("leyenda"); if(el && el.dataset && el.dataset.base!=null) el.innerHTML=el.dataset.base; }
   function leyendaSeg(){
@@ -9482,18 +9482,9 @@ if (typeof module !== "undefined" && module.exports) module.exports = PG;
       '<span><i style="background:#611232;height:4px;border-radius:0"></i>grado 76</span>';
   }
   function limpiarMapaSeg(){ try{ if(capaSegPG){mapa.removeLayer(capaSegPG);capaSegPG=null;} if(capaEst){mapa.removeLayer(capaEst);capaEst=null;} }catch(e){} restaurarLeyenda(); }
-  function dibujarMapaSegmentos(R, t){
-    limpiarMapaSeg();
-    const g=t.g; if(!g||g.length<2) return;
-    const r=rangoCad(t.cp); const cadIni0=r?r.ini:0, cadFin0=r?r.fin:largoTrazoKm(g); const span0=(cadFin0-cadIni0)||largoTrazoKm(g);
-    capaSegPG=L.layerGroup().addTo(mapa);
-    for(const s of R.segs){
-      const f1=span0?(s.cadIni-cadIni0)/span0:0, f2=span0?(s.cadFin-cadIni0)/span0:1;
-      const pts=subTrazo(g, Math.max(0,Math.min(f1,f2)), Math.min(1,Math.max(f1,f2)));
-      L.polyline(pts.map(p=>[p[0],p[1]]), {color:colorSeg(s), weight:7, opacity:0.95, renderer:rc}).addTo(capaSegPG).bindTooltip(s.pg+" · "+Math.abs(s.cadFin-s.cadIni).toFixed(1)+" km", {sticky:true});
-    }
-    capaEst=L.layerGroup().addTo(mapa);
-    const anios=+$("anios").value||10, carriles=+$("carriles").value||2, seen={};
+  function estacionesTramo(t, anios, carriles){
+    const g=t.g; if(!g||g.length<2) return [];
+    const out=[], seen={};
     for(const rr of DV){
       if(!mismaCarretera(t.car||t.cp, rr[4])) continue;
       const la=rr[0], lo=rr[1];
@@ -9506,10 +9497,36 @@ if (typeof module !== "undefined" && module.exports) module.exports = PG;
       const sumaL=PG.esal({tdpaDir:PG.tdpaSentido(tdpa,sc),mezcla:mez,factores:PG.FD_UNAM,tasa,anios,carriles});
       const vp=velocidadCercana(la,lo); const vel=vp?vp.vCam:90; const letra=(te.ga==="ESP")?"ESP":PG.nivelAjuste(sumaL,vel);
       const pg=(te.ga==="ESP")?"Diseño especial":("PG "+te.ga+letra+"-"+Math.abs(te.gb));
-      L.circleMarker([la,lo], {radius:6, color:"#333", weight:1, fillColor:colorEsal(sumaL), fillOpacity:0.95, renderer:rc})
-        .addTo(capaEst).bindTooltip("<b>"+rr[4]+"</b><br>TDPA "+(tdpa?tdpa.toLocaleString("es-MX"):"—")+" · SC "+sc+"<br>∑L "+(sumaL/1e6).toFixed(1)+"×10⁶ ("+anios+" años)<br>"+pg, {sticky:true});
+      out.push({nom:rr[4], la, lo, estNom:te.s.nm, dist:te.distKm, tx:te.tx, tn:te.tn, ga:te.ga, gb:te.gb, tdpa, sc, sumaL, letra, pg});
+    }
+    out.sort((a,b)=>a.sumaL-b.sumaL);
+    return out;
+  }
+  function dibujarMapaSegmentos(R, t){
+    limpiarMapaSeg();
+    const g=t.g; if(!g||g.length<2) return;
+    const r=rangoCad(t.cp); const cadIni0=r?r.ini:0, cadFin0=r?r.fin:largoTrazoKm(g); const span0=(cadFin0-cadIni0)||largoTrazoKm(g);
+    capaSegPG=L.layerGroup().addTo(mapa);
+    for(const s of R.segs){
+      const f1=span0?(s.cadIni-cadIni0)/span0:0, f2=span0?(s.cadFin-cadIni0)/span0:1;
+      const pts=subTrazo(g, Math.max(0,Math.min(f1,f2)), Math.min(1,Math.max(f1,f2)));
+      L.polyline(pts.map(p=>[p[0],p[1]]), {color:colorSeg(s), weight:7, opacity:0.95, renderer:rc}).addTo(capaSegPG).bindTooltip(s.pg+" · "+Math.abs(s.cadFin-s.cadIni).toFixed(1)+" km", {sticky:true});
+    }
+    capaEst=L.layerGroup().addTo(mapa);
+    const anios=+$("anios").value||10, carriles=+$("carriles").value||2;
+    const ests=estacionesTramo(t, anios, carriles);
+    for(const e of ests){
+      L.circleMarker([e.la,e.lo], {radius:6, color:"#333", weight:1, fillColor:colorEsal(e.sumaL), fillOpacity:0.95, renderer:rc})
+        .addTo(capaEst).bindTooltip("<b>"+e.nom+"</b><br>TDPA "+(e.tdpa?e.tdpa.toLocaleString("es-MX"):"—")+" · SC "+e.sc+"<br>∑L "+(e.sumaL/1e6).toFixed(1)+"×10⁶ ("+anios+" años)<br>"+e.pg, {sticky:true});
     }
     leyendaSeg();
+    try {
+      const cA=Math.min(R.cadA,R.cadB), cB=Math.max(R.cadA,R.cadB);
+      const fA=span0?(cA-cadIni0)/span0:0, fB=span0?(cB-cadIni0)/span0:1;
+      const ptsEtq=subTrazo(g, Math.max(0,Math.min(fA,fB)), Math.min(1,Math.max(fA,fB)));
+      etiquetasTrazo(ptsEtq, fmtCad(cA), fmtCad(cB), t.car||t.cp);
+    } catch(e){}
+    ultimaSeg = { R: R, ests: ests, t: t };
   }
   function analizarTodo() {
     const modo = modoUbicacion();
@@ -10382,6 +10399,38 @@ if (typeof module !== "undefined" && module.exports) module.exports = PG;
       ];
       doc.setFontSize(7.8); setC(TN); doc.setFont(undefined, "normal");
       crit.forEach((c) => { if (p > 250) { doc.addPage(); p = 20; } const ls = doc.splitTextToSize(asc("• " + c), cwd); doc.text(ls, mx, p); p += ls.length * 3.3 + 1.2; });
+      // ===== Apéndice (solo modo Segmentos): segmentos homogéneos + estaciones consideradas =====
+      if (ultimaSeg && ultimaSeg.R && ultimaSeg.R.segs && ultimaSeg.R.segs.length) {
+        const R = ultimaSeg.R, ests = ultimaSeg.ests || [];
+        const clip = (s, n) => { s = asc(String(s == null ? "" : s)); return s.length > n ? s.slice(0, n - 1) + "…" : s; };
+        doc.addPage(); p = 20;
+        doc.setFillColor(...G); doc.rect(0, 0, Wd * 0.6, 3.5, "F"); doc.setFillColor(...V); doc.rect(Wd * 0.6, 0, Wd * 0.4, 3.5, "F");
+        setC(G); doc.setFontSize(12); doc.setFont(undefined, "bold"); doc.text(asc("Análisis por segmentos homogéneos"), mx, 14); doc.setFont(undefined, "normal");
+        head(mx, p, cwd, "Segmentos homogéneos a lo largo del trazo"); p += 5;
+        let kmB = 0; for (const s of R.segs) { if (sevSeg(s) < sevSeg(R.gov)) kmB += Math.abs(s.cadFin - s.cadIni); }
+        doc.setFontSize(7.6); setC(GR);
+        doc.text(asc(R.segs.length + " segmento(s) en " + (R.totalKm || 0).toFixed(1) + " km · gobernante (peor caso): " + R.gov.pg + (kmB > 0 ? " · " + kmB.toFixed(1) + " km (" + Math.round(kmB / (R.totalKm || 1) * 100) + "%) admiten un PG menor" : " · sin variación (PG uniforme)")), mx, p); p += 5.5;
+        const cS = [mx, mx + 7, mx + 52, mx + 66, mx + 116, mx + 138, mx + 158];
+        const thS = ["#", "Cadenamiento", "Long", "Estación de aforo", "TDPA", "∑L", "PG"];
+        const filaS = (v, b) => { doc.setFontSize(7.1); doc.setFont(undefined, b ? "bold" : "normal"); setC(b ? G : TN); for (let i = 0; i < v.length; i++) doc.text(clip(v[i], [3, 22, 7, 26, 11, 10, 16][i]), cS[i], p); doc.setFont(undefined, "normal"); };
+        filaS(thS, true); p += 1.6; doc.setDrawColor(...GR); doc.setLineWidth(0.2); doc.line(mx, p, mx + cwd, p); p += 3;
+        for (let i = 0; i < R.segs.length; i++) { const s = R.segs[i]; if (p > 250) { doc.addPage(); p = 20; filaS(thS, true); p += 4.6; }
+          filaS([String(i + 1), fmtCad(s.cadIni) + " – " + fmtCad(s.cadFin), Math.abs(s.cadFin - s.cadIni).toFixed(1), (s.estAf || "—"), (s.tdpaMax ? s.tdpaMax.toLocaleString("es-MX") : "—"), (s.sumaLMax ? (s.sumaLMax / 1e6).toFixed(1) + "M" : "—"), s.pg]); p += 4.2;
+        }
+        p += 5;
+        if (ests.length) {
+          nlp(22); head(mx, p, cwd, "Estaciones consideradas — cálculo de temperatura y aforo (" + ests.length + ")"); p += 5;
+          const cE = [mx, mx + 44, mx + 88, mx + 112, mx + 130, mx + 154, mx + 172];
+          const thE = ["Estación de aforo", "Estación SMN (dist.)", "T máx/mín pav.", "Grado", "TDPA·SC", "∑L", "PG"];
+          const filaE = (v, b) => { doc.setFontSize(6.7); doc.setFont(undefined, b ? "bold" : "normal"); setC(b ? G : TN); for (let i = 0; i < v.length; i++) doc.text(clip(v[i], [28, 27, 15, 10, 12, 9, 14][i]), cE[i], p); doc.setFont(undefined, "normal"); };
+          filaE(thE, true); p += 1.6; doc.setDrawColor(...GR); doc.line(mx, p, mx + cwd, p); p += 3;
+          for (const e of ests) { if (p > 252) { doc.addPage(); p = 20; filaE(thE, true); p += 4.6; }
+            const gr = e.ga === "ESP" ? "ESP" : (e.ga + " / " + e.gb);
+            filaE([e.nom, (e.estNom || "—") + " (" + (e.dist != null ? e.dist.toFixed(0) : "?") + " km)", (isFinite(e.tx) ? e.tx.toFixed(1) : "—") + " / " + (isFinite(e.tn) ? e.tn.toFixed(1) : "—"), gr, (e.tdpa ? e.tdpa.toLocaleString("es-MX") : "—") + "·" + e.sc, (e.sumaL ? (e.sumaL / 1e6).toFixed(1) + "M" : "—"), e.pg]); p += 3.8;
+          }
+          nlp(8); doc.setFontSize(6.6); setC(GR); doc.text(asc("∑L por II-UNAM con la composición del aforo y la tasa de su región; T del pavimento por la estación SMN más cercana (M·MMP·4·05·064/22). Corte de segmento donde cambia el PG (letra por ∑L o grado por temperatura); longitud mínima 1 km."), mx, p, { maxWidth: cwd }); p += 6;
+        }
+      }
     }
     // Pie de página + numeración en todas las hojas (anclado al fondo, sin encimarse)
     const pie = asc("Norma N·CMT·4·05·004/25 y Manual M·MMP·4·05·064/22. Grado alto {64,70,76} (>76 °C = diseño especial); grado bajo con piso en -10. El grado bajo indicado es el mínimo requerido: puede emplearse un grado más frío (-16 o -22) siempre que cumpla todos los requisitos de calidad a temperaturas alta y baja, en los ensayes de la Norma N·CMT·4·05·004. ESAL por el método del Inst. Ing. UNAM (II·UNAM, factores de daño superficial a 6.0 kg/cm²; camión, eje estándar 5.8). Clima: estaciones del SMN con >=20 años. Datos Viales / Anexo A PARCF 2026. *Velocidad de operación (camiones): DGST Velocidades de Punto 2025. Herramienta de referencia; el criterio del proyectista prevalece.");
