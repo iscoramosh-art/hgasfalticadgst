@@ -54,7 +54,7 @@ header.sitio .anio{margin-left:auto;font-size:12px;color:var(--dorado);font-styl
 .modtabs button.activa{background:var(--guinda);color:#fff;box-shadow:var(--sombra);border-color:var(--guinda)}
 .modulo{max-width:1220px;margin:0 auto}
 .modulo>.intro{margin-top:14px}
-.cap-grid{max-width:1220px;margin:14px auto 0;padding:0 24px;display:grid;grid-template-columns:1fr 1fr;gap:20px;align-items:start}
+.cap-grid{max-width:900px;margin:14px auto 0;padding:0 24px;display:grid;grid-template-columns:1fr;gap:20px;align-items:start}
 .cap-grid .tarjeta{border-radius:var(--radio)}
 .ub-grp{margin-top:6px}
 .segmented{display:flex;flex-wrap:wrap;gap:8px;margin:4px 0 6px}
@@ -315,6 +315,7 @@ footer.sitio strong{color:#777}
             <label><input type="radio" name="modoUb" value="carretera" checked> Carretera (Anexo A)</label>
             <label><input type="radio" name="modoUb" value="punto"> Punto por coordenadas</label>
             <label><input type="radio" name="modoUb" value="segmento"> Segmento por coordenadas</label>
+            <label><input type="radio" name="modoUb" value="mapa"> Elegir en el mapa</label>
           </div>
 
           <div id="ub-carretera" class="ub-grp">
@@ -353,6 +354,12 @@ footer.sitio strong{color:#777}
               <div><label for="plon2">Longitud (fin)</label><input id="plon2" type="number" step="0.0001" placeholder="-99.2000"></div>
             </div>
           </div>
+          <div id="ub-mapa" class="ub-grp oculto">
+            <p class="nota">Elige el punto de estudio haciendo <strong>clic en el mapa</strong>, o usa tu ubicación actual (el navegador pedirá permiso).</p>
+            <button type="button" id="btn-geo" class="btn-sec" style="margin:4px 0 8px">📍 Usar mi ubicación actual</button>
+            <div id="mapa-ubic" style="width:100%;height:360px;border:1px solid #d9d4c9;border-radius:10px;background:#eef0ee;z-index:0"></div>
+            <p class="nota" id="ub-mapa-coords" style="margin-top:6px">Aún no has fijado un punto.</p>
+          </div>
         </section>
 
         <!-- Aforo / tránsito -->
@@ -360,6 +367,12 @@ footer.sitio strong{color:#777}
           <h2 class="seccion"><svg class="sec-ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M4 20V11M10 20V4M16 20v-6M22 20H2"/></svg>Aforo / tránsito <span class="ayuda" title="Con el TDPA y la composición vehicular se calculan los ejes equivalentes (∑L) por el método II-UNAM y el nivel de ajuste (S/H/V/E).">ⓘ</span></h2>
           <p class="nota">Se <strong>precarga de Datos Viales 2026</strong> al elegir la ubicación (estación más cercana en la misma carretera) y el ajuste se calcula solo. Edítalo si tienes un aforo más reciente.</p>
           <div id="aforo-fuente" class="fuente oculto"></div>
+          <div id="crit-bloque" style="margin:8px 0 4px;padding:8px 10px;border:1px solid #e6ddcf;border-radius:8px;background:#faf7f1">
+            <div style="font-size:12px;color:#611232;font-weight:700;margin-bottom:4px">Criterio de análisis</div>
+            <label style="display:inline-flex;align-items:center;gap:5px;margin-right:14px;font-size:13px;cursor:pointer"><input type="radio" name="critAnal" value="peor" checked> PG único · más desfavorable</label>
+            <label style="display:inline-flex;align-items:center;gap:5px;font-size:13px;cursor:pointer"><input type="radio" name="critAnal" value="seg"> Segmentos homogéneos</label>
+            <div style="font-size:11px;color:#8a7f70;margin-top:3px">Segmentos aplica al elegir una carretera del Anexo A: divide el trazo donde cambia el PG (letra por TDPA o grado por temperatura) para no sobrediseñar.</div>
+          </div>
           <label>Preajuste de composición vehicular</label>
           <div class="presets">
             <button type="button" data-preset="corredor">Corredor troncal</button>
@@ -461,6 +474,7 @@ footer.sitio strong{color:#777}
           <p class="nota mapa-nota">Cambia el fondo (Claro / Calle / Satélite) arriba a la derecha. Rueda para acercar · arrastra para desplazar · clic para fijar un punto. Escala y norte se muestran en el mapa.</p>
         </section>
       </div>
+      <div id="res-segmentos" class="segpanel oculto"></div>
     </section>
   </main>
 
@@ -9229,7 +9243,7 @@ if (typeof module !== "undefined" && module.exports) module.exports = PG;
   function resaltarSegmento(pts) { capaSeg = quitar(capaSeg); capaSeg = L.polyline(pts.map((p) => [p[0], p[1]]), { color: "#a57f2c", weight: 6, opacity: 0.95, renderer: rc }).addTo(mapa); return capaSeg.getBounds(); }
   function marcarPunto(lat, lon) { capaPunto = quitar(capaPunto); capaPunto = L.circleMarker([lat, lon], { radius: 8, color: "#611232", weight: 3, fillColor: "#fff", fillOpacity: 1, renderer: rc }).addTo(mapa); }
   function volarA(bounds, maxZoom) { try { mapa.fitBounds(bounds, { padding: [55, 55], maxZoom: maxZoom || 14 }); } catch (e) {} }
-  function volarAPunto(lat, lon) { mapa.flyTo([lat, lon], Math.max(mapa.getZoom(), 11), { duration: 0.6 }); }
+  function volarAPunto(lat, lon) { try { if (isFinite(lat) && isFinite(lon)) mapa.flyTo([lat, lon], Math.max(mapa.getZoom() || 11, 11), { duration: 0.6 }); } catch (e) {} }
 
   // Etiquetas de cadenamiento (inicio/fin) y nombre de la carretera sobre el trazo
   const capaEtiq = L.layerGroup().addTo(mapa);
@@ -9298,7 +9312,8 @@ if (typeof module !== "undefined" && module.exports) module.exports = PG;
     const cap = $("modulo-captura"), an = $("modulo-analisis");
     if (cap) cap.classList.toggle("oculto", m !== "captura");
     if (an) an.classList.toggle("oculto", m !== "analisis");
-    if (m === "analisis") setTimeout(function () { try { mapa.invalidateSize(); reencuadrar(); } catch (e) {} }, 60);
+    // El mapa se reencuadra DESPUÉS de mostrarse (si se hace oculto, su tamaño es 0 y el zoom sale mal)
+    if (m === "analisis") { setTimeout(reencuadrar, 140); setTimeout(reencuadrar, 420); }
     try { window.scrollTo({ top: 0, behavior: "smooth" }); } catch (e) { window.scrollTo(0, 0); }
   }
   document.querySelectorAll(".modtabs button").forEach((b) => b.addEventListener("click", () => mostrarModulo(b.dataset.mod)));
@@ -9307,8 +9322,11 @@ if (typeof module !== "undefined" && module.exports) module.exports = PG;
   // Reencuadra el mapa a la última selección
   function reencuadrar() {
     try {
-      if (capaSeg) volarA(capaSeg.getBounds(), 15);
-      else if (capaSel) volarA(capaSel.getBounds(), 13);
+      mapa.invalidateSize();
+      let b = null;
+      if (capaSeg) b = capaSeg.getBounds();          // segmento resaltado (o trazo completo si es todo el tramo)
+      else if (capaSel) b = capaSel.getBounds();      // trazo del tramo
+      if (b && b.isValid()) mapa.fitBounds(b, { padding: [45, 45], maxZoom: 13 });
       else if (estudio && estudio.lat != null) volarAPunto(estudio.lat, estudio.lon);
     } catch (e) {}
   }
@@ -9319,18 +9337,189 @@ if (typeof module !== "undefined" && module.exports) module.exports = PG;
     $("ub-carretera") && $("ub-carretera").classList.toggle("oculto", m !== "carretera");
     $("ub-punto") && $("ub-punto").classList.toggle("oculto", m !== "punto");
     $("ub-segmento") && $("ub-segmento").classList.toggle("oculto", m !== "segmento");
+    $("ub-mapa") && $("ub-mapa").classList.toggle("oculto", m !== "mapa");
+    if (m === "mapa") initMapaUbic();
   }));
 
   // Orquestador: calcula ubicación + aforo + diseño y pasa al módulo de análisis
+  /* =============== Segmentos homogéneos (PG por longitud del trazo) =============== */
+  const _tokSeg = (s) => normNom(s).split(" ").filter(Boolean);
+  const _SUFSeg = new Set(["cuota","libre","cpo","cuerpo","a","b","i","ii","iii","directo","de","del","la","el","los","las","y"]);
+  function mismaCarretera(carNombre, estNombre) {
+    const ta = _tokSeg(carNombre); if (!ta.length) return false;
+    const setA = new Set(ta), tb = _tokSeg(estNombre);
+    if (!ta.every((x) => tb.includes(x))) return false;
+    return tb.every((x) => setA.has(x) || _SUFSeg.has(x));
+  }
+  function aforoDeCarretera(lat, lon, carNombre) {
+    let best = null, bd = 1e18, bestM = null, bdM = 1e18;
+    for (const r of DV) { const d = (r[0]-lat)**2 + (r[1]-lon)**2; if (d<bd){bd=d;best=r;} if (mismaCarretera(carNombre, r[4]) && d<bdM){bdM=d;bestM=r;} }
+    if (bestM) return { rec: bestM, distKm: Math.sqrt(bdM)*111 };
+    if (best && Math.sqrt(bd)*111 < 25) return { rec: best, distKm: Math.sqrt(bd)*111 };
+    return null;
+  }
+  function largoTrazoKm(g) { let t=0; for (let i=0;i<g.length-1;i++){ const dl=g[i+1][0]-g[i][0], dn=(g[i+1][1]-g[i][1])*Math.cos(g[i][0]*Math.PI/180); t+=Math.hypot(dl,dn);} return t*111; }
+  function sevSeg(s) { const ga=s.ga==="ESP"?999:s.ga; const lr={S:0,H:1,V:2,E:3,ESP:4}[s.letra]||0; return ga*1000 + lr*100 + (-(s.gb||0)); }
+  function colorSeg(s) { if (s.ga==="ESP") return "#3a0b1e"; return ({76:"#611232",70:"#8f2f4d",64:"#1E5B4F"})[s.ga] || "#4a8a79"; }
+  function segmentosHomogeneos(t, cadIniSel, cadFinSel, anios, carriles) {
+    const g = t.g; if (!g || g.length < 2) return null;
+    const r = rangoCad(t.cp);
+    const cadIni0 = r ? r.ini : 0, cadFin0 = r ? r.fin : largoTrazoKm(g);
+    const cadA = (cadIniSel!=null) ? cadIniSel : cadIni0, cadB = (cadFinSel!=null) ? cadFinSel : cadFin0;
+    const span0 = (cadFin0 - cadIni0) || largoTrazoKm(g);
+    const fA = span0 ? (cadA-cadIni0)/span0 : 0, fB = span0 ? (cadB-cadIni0)/span0 : 1;
+    const f0 = Math.max(0, Math.min(fA,fB)), f1 = Math.min(1, Math.max(fA,fB));
+    const spanCad = Math.abs(cadB-cadA) || span0*(f1-f0);
+    const step = 0.25, n = Math.max(4, Math.ceil(spanCad/step));
+    const sm = [];
+    for (let i=0;i<=n;i++){
+      const f = f0 + (f1-f0)*i/n; const p = puntoEnFraccion(g,f); const la=p[0], lo=p[1]; const cad = cadA + (cadB-cadA)*i/n;
+      const te = evalTemp(la,lo); let ga=te.ga, gb=te.gb, letra="—", sumaL=0, tdpa=0, estAf="—";
+      if (ga==="ESP") { letra="ESP"; }
+      else { const af = aforoDeCarretera(la,lo,t.car||t.cp);
+        if (af){ const rr=af.rec; tdpa=rr[2]; const sc=rr[3];
+          const mez={m:rr[5],a:rr[6],b:rr[7],c2:rr[8],c3:rr[9],t3s2:rr[10],t3s3:rr[11],t3s2r4:rr[12],otros:rr[13]};
+          const tasa=(TASAS[te.s.rg]!=null?TASAS[te.s.rg]:0.026);
+          sumaL=PG.esal({tdpaDir:PG.tdpaSentido(tdpa,sc),mezcla:mez,factores:PG.FD_UNAM,tasa,anios,carriles});
+          const vp=velocidadCercana(la,lo); const vel=vp?vp.vCam:90; letra=PG.nivelAjuste(sumaL,vel); estAf=rr[4];
+        }
+      }
+      const pg=(ga==="ESP")?"Diseño especial":("PG "+ga+letra+"-"+Math.abs(gb));
+      sm.push({cad,ga,gb,letra,sumaL,tdpa,estAf,pg});
+    }
+    function coalesce(a){ const o=[]; let c=null; for (const s of a){ if(!c||c.pg!==s.pg){ if(c)o.push(c); c={pg:s.pg,ga:s.ga,gb:s.gb,letra:s.letra,cadIni:s.cad,cadFin:s.cad,tdpaMax:s.tdpa,sumaLMax:s.sumaL,estAf:s.estAf}; } else { c.cadFin=s.cad; if(s.tdpa>c.tdpaMax){c.tdpaMax=s.tdpa;c.estAf=s.estAf;} if(s.sumaL>c.sumaLMax)c.sumaLMax=s.sumaL; } } if(c)o.push(c); return o; }
+    let segs = coalesce(sm); const MIN = 1.0; let guard=0;
+    while (segs.length>1 && guard++<800){ let mi=-1, ml=1e9; for(let i=0;i<segs.length;i++){ const L=Math.abs(segs[i].cadFin-segs[i].cadIni); if(L<ml){ml=L;mi=i;} } if(ml>=MIN) break;
+      const seg=segs[mi], left=segs[mi-1], right=segs[mi+1]; const host=(left&&right)?(sevSeg(left)>=sevSeg(right)?left:right):(left||right);
+      host.cadIni=Math.min(host.cadIni,seg.cadIni); host.cadFin=Math.max(host.cadFin,seg.cadFin); host.tdpaMax=Math.max(host.tdpaMax,seg.tdpaMax); host.sumaLMax=Math.max(host.sumaLMax,seg.sumaLMax); segs.splice(mi,1);
+      const mg=[]; for(const s of segs){ const l=mg[mg.length-1]; if(l&&l.pg===s.pg){ l.cadFin=Math.max(l.cadFin,s.cadFin); l.cadIni=Math.min(l.cadIni,s.cadIni); l.tdpaMax=Math.max(l.tdpaMax,s.tdpaMax); l.sumaLMax=Math.max(l.sumaLMax,s.sumaLMax);} else mg.push(s);} segs=mg;
+    }
+    let gov=segs[0]; for(const s of segs) if(sevSeg(s)>sevSeg(gov)) gov=s;
+    return { segs, gov, cadA, cadB, totalKm: Math.abs(cadB-cadA) };
+  }
+  function analizarSegmentacion(modo){
+    const box=$("res-segmentos"); if(!box) return;
+    const crit=(document.querySelector('input[name="critAnal"]:checked')||{}).value||"peor";
+    if(crit!=="seg"||modo!=="carretera"||!tramoActual||!tramoActual.g||tramoActual.g.length<2){ box.classList.add("oculto"); box.innerHTML=""; limpiarMapaSeg(); return; }
+    const ci=parseCad($("cad-ini")?$("cad-ini").value:""), cf=parseCad($("cad-fin")?$("cad-fin").value:"");
+    let R=null; try{ R=segmentosHomogeneos(tramoActual, (ci!=null?ci:null),(cf!=null?cf:null), +$("anios").value||10, +$("carriles").value||2); }catch(e){ R=null; }
+    if(!R||!R.segs||!R.segs.length){ box.classList.add("oculto"); box.innerHTML=""; limpiarMapaSeg(); return; }
+    box.innerHTML=renderSegmentos(R); box.classList.remove("oculto"); try{ dibujarMapaSegmentos(R, tramoActual); }catch(e){}
+  }
+  function renderSegmentos(R){
+    const segs=R.segs, gov=R.gov, tot=R.totalKm||1;
+    const fc=(v)=> (typeof fmtCad==="function"? fmtCad(v) : (Math.floor(v)+"+"+String(Math.round((v-Math.floor(v))*1000)).padStart(3,"0")));
+    let kmBelow=0; for(const s of segs){ if(sevSeg(s)<sevSeg(gov)) kmBelow+=Math.abs(s.cadFin-s.cadIni); }
+    const pct=Math.round(kmBelow/tot*100);
+    const strip=segs.map(s=>{ const L=Math.abs(s.cadFin-s.cadIni); const w=Math.max(2,L/tot*100); return '<div title="'+s.pg+'" style="flex:'+w+' 0 0;background:'+colorSeg(s)+';color:#fff;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;min-width:0;overflow:hidden;white-space:nowrap;padding:0 2px">'+(L>=tot*0.08?s.pg:"")+'</div>'; }).join("");
+    const rows=segs.map((s,i)=>{ const L=Math.abs(s.cadFin-s.cadIni); const dif=sevSeg(s)<sevSeg(gov); return '<tr>'+
+      '<td style="padding:5px 7px;border-bottom:1px solid #ece7df">'+(i+1)+'</td>'+
+      '<td style="padding:5px 7px;border-bottom:1px solid #ece7df">'+fc(s.cadIni)+' – '+fc(s.cadFin)+'</td>'+
+      '<td style="padding:5px 7px;border-bottom:1px solid #ece7df;text-align:right">'+L.toFixed(1)+'</td>'+
+      '<td style="padding:5px 7px;border-bottom:1px solid #ece7df">'+(s.estAf||"—")+'</td>'+
+      '<td style="padding:5px 7px;border-bottom:1px solid #ece7df;text-align:right">'+(s.tdpaMax? s.tdpaMax.toLocaleString("es-MX"):"—")+'</td>'+
+      '<td style="padding:5px 7px;border-bottom:1px solid #ece7df;text-align:right">'+(s.sumaLMax?(s.sumaLMax/1e6).toFixed(1):"—")+'</td>'+
+      '<td style="padding:5px 7px;border-bottom:1px solid #ece7df;font-weight:700"><span style="background:'+colorSeg(s)+';color:#fff;padding:2px 7px;border-radius:5px">'+s.pg+'</span>'+(dif?' <span style="color:#1E5B4F;font-size:11px">▼ menor</span>':'')+'</td>'+
+    '</tr>'; }).join("");
+    const heads=["#","Cadenamiento","Long. (km)","Estación aforo","TDPA","∑L (10⁶)","PG"].map(h=>'<th style="text-align:left;padding:6px 7px;background:#f4efe8;color:#611232;font-size:11px;border-bottom:1px solid #e0d8cc">'+h+'</th>').join("");
+    return '<div class="segpanel-in" style="margin-top:14px;border:1px solid #e6ddcf;border-radius:10px;padding:14px 16px;background:#fff">'+
+      '<h2 style="font-size:16px;color:#611232;margin:0 0 4px">Análisis por segmentos homogéneos</h2>'+
+      '<div style="font-size:12.5px;color:#555;margin-bottom:10px">'+segs.length+' segmento(s) en '+tot.toFixed(1)+' km · gobernante (peor caso): <b style="color:#611232">'+gov.pg+'</b>'+(kmBelow>0?' · <b style="color:#1E5B4F">'+kmBelow.toFixed(1)+' km ('+pct+'%)</b> admiten un PG menor':' · sin variación (PG uniforme)')+'</div>'+
+      '<div style="display:flex;height:40px;border-radius:8px;overflow:hidden;border:1px solid #e0d8cc">'+strip+'</div>'+
+      '<div style="display:flex;justify-content:space-between;font-size:11px;color:#777;margin:4px 2px 12px"><span>'+fc(Math.min(R.cadA,R.cadB))+'</span><span>'+fc(Math.max(R.cadA,R.cadB))+'</span></div>'+
+      '<table style="width:100%;border-collapse:collapse;font-size:12px"><thead><tr>'+heads+'</tr></thead><tbody>'+rows+'</tbody></table>'+
+      '<p style="font-size:11px;color:#8a7f70;margin:10px 0 0">Cada segmento se corta donde cambia el PG completo (letra por TDPA/∑L o grado por temperatura de la estación SMN más cercana), recorriendo el trazo del PARCF. Longitud mínima 1 km. El aforo se toma de la estación de la misma carretera más cercana; verifique con criterio de proyecto.</p>'+
+    '</div>';
+  }
+  /* =============== Ubicación: mapa + geolocalización del usuario =============== */
+  let mapaUbic=null, mkGeoUbic=null, mkStudyUbic=null, geoBtnBound=false;
+  function fijarPuntoUbic(lat,lon){
+    if(!isFinite(lat)||!isFinite(lon))return;
+    if($("plat"))$("plat").value=(+lat).toFixed(5);
+    if($("plon"))$("plon").value=(+lon).toFixed(5);
+    const co=$("ub-mapa-coords"); if(co)co.textContent="Punto de estudio fijado: "+(+lat).toFixed(5)+", "+(+lon).toFixed(5)+" (haz clic en otro lugar para cambiarlo).";
+    try{ if(mkStudyUbic)mapaUbic.removeLayer(mkStudyUbic); mkStudyUbic=L.circleMarker([lat,lon],{radius:8,color:"#611232",weight:3,fillColor:"#fff",fillOpacity:1}).addTo(mapaUbic); }catch(e){}
+  }
+  function geolocalizarUbic(){
+    const co=$("ub-mapa-coords");
+    if(!navigator.geolocation){ if(co)co.textContent="Este equipo/navegador no permite geolocalización. Haz clic en el mapa para fijar el punto."; return; }
+    if(co)co.textContent="Solicitando tu ubicación… (acepta el permiso del navegador).";
+    navigator.geolocation.getCurrentPosition(function(pos){
+      const lat=pos.coords.latitude, lon=pos.coords.longitude;
+      try{ if(mkGeoUbic)mapaUbic.removeLayer(mkGeoUbic); mkGeoUbic=L.circleMarker([lat,lon],{radius:7,color:"#1E5B4F",weight:3,fillColor:"#2ec7a5",fillOpacity:0.9}).addTo(mapaUbic).bindTooltip("Estás aquí"); mapaUbic.setView([lat,lon],14); }catch(e){}
+      fijarPuntoUbic(lat,lon);
+    }, function(err){ if(co)co.textContent="No se pudo obtener tu ubicación ("+((err&&err.message)||"permiso denegado")+"). Haz clic en el mapa para fijar el punto."; }, {enableHighAccuracy:true,timeout:9000,maximumAge:60000});
+  }
+  function initMapaUbic(){
+    if(mapaUbic){ setTimeout(function(){try{mapaUbic.invalidateSize();}catch(e){}},60); return; }
+    try{
+      mapaUbic=L.map("mapa-ubic",{center:[23.6,-102],zoom:5,preferCanvas:true});
+      L.tileLayer("https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png",{maxZoom:19,subdomains:"abcd",attribution:"© OpenStreetMap · © CARTO"}).addTo(mapaUbic);
+      mapaUbic.on("click",function(e){ fijarPuntoUbic(e.latlng.lat,e.latlng.lng); });
+      setTimeout(function(){try{mapaUbic.invalidateSize();}catch(e){}},60);
+      setTimeout(function(){try{mapaUbic.invalidateSize();}catch(e){}},350);
+      if(!geoBtnBound){ const b=$("btn-geo"); if(b) b.addEventListener("click",geolocalizarUbic); geoBtnBound=true; }
+      geolocalizarUbic();
+    }catch(e){}
+  }
+  /* =============== Mapa temático: trazo por PG-segmento + estaciones por ∑L =============== */
+  let capaSegPG=null, capaEst=null;
+  function colorEsal(v){ if(v>=100e6)return "#611232"; if(v>=30e6)return "#e8590c"; if(v>=10e6)return "#f2b705"; if(v>=1e6)return "#7ec636"; return "#2ec7a5"; }
+  function restaurarLeyenda(){ const el=$("leyenda"); if(el && el.dataset && el.dataset.base!=null) el.innerHTML=el.dataset.base; }
+  function leyendaSeg(){
+    const el=$("leyenda"); if(!el) return;
+    if(el.dataset && el.dataset.base==null) el.dataset.base=el.innerHTML;
+    el.innerHTML =
+      '<span style="width:100%;font-weight:700;color:#611232">Estaciones · ∑L (×10⁶):</span>'+
+      '<span><i style="background:#2ec7a5"></i>&lt;1</span>'+
+      '<span><i style="background:#7ec636"></i>1–10</span>'+
+      '<span><i style="background:#f2b705"></i>10–30</span>'+
+      '<span><i style="background:#e8590c"></i>30–100</span>'+
+      '<span><i style="background:#611232"></i>&gt;100</span>'+
+      '<span style="width:100%;font-weight:700;color:#611232;margin-top:2px">Trazo · PG por segmento:</span>'+
+      '<span><i style="background:#1E5B4F;height:4px;border-radius:0"></i>grado 64</span>'+
+      '<span><i style="background:#8f2f4d;height:4px;border-radius:0"></i>grado 70</span>'+
+      '<span><i style="background:#611232;height:4px;border-radius:0"></i>grado 76</span>';
+  }
+  function limpiarMapaSeg(){ try{ if(capaSegPG){mapa.removeLayer(capaSegPG);capaSegPG=null;} if(capaEst){mapa.removeLayer(capaEst);capaEst=null;} }catch(e){} restaurarLeyenda(); }
+  function dibujarMapaSegmentos(R, t){
+    limpiarMapaSeg();
+    const g=t.g; if(!g||g.length<2) return;
+    const r=rangoCad(t.cp); const cadIni0=r?r.ini:0, cadFin0=r?r.fin:largoTrazoKm(g); const span0=(cadFin0-cadIni0)||largoTrazoKm(g);
+    capaSegPG=L.layerGroup().addTo(mapa);
+    for(const s of R.segs){
+      const f1=span0?(s.cadIni-cadIni0)/span0:0, f2=span0?(s.cadFin-cadIni0)/span0:1;
+      const pts=subTrazo(g, Math.max(0,Math.min(f1,f2)), Math.min(1,Math.max(f1,f2)));
+      L.polyline(pts.map(p=>[p[0],p[1]]), {color:colorSeg(s), weight:7, opacity:0.95, renderer:rc}).addTo(capaSegPG).bindTooltip(s.pg+" · "+Math.abs(s.cadFin-s.cadIni).toFixed(1)+" km", {sticky:true});
+    }
+    capaEst=L.layerGroup().addTo(mapa);
+    const anios=+$("anios").value||10, carriles=+$("carriles").value||2, seen={};
+    for(const rr of DV){
+      if(!mismaCarretera(t.car||t.cp, rr[4])) continue;
+      const la=rr[0], lo=rr[1];
+      let dmin=1e9; for(const p of g){ const d=(p[0]-la)**2+(p[1]-lo)**2; if(d<dmin)dmin=d; }
+      if(Math.sqrt(dmin)*111 > 6) continue;
+      const key=la.toFixed(4)+","+lo.toFixed(4); if(seen[key]) continue; seen[key]=1;
+      const te=evalTemp(la,lo); const tdpa=rr[2], sc=rr[3];
+      const mez={m:rr[5],a:rr[6],b:rr[7],c2:rr[8],c3:rr[9],t3s2:rr[10],t3s3:rr[11],t3s2r4:rr[12],otros:rr[13]};
+      const tasa=(TASAS[te.s.rg]!=null?TASAS[te.s.rg]:0.026);
+      const sumaL=PG.esal({tdpaDir:PG.tdpaSentido(tdpa,sc),mezcla:mez,factores:PG.FD_UNAM,tasa,anios,carriles});
+      const vp=velocidadCercana(la,lo); const vel=vp?vp.vCam:90; const letra=(te.ga==="ESP")?"ESP":PG.nivelAjuste(sumaL,vel);
+      const pg=(te.ga==="ESP")?"Diseño especial":("PG "+te.ga+letra+"-"+Math.abs(te.gb));
+      L.circleMarker([la,lo], {radius:6, color:"#333", weight:1, fillColor:colorEsal(sumaL), fillOpacity:0.95, renderer:rc})
+        .addTo(capaEst).bindTooltip("<b>"+rr[4]+"</b><br>TDPA "+(tdpa?tdpa.toLocaleString("es-MX"):"—")+" · SC "+sc+"<br>∑L "+(sumaL/1e6).toFixed(1)+"×10⁶ ("+anios+" años)<br>"+pg, {sticky:true});
+    }
+    leyendaSeg();
+  }
   function analizarTodo() {
     const modo = modoUbicacion();
     if (modo === "carretera") {
       if (!tramoActual) { toast("Selecciona una carretera del Anexo A en el buscador."); return; }
       const ci = parseCad($("cad-ini").value), cf = parseCad($("cad-fin").value);
       if (ci != null && cf != null && cf - ci > 1e-6) analizarSegmento(); // segmento por cadenamiento
-    } else if (modo === "punto") {
+    } else if (modo === "punto" || modo === "mapa") {
       const la = parseFloat($("plat").value), lo = parseFloat($("plon").value);
-      if (isNaN(la) || isNaN(lo)) { toast("Captura la latitud y la longitud del punto."); return; }
+      if (isNaN(la) || isNaN(lo)) { toast(modo === "mapa" ? "Elige el punto en el mapa (clic) o usa «Mi ubicación actual»." : "Captura la latitud y la longitud del punto."); return; }
       calcularPunto();
     } else {
       const a = [parseFloat($("plat3").value), parseFloat($("plon3").value), parseFloat($("plat2").value), parseFloat($("plon2").value)];
@@ -9341,6 +9530,7 @@ if (typeof module !== "undefined" && module.exports) module.exports = PG;
     const rv = $("res-vacio"); if (rv) rv.style.display = "none";
     if (estudio.ga !== "ESP") { calcularAforo(false); if (!aforoRes) { mostrarModulo("captura"); return; } }
     if (aforoRes) { try { calcularDiseno(); } catch (e) {} }
+    try { analizarSegmentacion(modo); } catch (e) {}
     mostrarModulo("analisis");
   }
 
@@ -9429,7 +9619,7 @@ if (typeof module !== "undefined" && module.exports) module.exports = PG;
     edoSel.addEventListener("change", () => {
       filtroEdo = edoSel.value;
       mostrarLista();
-      if (filtroEdo) encuadrarEstado(filtroEdo); else mapa.flyTo([23.6, -102], 5, { duration: 0.6 });
+      if (filtroEdo) encuadrarEstado(filtroEdo); else { try { mapa.flyTo([23.6, -102], 5, { duration: 0.6 }); } catch (e) {} }
     });
   }
   function encuadrarEstado(edo) {
@@ -9695,6 +9885,15 @@ if (typeof module !== "undefined" && module.exports) module.exports = PG;
     if (brr <= 25) return { n: 2, ajuste: "Ligante virgen UN grado más blando en ambos extremos." };
     return { n: 3, ajuste: "Carta de mezclado (blending chart) + rejuvenecedor; RAP a caracterizar en laboratorio." };
   }
+  // Proporción máxima de RAP por método y ∑L (N·CMT·4·05·010/26, Tabla 1)
+  function maxRapNorma(metodo, sumaL) {
+    if (metodo === "Desempeño") {
+      if (sumaL <= 10e6) return { max: 30, regla: "Desempeño · ∑L ≤ 10 millones" };
+      if (sumaL <= 30e6) return { max: 20, regla: "Desempeño · ∑L ≤ 30 millones" };
+      return { max: 10, regla: "Desempeño · cualquier volumen de tránsito" };
+    }
+    return { max: 10, regla: "Marshall · ∑L ≤ 10 millones" };
+  }
   $("d-agg") && $("d-agg").addEventListener("change", () => { const c = $("d-rap-cont"); if (c) c.classList.toggle("oculto", $("d-agg").value !== "rap"); });
   function actualizarTipo() {
     const esp = +$("d-esp").value || 0, tc = tipoCapa(esp), cont = $("d-tipo-cont"), mc = $("d-metodo-cont");
@@ -9736,19 +9935,22 @@ if (typeof module !== "undefined" && module.exports) module.exports = PG;
       const tonRAPmat = tonMezcla * pRap / 100, tonRAPac = tonRAPmat * rapCA / 100;
       const tonVirgAC = Math.max(0, tonCA - tonRAPac), brr = tonCA > 0 ? tonRAPac / tonCA * 100 : 0;
       const tr = tierRAP(brr);
+      const maxN = maxRapNorma(metodo, sumaL), cumpleRap = pRap <= maxN.max + 1e-9;
       const virgenPG = (tr.n === 2 && typeof estudio.ga === "number") ? "PG " + (estudio.ga - 6) + "-" + Math.abs(estudio.gb - 6) : null;
-      rap = { pRap, rapCA, tonRAPmat, tonRAPac, tonVirgAC, brr, tier: tr, virgenPG, rga: +$("d-rap-ga").value || null, rgb: +$("d-rap-gb").value || null };
+      rap = { pRap, rapCA, tonRAPmat, tonRAPac, tonVirgAC, brr, tier: tr, maxNorma: maxN, cumple: cumpleRap, virgenPG, rga: +$("d-rap-ga").value || null, rgb: +$("d-rap-gb").value || null };
     }
     // ∑L estructural a la profundidad de la capa (II-UNAM, p=6.0) — NO es la letra del PG
     const fdz = fdProfundidad(esp);
     const Lestr = (fdz && aforoRes) ? PG.esal({ tdpaDir: PG.tdpaSentido(aforoRes.tdpa, aforoRes.sc), mezcla: aforoRes.mezcla, factores: fdz, tasa: aforoRes.tasa / 100, anios: aforoRes.anios, carriles: aforoRes.carriles }) : null;
     diseno = { esp, ancho, largo, ca, dens, abund, densPet, tonPetreo, volPetreo, V, tonMezcla, tonCA, espSuelto, tipo: tc, nom, metodo, forzado, tipoMezcla, sumaL, rap, Lestr };
     if (forzado) toast("∑L = " + (sumaL / 1e6).toFixed(1) + " ×10⁶ (> 10 millones): el diseño debe ser por Alto Desempeño (N·CMT·4·05·003); se desactivó Marshall.", "warn");
+    if (rap && !rap.cumple) toast("RAP " + rap.pRap + "% supera el máximo de " + rap.maxNorma.max + "% de N·CMT·4·05·010/26 (" + rap.maxNorma.regla + "). Ajusta el % de RAP, el método o el ∑L.", "warn");
     const etqTipo = tc.clase === "densa" ? "Densa estructural" : (tc.clase === "discontinua" ? tipoMezcla + " (rodadura, no estructural)" : "Delgada");
     const filasRap = rap ? `
-      <tr class="sep"><td><b>RAP ${rap.pRap}% · reemplazo de ligante</b></td><td><b>${rap.brr.toFixed(0)} %</b></td></tr>
-      <tr><td>Criterio (AASHTO M323)</td><td>Tier ${rap.tier.n} — ${rap.tier.ajuste}</td></tr>
-      ${rap.virgenPG ? `<tr><td>Ligante virgen sugerido</td><td>${rap.virgenPG}</td></tr>` : ""}
+      <tr class="sep"><td><b>RAP ${rap.pRap}% · máx. permitido (N·CMT·4·05·010/26)</b></td><td><b>${rap.maxNorma.max}%</b>${rap.cumple ? "" : " ⚠ excede"}</td></tr>
+      <tr><td>Regla aplicable</td><td>${rap.maxNorma.regla}</td></tr>
+      <tr><td>Reemplazo de ligante · recomendación (ref. AASHTO M323)</td><td>${rap.brr.toFixed(0)}% — ${rap.tier.ajuste}</td></tr>
+      ${rap.virgenPG ? `<tr><td>Ligante virgen sugerido (ref.)</td><td>${rap.virgenPG}</td></tr>` : ""}
       <tr><td><b>CA virgen (a comprar)</b> / CA del RAP</td><td><b>${rap.tonVirgAC.toFixed(1)}</b> / ${rap.tonRAPac.toFixed(1)} t</td></tr>` : "";
     $("res-diseno").innerHTML = tarjeta((rap ? rap.tonVirgAC.toFixed(1) + " t CA virgen" : tonCA.toFixed(1) + " t de CA"), etqTipo + " · " + metodoTxt, `
       <tr><td>Tipo de capa · tamaño nominal máx.</td><td>${etqTipo} · ${nom} mm</td></tr>
@@ -9759,7 +9961,7 @@ if (typeof module !== "undefined" && module.exports) module.exports = PG;
       <tr><td>Espesor suelto estimado (calibrar en tramo de prueba)</td><td>${espSuelto.toFixed(1)} cm</td></tr>
       <tr class="sep"><td>Método de diseño</td><td>${metodo}${forzado ? " — obligado (∑L>10⁷)" : ""}</td></tr>
       ${Lestr != null ? `<tr><td>Ejes equivalentes calculados a ${esp} cm (II-UNAM, ${aforoRes.anios} años)</td><td>${(Lestr / 1e6).toFixed(2)} × 10⁶</td></tr>` : ""}${filasRap}`,
-      "Valores objetivo de control = los del DISEÑO aprobado, NO los umbrales de la NIT. El abundamiento solo define el espesor suelto (la masa se conserva)." + (rap ? " Con RAP, el asfalto a COMPRAR es el virgen; el RAP aporta el suyo. Estimación preliminar: caracterizar el RAP en laboratorio." : "") + " El PDF incluye requisitos y recomendaciones.");
+      "Valores objetivo de control = los del DISEÑO aprobado, NO los umbrales de la NIT. El abundamiento solo define el espesor suelto (la masa se conserva)." + (rap ? " Con RAP, el asfalto a COMPRAR es el virgen; el RAP aporta el suyo. Estimación preliminar: caracterizar el RAP en laboratorio (N·CMT·4·05·010/26)." : "") + " El PDF incluye requisitos y recomendaciones.");
   }
   $("d-esp") && $("d-esp").addEventListener("input", actualizarTipo);
 
@@ -10137,9 +10339,10 @@ if (typeof module !== "undefined" && module.exports) module.exports = PG;
         }
         if (d.rap) {
           const r = d.rap;
-          kv(mx, p, cwd, "RAP " + r.pRap + "% · reemplazo de ligante (AASHTO M323)", r.brr.toFixed(0) + " % -> Tier " + r.tier.n); p += 4.5;
-          kv(mx, p, cwd, "Criterio", r.tier.ajuste); p += 4.5;
-          if (r.virgenPG) { kv(mx, p, cwd, "Ligante virgen sugerido", r.virgenPG); p += 4.5; }
+          kv(mx, p, cwd, "RAP " + r.pRap + "% · máx. permitido (N·CMT·4·05·010/26)", r.maxNorma.max + "%" + (r.cumple ? "" : "  EXCEDE")); p += 4.5;
+          kv(mx, p, cwd, "Regla aplicable", r.maxNorma.regla); p += 4.5;
+          kv(mx, p, cwd, "Reemplazo de ligante (ref. AASHTO M323)", r.brr.toFixed(0) + " % -> " + r.tier.ajuste); p += 4.5;
+          if (r.virgenPG) { kv(mx, p, cwd, "Ligante virgen sugerido (ref.)", r.virgenPG); p += 4.5; }
           kv(mx, p, cwd, "CA VIRGEN (a comprar) / CA del RAP", r.tonVirgAC.toFixed(1) + " / " + r.tonRAPac.toFixed(1) + " t"); p += 4.5;
         }
         p += 3;
