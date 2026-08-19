@@ -9258,7 +9258,7 @@ if (typeof module !== "undefined" && module.exports) module.exports = PG;
     if (!g || g.length < 2) return;
     ponerEtiq(g[0], "▶ " + tIni, "left");
     ponerEtiq(g[g.length - 1], tFin + " ◼", "right");
-    if (nombre) L.tooltip({ permanent: true, direction: "top", className: "etq-nom" }).setLatLng(medio(g)).setContent(nombre).addTo(capaEtiq);
+    if (nombre) L.tooltip({ permanent: true, direction: "top", className: "etq-nom", offset: [0, -14] }).setLatLng(medio(g)).setContent(nombre).addTo(capaEtiq);
   }
 
   // Clic en el mapa (módulo de análisis) → refija el punto y recalcula
@@ -9323,12 +9323,12 @@ if (typeof module !== "undefined" && module.exports) module.exports = PG;
   function reencuadrar() {
     try {
       mapa.invalidateSize();
-      if (ultimaSeg && ultimaSeg.R) { try { dibujarMapaSegmentos(ultimaSeg.R, ultimaSeg.t); } catch (e) {} }
       let b = null;
       if (capaSeg) b = capaSeg.getBounds();          // segmento resaltado (o trazo completo si es todo el tramo)
       else if (capaSel) b = capaSel.getBounds();      // trazo del tramo
-      if (b && b.isValid()) mapa.fitBounds(b, { padding: [45, 45], maxZoom: 13 });
+      if (b && b.isValid()) mapa.fitBounds(b, { padding: [45, 45], maxZoom: 13, animate: false });
       else if (estudio && estudio.lat != null) volarAPunto(estudio.lat, estudio.lon);
+      if (ultimaSeg && ultimaSeg.R) { try { dibujarMapaSegmentos(ultimaSeg.R, ultimaSeg.t); } catch (e) {} }
     } catch (e) {}
   }
   // Selector de modo de ubicación (carretera / punto / segmento)
@@ -9340,6 +9340,8 @@ if (typeof module !== "undefined" && module.exports) module.exports = PG;
     $("ub-segmento") && $("ub-segmento").classList.toggle("oculto", m !== "segmento");
     $("ub-mapa") && $("ub-mapa").classList.toggle("oculto", m !== "mapa");
     if (m === "mapa") initMapaUbic();
+    $("crit-bloque") && $("crit-bloque").classList.toggle("oculto", m !== "carretera");
+    if (m !== "carretera") { const _rp = document.querySelector('input[name="critAnal"][value="peor"]'); if (_rp) _rp.checked = true; }
   }));
 
   // Orquestador: calcula ubicación + aforo + diseño y pasa al módulo de análisis
@@ -9405,7 +9407,7 @@ if (typeof module !== "undefined" && module.exports) module.exports = PG;
     const ci=parseCad($("cad-ini")?$("cad-ini").value:""), cf=parseCad($("cad-fin")?$("cad-fin").value:"");
     let R=null; try{ R=segmentosHomogeneos(tramoActual, (ci!=null?ci:null),(cf!=null?cf:null), +$("anios").value||10, +$("carriles").value||2); }catch(e){ R=null; }
     if(!R||!R.segs||!R.segs.length){ box.classList.add("oculto"); box.innerHTML=""; limpiarMapaSeg(); ultimaSeg=null; return; }
-    box.innerHTML=renderSegmentos(R); box.classList.remove("oculto"); try{ dibujarMapaSegmentos(R, tramoActual); }catch(e){}
+    box.innerHTML=renderSegmentos(R); box.classList.remove("oculto"); try{ ultimaSeg={R:R,ests:estacionesTramo(tramoActual,+$("anios").value||10,+$("carriles").value||2),t:tramoActual}; }catch(e){ ultimaSeg={R:R,ests:[],t:tramoActual}; }
   }
   function renderSegmentos(R){
     const segs=R.segs, gov=R.gov, tot=R.totalKm||1;
@@ -9528,11 +9530,11 @@ if (typeof module !== "undefined" && module.exports) module.exports = PG;
     capaEst=L.layerGroup().addTo(mapa);
     const anios=+$("anios").value||10, carriles=+$("carriles").value||2;
     const ests=estacionesTramo(t, anios, carriles);
-    for(const e of ests){
+    for(const e of ests){ try {
       const sp=snapATrazo(g, e.la, e.lo);
       L.circleMarker([sp[0],sp[1]], {radius:6, color:"#333", weight:1, fillColor:colorEsal(e.sumaL), fillOpacity:0.95, renderer:rc})
         .addTo(capaEst).bindTooltip("<b>"+e.nom+"</b>"+(e.km!=null?" · km "+e.km:"")+"<br>TDPA "+(e.tdpa?e.tdpa.toLocaleString("es-MX"):"—")+" · SC "+e.sc+"<br>∑L "+(e.sumaL/1e6).toFixed(1)+"×10⁶ ("+anios+" años)<br>"+e.pg, {sticky:true});
-    }
+    } catch(_e){} }
     leyendaSeg();
     try {
       const cA=Math.min(R.cadA,R.cadB), cB=Math.max(R.cadA,R.cadB);
@@ -10009,6 +10011,7 @@ if (typeof module !== "undefined" && module.exports) module.exports = PG;
   /* =============== Captura del mapa para el PDF =============== */
   function capturarMapa(cb) {
     if (!window.html2canvas) { cb(null); return; }
+    try { mapa.stop(); } catch (e) {}
     try { mapa.invalidateSize(); } catch (e) {}
     // Oculta controles interactivos (zoom y selector de capas) en la captura; deja logo, escala y norte
     const ocultar = (el) => el && el.classList && (el.classList.contains("leaflet-control-zoom") || el.classList.contains("leaflet-control-layers"));
