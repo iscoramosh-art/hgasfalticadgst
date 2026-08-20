@@ -252,7 +252,8 @@ footer.sitio strong{color:#777}
     <button id="mt-captura" class="activa" data-mod="captura">① Captura de datos</button>
     <button id="mt-analisis" data-mod="analisis">② Análisis y reporte</button>
   </nav>
-  <div class="intro-link"><button id="btn-intro">ⓘ ¿Cómo funciona? · Ver introducción</button></div>
+  <div class="intro-link"><button id="btn-intro">ⓘ ¿Cómo funciona? · Ver introducción</button>
+        <button id="btn-manual" type="button" title="Abre el Manual de Usuario en una ventana nueva">📖 Manual de usuario</button></div>
 
   <!-- Ventana de bienvenida -->
   <div id="bienvenida" class="modal-overlay oculto" role="dialog" aria-modal="true" aria-labelledby="bv-title">
@@ -9893,7 +9894,7 @@ if (typeof module !== "undefined" && module.exports) module.exports = PG;
   function tipoCapa(espCm) {
     if (espCm >= 5) return { clase: "densa", nombre: "Carpeta de granulometría densa (estructural)", disc: false };       // >= 5 cm
     if (espCm >= 3) return { clase: "discontinua", nombre: "Capa de rodadura discontinua (no estructural)", disc: true };  // 3 a < 5 cm
-    return { clase: "delgada", nombre: "Tratamiento superficial / capa delgada (< 3 cm)", disc: false };                    // < 3 cm
+    return { clase: "delgada", nombre: "Tratamiento superficial como capa de rodadura (< 3 cm)", disc: false };                    // < 3 cm
   }
   function longitudEstudio() {
     if (estudio && estudio.segmento) {
@@ -9930,7 +9931,7 @@ if (typeof module !== "undefined" && module.exports) module.exports = PG;
   $("d-agg") && $("d-agg").addEventListener("change", () => { const c = $("d-rap-cont"); if (c) c.classList.toggle("oculto", $("d-agg").value !== "rap"); });
   function actualizarTipo() {
     const esp = +$("d-esp").value || 0, tc = tipoCapa(esp), cont = $("d-tipo-cont"), mc = $("d-metodo-cont");
-    if (cont) cont.classList.toggle("oculto", !tc.disc);           // SMA/CASAA solo en discontinua
+    if (cont) cont.classList.toggle("oculto", !(tc.disc || (tc.clase === "delgada" && aforoRes && aforoRes.Lu > 1e6))); // SMA/CASAA en discontinua o microcarpeta <3cm (tránsito alto)
     if (mc) mc.classList.toggle("oculto", tc.disc || tc.clase === "delgada"); // método Marshall/Desempeño solo en capa densa
     const sumaL = aforoRes ? aforoRes.Lu : 0, sel = $("d-metodo");
     if (sel && !tc.disc) { if (sumaL > 1e7) { sel.value = "Desempeño"; [...sel.options].forEach((o) => { if (o.value === "Marshall") o.disabled = true; }); } else [...sel.options].forEach((o) => (o.disabled = false)); }
@@ -9944,15 +9945,39 @@ if (typeof module !== "undefined" && module.exports) module.exports = PG;
     const esp = +$("d-esp").value, ancho = +$("d-ancho").value, largo = +$("d-long").value, ca = +$("d-ca").value, dens = +$("d-dens").value, abund = +$("d-abund").value || 1.2, densPet = +$("d-denspet").value || 1.5;
     if (!(esp > 0 && ancho > 0 && largo > 0 && ca > 0 && dens > 0)) { toast("Captura espesor, ancho, longitud, % CA y densidad válidos."); return; }
     const sumaL = aforoRes.Lu, tc = tipoCapa(esp), nom = nominalMax(esp);
+    const tdpa = aforoRes.tdpa || 0;
     // Espesor < 3 cm: tratamiento superficial / capa delgada — se cuantifica por m² (no por volumen)
     if (tc.clase === "delgada") {
+      // Regla uniforme (límite 10⁷ = límite Marshall): riego de sello / microaglomerado en frío
+      // SOLO si ∑L ≤ 10×10⁶ Y TDPA ≤ 5,000. En otro caso, microcarpeta discontinua CASAA/SMA.
+      if (sumaL > 1e7 || tdpa > 5000) {
+        // Tránsito medio/alto: microcarpeta discontinua EN CALIENTE (SMA/CASAA) con cemento asfáltico por Grado PG.
+        const tipoMezcla = ($("d-tipo") && $("d-tipo").value) || "SMA";
+        const V = ancho * largo * (esp / 100), tonMezcla = V * dens, tonCA = tonMezcla * (ca / 100), espSuelto = esp * abund;
+        const tonPetreo = tonMezcla - tonCA, volPetreo = tonPetreo / densPet;
+        diseno = { esp, ancho, largo, ca, dens, abund, densPet, tonPetreo, volPetreo, V, tonMezcla, tonCA, espSuelto, tipo: tc, nom, metodo: "—", forzado: false, tipoMezcla, sumaL, rap: null, Lestr: null, microcarpeta: true };
+        $("res-diseno").innerHTML = tarjeta(tonCA.toFixed(1) + " t de CA", "Microcarpeta discontinua en caliente (" + tipoMezcla + ") · rodadura < 3 cm", `
+          <tr><td>Solución recomendada</td><td>Microcarpeta ${tipoMezcla} (caliente)</td></tr>
+          <tr><td>Ligante</td><td>Cemento asfáltico — ${aforoRes.pgU}</td></tr>
+          <tr><td>Tipo de capa · tamaño nominal máx.</td><td>Discontinua (rodadura) · ${nom} mm</td></tr>
+          <tr><td>Volumen compactado (${ancho}×${largo}×${esp}cm)</td><td>${V.toFixed(1)} m³</td></tr>
+          <tr><td>Mezcla asfáltica</td><td>${tonMezcla.toFixed(1)} t</td></tr>
+          <tr class="sep"><td><b>Cemento asfáltico total (${ca}%)</b></td><td><b>${tonCA.toFixed(1)} t</b></td></tr>
+          <tr><td>Material pétreo (masa · volumen de acopio)</td><td>${tonPetreo.toFixed(1)} t · ${volPetreo.toFixed(1)} m³</td></tr>`,
+          "∑L = " + (sumaL / 1e6).toFixed(2) + " ×10⁶ · TDPA = " + tdpa.toLocaleString("es-MX") + ": por rebasar el límite (∑L > 10×10⁶ o TDPA > 5,000) la rodadura < 3 cm debe ser microcarpeta discontinua EN CALIENTE (SMA o CASAA) con cemento asfáltico por Grado PG. Los tratamientos superficiales en frío (riego de sello, microaglomerado) NO se aplican en este caso (prácticas AI/FHWA/ISSA; SMA para tránsito alto). Límite 10×10⁶ uniforme con el de Marshall.");
+        return;
+      }
+      // Tránsito bajo: TRATAMIENTO SUPERFICIAL EN FRÍO con EMULSIÓN — se cuantifica por m².
       const area = ancho * largo;
-      diseno = { esp, ancho, largo, area, delgada: true, tipo: tc, metodo: "Tratamiento superficial", tipoMezcla: "delgada", sumaL, ca, dens, densPet, nom, rap: null, Lestr: null };
-      $("res-diseno").innerHTML = tarjeta(area.toLocaleString("es-MX") + " m²", "Tratamiento superficial · capa delgada (< 3 cm)", `
+      diseno = { esp, ancho, largo, area, delgada: true, tipo: tc, metodo: "Tratamiento superficial en frío", tipoMezcla: "superficial", sumaL, ca, dens, densPet, nom, rap: null, Lestr: null };
+      $("res-diseno").innerHTML = tarjeta(area.toLocaleString("es-MX") + " m²", "Tratamiento superficial como capa de rodadura (< 3 cm) · ∑L ≤ 10⁷ y TDPA ≤ 5,000", `
         <tr><td>Geometría (ancho × largo)</td><td>${ancho} × ${largo} m</td></tr>
         <tr class="sep"><td><b>Área a tratar</b></td><td><b>${area.toLocaleString("es-MX")} m²</b></td></tr>
-        <tr><td>Espesor capturado</td><td>${esp} cm (se desprecia)</td></tr>`,
-        "Para espesor < 3 cm corresponde un DISEÑO ESPECIAL (microcarpeta), o bien microaglomerado o riego de sello, aplicados como capa de rodadura delgada / tratamiento superficial. Se cuantifican por METRO CUADRADO (dosis por m² según el método), NO por volumen: el espesor depende del tamaño nominal del agregado y se desprecia. Ver N·CMT·4·05·003 (microaglomerados y riegos) y el método correspondiente.");
+        <tr><td>Ligante</td><td>EMULSIÓN asfáltica (no Grado PG)</td></tr>
+        <tr><td>Riego / sello (chip seal)</td><td>Emulsión catiónica de rompimiento rápido (ECR-65/70; no ECR-60)</td></tr>
+        <tr><td>Microaglomerado / mortero</td><td>Emulsión de rompimiento controlado, modificada</td></tr>
+        <tr><td>Agregado (tamaño nominal)</td><td>Un tamaño (riegos) o fino graduado (micro) · N·CMT·4·04</td></tr>`,
+        "∑L ≤ 10×10⁶ (10 años) y TDPA ≤ 5,000: procede tratamiento superficial en frío. El ligante es EMULSIÓN asfáltica, seleccionada por N·CMT·4·05·005 y construida por N·CTR·CAR·1·04·008 (riegos y microaglomerados); NO se elige por Grado PG. Se cuantifica por METRO CUADRADO (dosis de emulsión y de agregado según el tipo); el espesor depende del tamaño del agregado y se desprecia. Si el tránsito supera cualquiera de los dos límites, la rodadura pasa a microcarpeta CASAA/SMA.");
       return;
     }
     let metodo = $("d-metodo").value, forzado = false;
@@ -10299,7 +10324,7 @@ if (typeof module !== "undefined" && module.exports) module.exports = PG;
       if (diseno && diseno.delgada) {
         head(mx, p, cwd, "Requisitos de la mezcla y del material pétreo (tratamiento superficial)"); p += 5.5;
         doc.setFontSize(7.6); setC(GR); doc.setFont(undefined, "normal");
-        const nzd = doc.splitTextToSize(asc("Capa delgada (< 3 cm): aplica el método correspondiente con emulsión asfáltica (N·CMT·4·05·005): microaglomerados en frío (N·CMT·4·05·003 D.2.2, Tabla 8; pétreo N·CMT·4·04 Tabla 10) o riegos de sello (N·CMT·4·05·003 D.3; pétreo N·CMT·4·04 Tabla 12). No aplican las tablas de mezcla densa/discontinua ni el pétreo por tránsito de mezcla."), cwd);
+        const nzd = doc.splitTextToSize(asc("Tratamiento superficial como capa de rodadura (< 3 cm), tránsito bajo: el ligante es EMULSIÓN asfáltica (N·CMT·4·05·005), no Grado PG; construcción por N·CTR·CAR·1·04·008. Riego/sello: emulsión catiónica de rompimiento rápido (ECR-65/70; no ECR-60), agregado de un tamaño (N·CMT·4·04). Microaglomerado/mortero: emulsión de rompimiento controlado, modificada, agregado fino graduado. Para tránsito medio/alto: microcarpeta discontinua en caliente (SMA/CASAA) con Grado PG."), cwd);
         doc.text(nzd, mx, p); p += nzd.length * 3.4 + 4;
         linkN(mx, p, "Consultar N·CMT·4·05·003/25 (microaglomerados y riegos) y N·CMT·4·04 (Tablas 10 y 12)", NORMA.mez); p += 5;
       } else {
@@ -10358,7 +10383,7 @@ if (typeof module !== "undefined" && module.exports) module.exports = PG;
           kv(mx, p, cwd, "Área a tratar", d.area.toLocaleString("es-MX") + " m2"); p += 4.5;
           kv(mx, p, cwd, "Espesor capturado", d.esp + " cm (se desprecia)"); p += 4.5;
           nlp(16); doc.setFontSize(7.4); setC(GR); doc.setFont(undefined, "normal");
-          const nz = doc.splitTextToSize(asc("< 3 cm: diseño especial (microcarpeta) o microaglomerado / riego de sello, como capa de rodadura delgada. Se cuantifica por m2 (dosis por m2 segun el metodo), no por volumen: el espesor depende del tamano nominal del agregado y se desprecia."), cwd);
+          const nz = doc.splitTextToSize(asc("< 3 cm (transito bajo): tratamiento superficial en frio (riego/sello o microaglomerado) con EMULSION; se cuantifica por m2 (dosis de emulsion y agregado), no por volumen. Transito medio/alto: microcarpeta discontinua en caliente (SMA/CASAA) con Grado PG."), cwd);
           doc.text(nz, mx, p); p += nz.length * 3.2 + 3;
         } else {
         head(mx, p, cwd, "Cantidades (por volumen compactado)"); p += 5.5;
@@ -10479,6 +10504,7 @@ if (typeof module !== "undefined" && module.exports) module.exports = PG;
   });
   $("btn-volver") && $("btn-volver").addEventListener("click", () => mostrarModulo("captura"));
   $("btn-pdf2") && $("btn-pdf2").addEventListener("click", generarPDF);
+  $("btn-manual") && $("btn-manual").addEventListener("click", function () { window.open("Manual_Usuario_HG_Asfaltica_DGST.pdf", "_blank", "noopener"); });
   window.AppPG = { pdf: generarPDF, analizar: analizarTodo };
   // Tooltips propios para los iconos de ayuda (ⓘ): hover y clic (táctil)
   (function initTips() {
