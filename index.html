@@ -10090,7 +10090,8 @@ if (typeof module !== "undefined" && module.exports) module.exports = PG;
         <tr class="sep"><td><b>Acción recomendada</b></td><td><b>Rehabilitación estructural</b></td></tr>
         <tr><td>Opciones</td><td>Sobrecarpeta estructural (diseño por número estructural / deflexión) o reconstrucción</td></tr>
         <tr><td>Evaluación previa</td><td>Deflexiones FWD · vida remanente · diseño por II-UNAM / AASHTO-93</td></tr>`,
-        "El pavimento se capturó como ESTRUCTURALMENTE DEFICIENTE, por lo que NO procede diseñar la capa de rodadura ni el tratamiento superficial con esta herramienta: sobre una estructura con fatiga (piel de cocodrilo), roderas profundas o deflexiones altas, tanto una capa delgada de conservación (N·CTR·CAR·1·04·008: capas < 4 cm sin función estructural) como una carpeta nueva ven reducida su vida útil. Primero corrija la estructura (sobrecarpeta estructural o reconstrucción), dimensionada con deflexiones (FWD / retrocálculo / vida remanente) y diseño estructural (II-UNAM / AASHTO-93). Cambie «Condición estructural» a «sano» para diseñar la capa.");
+        "El pavimento se capturó como ESTRUCTURALMENTE DEFICIENTE, por lo que NO procede diseñar la capa de rodadura ni el tratamiento superficial con esta herramienta: sobre una estructura con fatiga (piel de cocodrilo), roderas profundas o deflexiones altas, tanto una capa delgada de conservación (N·CTR·CAR·1·04·008: capas < 4 cm sin función estructural) como una carpeta nueva ven reducida su vida útil. Primero corrija la estructura (sobrecarpeta estructural o reconstrucción), dimensionada con deflexiones (FWD / retrocálculo / vida remanente) y diseño estructural (II-UNAM / AASHTO-93). Cambie «Condición estructural» a «sano» para diseñar la capa.",
+        { titulo: "No procede el diseño — se requiere REHABILITACIÓN ESTRUCTURAL", texto: "Esto NO es un error de la herramienta: como la condición del pavimento se capturó como «Deficiente», no se calcula la capa ni se genera el reporte PDF de diseño. Primero debe corregirse la estructura. Si el pavimento sí está sano, cambia «Condición estructural» a «Sano»." });
       return;
     }
     // Espesor < 3 cm: tratamiento superficial / capa delgada — se cuantifica por m² (no por volumen)
@@ -10191,8 +10192,14 @@ if (typeof module !== "undefined" && module.exports) module.exports = PG;
   $("d-estruct") && $("d-estruct").addEventListener("change", () => { if (aforoRes) { try { calcularDiseno(); } catch (e) {} } });
 
   // Plantilla de tarjeta de resultado (con botón PDF)
-  function tarjeta(pgTxt, subtitulo, filas, nota) {
+  function tarjeta(pgTxt, subtitulo, filas, nota, alerta) {
     return `<div class="resultado">
+      ${alerta ? `<div class="aviso-fuerte" role="alert" style="background:#611232;color:#fff;border:2px solid #611232;border-radius:8px;padding:14px 16px;margin:0 0 14px;box-shadow:0 3px 10px rgba(97,18,50,.35)">
+        <div style="font-size:1.05rem;font-weight:800;letter-spacing:.02em;display:flex;align-items:center;gap:8px">
+          <span aria-hidden="true" style="font-size:1.3rem;line-height:1">⚠</span><span>${alerta.titulo}</span>
+        </div>
+        ${alerta.texto ? `<div style="font-size:.9rem;margin-top:6px;opacity:.95">${alerta.texto}</div>` : ""}
+      </div>` : ""}
       <div class="pg-grande">${pgTxt}</div>
       ${subtitulo ? `<div class="pg-ajuste">${subtitulo}</div>` : ""}
       ${filas ? `<table class="kv">${filas}</table>` : ""}
@@ -10249,7 +10256,7 @@ if (typeof module !== "undefined" && module.exports) module.exports = PG;
     const dbx = ((($("m-dropbox") || {}).value) || "").trim(), fname = "Reporte_" + numRep + ".pdf";
     const canon = [numRep, now.toISOString(), meta.proy, meta.unidad, estudio.carretera ? estudio.carretera.cp : "", estudio.lat.toFixed(5), estudio.lon.toFixed(5),
       PG.pgTexto(estudio.ga, estudio.gb), aforoRes ? aforoRes.pgGob + "|" + (aforoRes.Lu || 0).toFixed(0) : "",
-      diseno ? (diseno.delgada ? "AREA|" + diseno.area.toFixed(1) : diseno.tonMezcla.toFixed(2) + "|" + diseno.tonCA.toFixed(2) + "|" + diseno.tonPetreo.toFixed(2)) : ""].join("~");
+      diseno ? (diseno.rehab ? "REHAB|" + (diseno.area || 0).toFixed(1) : (diseno.delgada ? "AREA|" + diseno.area.toFixed(1) : diseno.tonMezcla.toFixed(2) + "|" + diseno.tonCA.toFixed(2) + "|" + diseno.tonPetreo.toFixed(2))) : ""].join("~");
     capturarMapa(function (cv) {
       sha256Hex(canon).then(function (hash) {
         const sello = hash ? hash.slice(0, 16).toUpperCase() : "";
