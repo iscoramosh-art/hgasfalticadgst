@@ -427,8 +427,8 @@ footer.sitio strong{color:#777}
             <select id="d-tipo"><option value="SMA">SMA — con fibra (M·MMP·4·05·043)</option><option value="CASAA">CASAA — sin fibra (M·MMP·4·05·056)</option></select></div>
           <div id="d-trat-cont" class="oculto">
             <div class="fila">
-              <div><label for="d-trat">Tipo de tratamiento superficial <span class="ayuda" title="Riego de sello (sello con gravilla, chip seal) o microaglomerado en frío (mortero asfáltico / micro). El tipo, la emulsión y el material se recomiendan según el clima (Grado PG) y el tránsito (∑L / TDPA); puede cambiarlos.">ⓘ</span></label>
-                <select id="d-trat"><option value="riego">Riego de sello (con gravilla)</option><option value="micro">Microaglomerado en frío</option></select></div>
+              <div><label for="d-trat">Tipo de tratamiento superficial <span class="ayuda" title="Riego de sello o microaglomerado en frío. El tipo, la emulsión (N·CMT·4·05·005) y el material se recomiendan según el clima (Grado PG) y el tránsito (TDPA) y se pueden cambiar. Para TDPA mayor de 5,000 la emulsión debe ser modificada con polímero.">ⓘ</span></label>
+                <select id="d-trat"><option value="riego">Riego de sello</option><option value="micro">Microaglomerado en frío</option></select></div>
               <div><label for="d-emul">Emulsión asfáltica (N·CMT·4·05·005)</label><select id="d-emul"></select></div>
             </div>
             <div class="fila">
@@ -9961,11 +9961,13 @@ if (typeof module !== "undefined" && module.exports) module.exports = PG;
   }
   // ——— Tratamiento superficial en frío (< 3 cm, tránsito bajo): tipo, emulsión y material recomendados por clima + tránsito ———
   let tratTocado = false;
-  const EMUL_TRAT = {
-    riego: [["ECR-65", "ECR-65 · rápido (≈ CRS-2)"], ["ECR-70", "ECR-70 · rápido, clima cálido (≈ CRS-2)"], ["ECR-65m", "ECR-65 modificada con polímero (≈ CRS-2P)"], ["ECR-70m", "ECR-70 modificada con polímero (≈ CRS-2P)"]],
-    micro: [["EM-CQMm", "EM-CQM modificada con polímero (micro · ≈ CQS-1hP)"], ["EM-CQM", "EM-CQM · rompimiento controlado"]]
+  // Emulsiones por tipo de tratamiento, según la N·CMT·4·05·005 (nombres SICT). > 5,000 TDPA obliga emulsión con polímero (sin opción sin polímero).
+  const emulOpts = (tipo, tdpa) => {
+    if (tipo === "micro") return [["ECCR-62P", "ECCR-62P · rompimiento rápido controlado (modificada con polímero)"], ["ECCL-62P", "ECCL-62P · rompimiento lento controlado (modificada con polímero)"]];
+    if (tdpa > 5000) return [["ECR-68P", "ECR-68P · modificada con polímero (obligatoria para TDPA > 5,000)"]];
+    return [["ECR-65", "ECR-65 · rompimiento rápido"], ["ECR-68", "ECR-68 · rompimiento rápido (clima cálido)"], ["ECR-68P", "ECR-68P · modificada con polímero"]];
   };
-  const REF_TRAT = "Selección conforme a práctica internacional: microaglomerado con emulsión modificada con polímero (ISSA A143 / AASHTO PP 83, mín. 3 % de polímero); riegos de sello con emulsión modificada con polímero para tránsito o clima exigentes (FHWA · Federal Lands Highway); selección por condición del pavimento, tránsito y clima (PPRA · RoadResource.org). Equivalencias: ECR-65/70 ≈ CRS-2; ECR modificada ≈ CRS-2P; microaglomerado modificado ≈ CQS-1hP.";
+  const REF_TRAT = "Criterios de selección conforme a la práctica internacional: microaglomerado con emulsión modificada con polímero (ISSA A143 / AASHTO PP 83); riegos de sello con emulsión modificada con polímero para tránsito o clima exigentes (FHWA · Federal Lands Highway); selección por condición del pavimento, tránsito y clima (PPRA · RoadResource.org). Las emulsiones y sus requisitos se toman de la N·CMT·4·05·005: riego de sello ECR-65 / ECR-68 (modificada ECR-68P); microaglomerado ECCR-62P / ECCL-62P.";
   const MAT_TRAT = {
     riego: [["3A", "Un solo tamaño · sello 3-A (N·CMT·4·04)"], ["3B", "Un solo tamaño · 3-B"]],
     micro: [["4A", "Fino graduado · Grado A · alto volumen (N·CMT·4·04)"], ["4B", "Fino graduado · Grado B–C · volumen medio–bajo (N·CMT·4·04)"]]
@@ -9975,51 +9977,64 @@ if (typeof module !== "undefined" && module.exports) module.exports = PG;
   function recomendarTrat() {
     const tdpa = aforoRes ? (aforoRes.tdpa || 0) : 0, sumaL = aforoRes ? aforoRes.Lu : 0;
     const ga = (typeof estudio !== "undefined" && estudio && typeof estudio.ga === "number") ? estudio.ga : 64;
-    const calido = ga >= 70, muyCalido = ga >= 76, exigente = tdpa > 5000 || calido;
-    const tipo = tdpa > 10000 ? "micro" : "riego";   // recomienda RIEGO DE SELLO primero (≤ 10,000); microaglomerado para 10,000–50,000 (ISSA/FHWA/PPRA)
-    const emulRiego = muyCalido ? "ECR-70m" : (exigente ? "ECR-65m" : (calido ? "ECR-70" : "ECR-65")); // riego con polímero en tránsito/clima exigentes (FHWA)
-    const emulMicro = "EM-CQMm";                      // microaglomerado: SIEMPRE modificada con polímero (ISSA A143 / AASHTO PP 83)
+    const calido = ga >= 70, poli = tdpa > 5000;   // > 5,000 TDPA → emulsión con polímero obligatoria (sin alternativa sin polímero)
+    const tipo = tdpa > 10000 ? "micro" : "riego";   // recomienda RIEGO DE SELLO primero (≤ 10,000); microaglomerado para 10,000–50,000
+    const emulRiego = poli ? "ECR-68P" : (calido ? "ECR-68" : "ECR-65"); // riego: ECR-68P (polímero) si TDPA > 5,000; si no, ECR-65 / ECR-68 (N·CMT·4·05·005)
+    const emulMicro = calido ? "ECCL-62P" : "ECCR-62P";                   // microaglomerado: SIEMPRE modificada; lento controlado en clima cálido
     const matRiego = "3A";
     const matMicro = tdpa > 15000 ? "4A" : "4B";     // pétreo del micro por volumen: Grado A (alto) / Grado B–C (medio–bajo)
     const emul = tipo === "micro" ? emulMicro : emulRiego;
     const mat = tipo === "micro" ? matMicro : matRiego;
-    const txt = (tipo === "micro" ? "Microaglomerado en frío (modificado)" : "Riego de sello") + " · " + emul + " — clima " + (calido ? "cálido" : "templado") + " (PG alto " + ga + "), TDPA " + tdpa.toLocaleString("es-MX") + (tipo === "micro" ? " (>10,000; el micro también aplica ≤10,000 con pétreo Grado B–C)" : " (≤10,000; el riego de sello es la 1.ª opción)") + ".";
+    const txt = (tipo === "micro" ? "Microaglomerado en frío" : "Riego de sello") + " · " + emul + " — clima " + (calido ? "cálido" : "templado") + " (PG alto " + ga + "), TDPA " + tdpa.toLocaleString("es-MX") + (tipo === "micro" ? " (>10,000; el micro también aplica ≤10,000 con pétreo Grado B–C)" : " (≤10,000; el riego de sello es la 1.ª opción)") + (poli ? " · TDPA > 5,000: emulsión con polímero obligatoria (ECR-68P)." : ".");
     return { tipo, emul, mat, emulRiego, emulMicro, matRiego, matMicro, txt };
   }
   function poblarTrat(setTipo) {
     const st = $("d-trat"), se = $("d-emul"), sm = $("d-mat"), rec = $("d-trat-rec"); if (!st) return;
-    const r = recomendarTrat();
+    const r = recomendarTrat(), tdpa = aforoRes ? (aforoRes.tdpa || 0) : 0;
     if (setTipo && !tratTocado) st.value = r.tipo;
     const tipo = st.value || r.tipo;
     const eDef = tipo === "micro" ? r.emulMicro : r.emulRiego;   // emulsión recomendada para el tipo elegido
     const mDef = tipo === "micro" ? r.matMicro : r.matRiego;     // pétreo recomendado para el tipo elegido (micro por volumen)
-    if (se && se.dataset.tipo !== tipo) { llenarSelTrat(se, EMUL_TRAT[tipo], eDef); se.dataset.tipo = tipo; }
+    const key = tipo + "|" + (tipo === "riego" && tdpa > 5000 ? "poli" : "std");
+    if (se && se.dataset.key !== key) { llenarSelTrat(se, emulOpts(tipo, tdpa), eDef); se.dataset.key = key; se.dataset.tipo = tipo; }
     if (sm && sm.dataset.tipo !== tipo) { llenarSelTrat(sm, MAT_TRAT[tipo], mDef); sm.dataset.tipo = tipo; }
     if (rec) rec.textContent = r.txt;
   }
-  function labelTrat(tipo) { return tipo === "micro" ? "Microaglomerado en frío" : "Riego de sello (con gravilla)"; }
-  // Requisitos de calidad de la EMULSIÓN asfáltica (N·CMT·4·05·005), según el tipo elegido (valores de referencia; verifique la edición vigente).
-  function reqEmulsion(emul, trat) {
-    const rows = [], mod = /m$/.test(emul || ""), resid = /70/.test(emul || "") ? "70" : "65";
-    if (trat === "micro") {
-      rows.push(["Viscosidad Saybolt-Furol 25 °C", "20 – 100 SSF"]);
-      rows.push(["Retenido en malla N.º 20, máx.", "0.10 %"]);
+  function labelTrat(tipo) { return tipo === "micro" ? "Microaglomerado en frío" : "Riego de sello"; }
+  // Requisitos de calidad de la EMULSIÓN asfáltica según la N·CMT·4·05·005 (Tablas 4 y 6), por designación SICT.
+  function reqEmulsion(emul) {
+    const e = emul || "ECR-65", rows = [];
+    if (/^ECC/.test(e)) {                 // microaglomerado modificada con polímero: ECCR-62P / ECCL-62P (Tabla 6)
+      rows.push(["Contenido de cemento asfáltico, mín.", "62 %"]);
+      rows.push(["Viscosidad Saybolt-Furol 25 °C, mín.", "20 s"]);
+      rows.push(["Retenido en malla N.º 20, máx.", "0.1 %"]);
       rows.push(["Carga eléctrica de las partículas", "Positiva (catiónica)"]);
-      rows.push(["Residuo por destilación, mín.", "60 %"]);
-      rows.push(["Polímero (sólido) sobre el residuo, mín.", "3 %"]);
-      rows.push(["Sobre el residuo · Penetración 25 °C", "40 – 90 (1/10 mm)"]);
-      rows.push(["Sobre el residuo · Recuperación elástica por torsión 25 °C, mín.", "50 %"]);
-      rows.push(["Sobre el residuo · Solubilidad, mín.", "97 %"]);
-    } else {
-      rows.push(["Viscosidad Saybolt-Furol 50 °C", (resid === "70" ? "150" : "100") + " – 400 SSF"]);
-      rows.push(["Retenido en malla N.º 20, máx.", "0.10 %"]);
+      rows.push(["Residuo · Penetración 25 °C (100 g, 5 s)", "40 – 90 (10⁻¹ mm)"]);
+      rows.push(["Residuo · Recuperación elástica por torsión 25 °C, mín.", "20 %"]);
+      rows.push(["Residuo · Recuperación elástica en ductilómetro 10 °C, mín.", "20 %"]);
+      rows.push(["Residuo · Ductilidad 25 °C, mín.", "40 cm"]);
+    } else if (/P$/.test(e)) {            // riego de sello modificada con polímero: ECR-68P (Tabla 6)
+      rows.push(["Contenido de cemento asfáltico, mín.", "68 %"]);
+      rows.push(["Viscosidad Saybolt-Furol 50 °C", "50 – 200 s"]);
+      rows.push(["Asentamiento 5 días, máx.", "3 %"]);
+      rows.push(["Retenido en malla N.º 20, máx.", "0.1 %"]);
+      rows.push(["Demulsibilidad, mín.", "60 %"]);
       rows.push(["Carga eléctrica de las partículas", "Positiva (catiónica)"]);
+      rows.push(["Residuo · Penetración 25 °C (100 g, 5 s)", "110 – 200 (10⁻¹ mm)"]);
+      rows.push(["Residuo · Recuperación elástica por torsión 25 °C, mín.", "30 %"]);
+      rows.push(["Residuo · Recuperación elástica en ductilómetro 10 °C, mín.", "50 %"]);
+      rows.push(["Residuo · Ductilidad 25 °C, mín.", "40 cm"]);
+    } else {                              // riego de sello catiónica rápida: ECR-65 / ECR-68 (Tabla 4)
+      const r68 = /68/.test(e);
+      rows.push(["Contenido de cemento asfáltico, mín.", (r68 ? "68" : "65") + " %"]);
+      rows.push(["Viscosidad Saybolt-Furol 50 °C, mín.", (r68 ? "50" : "40") + " s"]);
       rows.push(["Asentamiento 5 días, máx.", "5 %"]);
-      rows.push(["Residuo por destilación, mín.", resid + " %"]);
-      rows.push(["Sobre el residuo · Penetración 25 °C (100 g, 5 s)", "100 – 250 (1/10 mm)"]);
-      rows.push(["Sobre el residuo · Ductilidad 25 °C, mín.", "40 cm"]);
-      rows.push(["Sobre el residuo · Solubilidad en tricloroetileno, mín.", "97 %"]);
-      if (mod) rows.push(["Modificada · Recuperación elástica por torsión 25 °C, mín.", "35 %"]);
+      rows.push(["Demulsibilidad (0.8 % dioctilsulfosuccinato), mín.", "40 %"]);
+      rows.push(["Retenido en malla N.º 20, máx.", "0.1 %"]);
+      rows.push(["Carga eléctrica de las partículas", "Positiva (catiónica)"]);
+      rows.push(["Residuo · Penetración 25 °C (100 g, 5 s)", "110 – 250 (10⁻¹ mm)"]);
+      rows.push(["Residuo · Solubilidad, mín.", "97.5 %"]);
+      rows.push(["Residuo · Ductilidad 25 °C, mín.", "40 cm"]);
     }
     return rows;
   }
@@ -10056,23 +10071,30 @@ if (typeof module !== "undefined" && module.exports) module.exports = PG;
     if (!(esp > 0 && ancho > 0 && largo > 0 && ca > 0 && dens > 0)) { toast("Captura espesor, ancho, longitud, % CA y densidad válidos."); return; }
     const sumaL = aforoRes.Lu, tc = tipoCapa(esp), nom = nominalMax(esp);
     const tdpa = aforoRes.tdpa || 0;
+    // Condición ESTRUCTURAL — verificación GLOBAL (aplica a cualquier espesor).
+    // Si el pavimento está estructuralmente deficiente NO procede diseñar la capa de rodadura/tratamiento:
+    // ni una capa delgada (< 3 cm, de conservación) ni una carpeta nueva sustituyen el diseño estructural.
+    const estruct = ($("d-estruct") && $("d-estruct").value) || "sano";
+    if (estruct === "deficiente") {
+      const area = ancho * largo, esDelg = tc.clase === "delgada";
+      const noAporta = esDelg
+        ? "Capa &lt; 3 cm — de CONSERVACIÓN, sin función estructural"
+        : (tc.clase === "discontinua"
+          ? "Capa de rodadura (3–5 cm) — no aporta capacidad estructural"
+          : "Una carpeta nueva no sustituye el diseño estructural (el espesor debe provenir de un diseño por deflexión / número estructural)");
+      diseno = { esp, ancho, largo, area, delgada: esDelg, rehab: true, estruct, tipo: tc, metodo: "Rehabilitación estructural", tipoMezcla: "rehab", sumaL, ca, dens, densPet, nom, rap: null, Lestr: null };
+      $("res-diseno").innerHTML = tarjeta("Rehabilitación estructural", "No procede el diseño de la capa · pavimento estructuralmente deficiente", `
+        <tr><td>Diagnóstico</td><td>Pavimento estructuralmente <b>deficiente</b></td></tr>
+        <tr><td>Espesor capturado</td><td>${esp} cm (${esDelg ? "tratamiento superficial" : tc.nombre})</td></tr>
+        <tr><td>Capa capturada</td><td>${noAporta}</td></tr>
+        <tr class="sep"><td><b>Acción recomendada</b></td><td><b>Rehabilitación estructural</b></td></tr>
+        <tr><td>Opciones</td><td>Sobrecarpeta estructural (diseño por número estructural / deflexión) o reconstrucción</td></tr>
+        <tr><td>Evaluación previa</td><td>Deflexiones FWD · vida remanente · diseño por II-UNAM / AASHTO-93</td></tr>`,
+        "El pavimento se capturó como ESTRUCTURALMENTE DEFICIENTE, por lo que NO procede diseñar la capa de rodadura ni el tratamiento superficial con esta herramienta: sobre una estructura con fatiga (piel de cocodrilo), roderas profundas o deflexiones altas, tanto una capa delgada de conservación (N·CTR·CAR·1·04·008: capas < 4 cm sin función estructural) como una carpeta nueva ven reducida su vida útil. Primero corrija la estructura (sobrecarpeta estructural o reconstrucción), dimensionada con deflexiones (FWD / retrocálculo / vida remanente) y diseño estructural (II-UNAM / AASHTO-93). Cambie «Condición estructural» a «sano» para diseñar la capa.");
+      return;
+    }
     // Espesor < 3 cm: tratamiento superficial / capa delgada — se cuantifica por m² (no por volumen)
     if (tc.clase === "delgada") {
-      // Condición ESTRUCTURAL: los tratamientos superficiales son de conservación (N·CTR·CAR·1·04·008, sin función estructural).
-      // Si el pavimento está estructuralmente deficiente, NO procede el tratamiento superficial → rehabilitación estructural.
-      const estruct = ($("d-estruct") && $("d-estruct").value) || "sano";
-      if (estruct === "deficiente") {
-        const area = ancho * largo;
-        diseno = { esp, ancho, largo, area, delgada: true, rehab: true, estruct, tipo: tc, metodo: "Rehabilitación estructural", tipoMezcla: "rehab", sumaL, ca, dens, densPet, nom, rap: null, Lestr: null };
-        $("res-diseno").innerHTML = tarjeta("Rehabilitación estructural", "No procede tratamiento superficial · pavimento estructuralmente deficiente", `
-          <tr><td>Diagnóstico</td><td>Pavimento estructuralmente <b>deficiente</b></td></tr>
-          <tr><td>Tratamiento superficial (&lt; 3 cm)</td><td>NO procede — es de conservación, sin función estructural</td></tr>
-          <tr class="sep"><td><b>Acción recomendada</b></td><td><b>Rehabilitación estructural</b></td></tr>
-          <tr><td>Opciones</td><td>Sobrecarpeta estructural o reconstrucción</td></tr>
-          <tr><td>Evaluación previa</td><td>Deflexiones FWD · vida remanente · diseño por II-UNAM / AASHTO-93</td></tr>`,
-          "Los tratamientos superficiales (riego de sello, microaglomerado) son de CONSERVACIÓN y no aportan capacidad estructural (N·CTR·CAR·1·04·008: capas < 4 cm sin función estructural); solo proceden en pavimentos estructuralmente sanos (condición de regular a buena). Con fatiga (piel de cocodrilo), roderas profundas o deflexiones altas, una capa delgada falla prematuramente: primero corrija la estructura (sobrecarpeta o reconstrucción), evaluada con deflexiones (retrocálculo / vida remanente) y diseño estructural (II-UNAM / AASHTO-93). Cambie «Condición estructural» a «sano» para diseñar el tratamiento superficial.");
-        return;
-      }
       // Tratamientos superficiales por TRÁNSITO (ISSA/FHWA/PPRA): riego de sello ≤ 10,000 · microaglomerado ≤ 50,000 TDPA.
       // Por arriba de 50,000 la rodadura < 3 cm se resuelve con microcarpeta discontinua CASAA/SMA en caliente.
       if (tdpa > 50000) {
@@ -10438,12 +10460,12 @@ if (typeof module !== "undefined" && module.exports) module.exports = PG;
         }
       }
       p += 3;
-      if (diseno && diseno.delgada && diseno.rehab) {
-        // Pavimento estructuralmente deficiente: no procede tratamiento superficial → rehabilitación
+      if (diseno && diseno.rehab) {
+        // Pavimento estructuralmente deficiente: no procede diseñar la capa → rehabilitación (cualquier espesor)
         nlp(50);
         head(mx, p, cwd, "Diagnóstico estructural — rehabilitación requerida"); p += 5.5;
         doc.setFontSize(7.4); setC(GR); doc.setFont(undefined, "normal");
-        const rtx = doc.splitTextToSize(asc("El pavimento se capturó como ESTRUCTURALMENTE DEFICIENTE. Los tratamientos superficiales (riego de sello, microaglomerado) son de conservación y NO aportan capacidad estructural (N·CTR·CAR·1·04·008: capas < 4 cm sin función estructural); no proceden en este caso. Se recomienda REHABILITACIÓN ESTRUCTURAL (sobrecarpeta o reconstrucción), evaluada con deflexiones (FWD / retrocálculo / vida remanente) y diseño estructural por II-UNAM / AASHTO-93."), cwd);
+        const rtx = doc.splitTextToSize(asc("El pavimento se capturó como ESTRUCTURALMENTE DEFICIENTE, por lo que NO procede diseñar la capa de rodadura ni el tratamiento superficial: sobre una estructura con fatiga, roderas profundas o deflexiones altas, tanto una capa delgada de conservación (N·CTR·CAR·1·04·008: capas < 4 cm sin función estructural) como una carpeta nueva ven reducida su vida útil, y el espesor de una sobrecarpeta debe provenir de un diseño estructural. Se recomienda REHABILITACIÓN ESTRUCTURAL (sobrecarpeta estructural o reconstrucción), dimensionada con deflexiones (FWD / retrocálculo / vida remanente) y diseño estructural por II-UNAM / AASHTO-93."), cwd);
         doc.text(rtx, mx, p); p += rtx.length * 3.5 + 4;
         linkN(mx, p, "Consultar N·CTR·CAR·1·04·008 (los tratamientos superficiales no tienen función estructural)", NORMA.mez); p += 5;
       } else if (diseno && diseno.delgada) {
