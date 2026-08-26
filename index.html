@@ -253,7 +253,8 @@ footer.sitio strong{color:#777}
     <button id="mt-analisis" data-mod="analisis">② Análisis y reporte</button>
   </nav>
   <div class="intro-link"><button id="btn-intro">ⓘ ¿Cómo funciona? · Ver introducción</button>
-        <button id="btn-manual" type="button" title="Abre el Manual de Usuario en una ventana nueva">📖 Manual de usuario</button></div>
+        <button id="btn-manual" type="button" title="Abre el Manual de Usuario en una ventana nueva">📖 Manual de usuario</button>
+        <button id="btn-criterios" type="button" title="Abre el documento Criterios HG Asfáltica DGST en una ventana nueva">📐 Criterios HG Asfáltica DGST</button></div>
 
   <!-- Ventana de bienvenida -->
   <div id="bienvenida" class="modal-overlay oculto" role="dialog" aria-modal="true" aria-labelledby="bv-title">
@@ -10855,6 +10856,7 @@ if (typeof module !== "undefined" && module.exports) module.exports = PG;
   $("btn-volver") && $("btn-volver").addEventListener("click", () => mostrarModulo("captura"));
   $("btn-pdf2") && $("btn-pdf2").addEventListener("click", generarPDF);
   $("btn-manual") && $("btn-manual").addEventListener("click", function () { window.open("Manual_Usuario_HG_Asfaltica_DGST.pdf", "_blank", "noopener"); });
+  $("btn-criterios") && $("btn-criterios").addEventListener("click", function () { window.open("Criterios_HG_Asfaltica_DGST.pdf", "_blank", "noopener"); });
   window.AppPG = { pdf: generarPDF, analizar: analizarTodo };
   // Tooltips propios para los iconos de ayuda (ⓘ): hover y clic (táctil)
   (function initTips() {
