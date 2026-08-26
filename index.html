@@ -9413,7 +9413,9 @@ if (typeof module !== "undefined" && module.exports) module.exports = PG;
       const pg=(ga==="ESP")?"Diseño especial":("PG "+ga+letra+"-"+Math.abs(gb));
       sm.push({cad,ga,gb,letra,sumaL,tdpa,estAf,pg});
     }
-    function coalesce(a){ const o=[]; let c=null; for (const s of a){ if(!c||c.pg!==s.pg){ if(c)o.push(c); c={pg:s.pg,ga:s.ga,gb:s.gb,letra:s.letra,cadIni:s.cad,cadFin:s.cad,tdpaMax:s.tdpa,sumaLMax:s.sumaL,estAf:s.estAf}; } else { c.cadFin=s.cad; if(s.tdpa>c.tdpaMax){c.tdpaMax=s.tdpa;c.estAf=s.estAf;} if(s.sumaL>c.sumaLMax)c.sumaLMax=s.sumaL; } } if(c)o.push(c); return o; }
+    // Agrupa muestras contiguas del mismo PG. En un cambio de PG, el tramo de transición (una muestra) se asigna al
+    // segmento de MAYOR DESEMPEÑO (mayor severidad sevSeg), criterio conservador: los segmentos quedan CONTIGUOS (sin hueco).
+    function coalesce(a){ const o=[]; let c=null; for (let idx=0; idx<a.length; idx++){ const s=a[idx]; if(!c||c.pg!==s.pg){ if(c){ const sevA=sevSeg(c), sevB=sevSeg({ga:s.ga,gb:s.gb,letra:s.letra}); const bnd=(sevB>sevA)?a[idx-1].cad:s.cad; c.cadFin=bnd; o.push(c); c={pg:s.pg,ga:s.ga,gb:s.gb,letra:s.letra,cadIni:bnd,cadFin:s.cad,tdpaMax:s.tdpa,sumaLMax:s.sumaL,estAf:s.estAf}; } else { c={pg:s.pg,ga:s.ga,gb:s.gb,letra:s.letra,cadIni:s.cad,cadFin:s.cad,tdpaMax:s.tdpa,sumaLMax:s.sumaL,estAf:s.estAf}; } } else { c.cadFin=s.cad; if(s.tdpa>c.tdpaMax){c.tdpaMax=s.tdpa;c.estAf=s.estAf;} if(s.sumaL>c.sumaLMax)c.sumaLMax=s.sumaL; } } if(c)o.push(c); return o; }
     let segs = coalesce(sm); const MIN = 1.0; let guard=0;
     while (segs.length>1 && guard++<800){ let mi=-1, ml=1e9; for(let i=0;i<segs.length;i++){ const L=Math.abs(segs[i].cadFin-segs[i].cadIni); if(L<ml){ml=L;mi=i;} } if(ml>=MIN) break;
       const seg=segs[mi], left=segs[mi-1], right=segs[mi+1]; const host=(left&&right)?(sevSeg(left)>=sevSeg(right)?left:right):(left||right);
