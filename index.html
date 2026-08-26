@@ -356,10 +356,10 @@ footer.sitio strong{color:#777}
             </div>
           </div>
           <div id="ub-mapa" class="ub-grp oculto">
-            <p class="nota">Elige el punto de estudio haciendo <strong>clic en el mapa</strong>, o usa tu ubicación actual (el navegador pedirá permiso).</p>
+            <p class="nota">En el mapa: <strong>clic en un trazo</strong> para elegir esa carretera del Anexo A (se resalta el trazo seleccionado y puedes elegir otro); <strong>clic en zona vacía</strong> o «Usar mi ubicación» para fijar un punto de estudio.</p>
             <button type="button" id="btn-geo" class="btn-sec" style="margin:4px 0 8px">📍 Usar mi ubicación actual</button>
             <div id="mapa-ubic" style="width:100%;height:360px;border:1px solid #d9d4c9;border-radius:10px;background:#eef0ee;z-index:0"></div>
-            <p class="nota" id="ub-mapa-coords" style="margin-top:6px">Aún no has fijado un punto.</p>
+            <p class="nota" id="ub-mapa-coords" style="margin-top:6px">Trazos de la Red Carretera Federal por grado PG. Haz clic en uno para elegir la carretera.</p>
           </div>
         </section>
 
@@ -9357,11 +9357,15 @@ if (typeof module !== "undefined" && module.exports) module.exports = PG;
     $("ub-carretera") && $("ub-carretera").classList.toggle("oculto", m !== "carretera");
     $("ub-punto") && $("ub-punto").classList.toggle("oculto", m !== "punto");
     $("ub-segmento") && $("ub-segmento").classList.toggle("oculto", m !== "segmento");
-    $("ub-mapa") && $("ub-mapa").classList.toggle("oculto", m !== "mapa");
-    if (m === "mapa") initMapaUbic();
+    // El mapa de ubicación (con los trazos del Anexo A) se muestra en carretera, punto y mapa (no en segmento por coordenadas)
+    const verMapaUbic = (m === "carretera" || m === "punto" || m === "mapa");
+    $("ub-mapa") && $("ub-mapa").classList.toggle("oculto", !verMapaUbic);
+    if (verMapaUbic) initMapaUbic();
     $("crit-bloque") && $("crit-bloque").classList.toggle("oculto", m !== "carretera");
     if (m !== "carretera") { const _rp = document.querySelector('input[name="critAnal"][value="peor"]'); if (_rp) _rp.checked = true; }
   }));
+  // Estado inicial: modo Carretera por defecto → muestra el mapa de ubicación con los trazos del Anexo A
+  (function () { const rc = document.querySelector('input[name="modoUb"]:checked'); if (rc) rc.dispatchEvent(new Event("change")); })();
 
   // Orquestador: calcula ubicación + aforo + diseño y pasa al módulo de análisis
   /* =============== Segmentos homogéneos (PG por longitud del trazo) =============== */
@@ -9454,7 +9458,12 @@ if (typeof module !== "undefined" && module.exports) module.exports = PG;
     '</div>';
   }
   /* =============== Ubicación: mapa + geolocalización del usuario =============== */
-  let mapaUbic=null, mkGeoUbic=null, mkStudyUbic=null, geoBtnBound=false;
+  let mapaUbic=null, mkGeoUbic=null, mkStudyUbic=null, geoBtnBound=false, capaSelUbic=null;
+  // Resalta en el mapa de ubicación el trazo de la carretera seleccionada (como el módulo de análisis)
+  function resaltarTrazoUbic(g){
+    if(!mapaUbic || !g || !g.length) return;
+    try{ if(capaSelUbic) mapaUbic.removeLayer(capaSelUbic); capaSelUbic=L.polyline(g.map(p=>[p[0],p[1]]),{color:"#611232",weight:6,opacity:0.95}).addTo(mapaUbic); mapaUbic.fitBounds(capaSelUbic.getBounds(),{maxZoom:13,padding:[24,24]}); }catch(e){}
+  }
   function fijarPuntoUbic(lat,lon){
     if(!isFinite(lat)||!isFinite(lon))return;
     if($("plat"))$("plat").value=(+lat).toFixed(5);
@@ -9477,11 +9486,18 @@ if (typeof module !== "undefined" && module.exports) module.exports = PG;
     try{
       mapaUbic=L.map("mapa-ubic",{center:[23.6,-102],zoom:5,preferCanvas:true});
       L.tileLayer("https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png",{maxZoom:19,subdomains:"abcd",attribution:"© OpenStreetMap · © CARTO"}).addTo(mapaUbic);
-      mapaUbic.on("click",function(e){ fijarPuntoUbic(e.latlng.lat,e.latlng.lng); });
+      // Trazos de la RCF (Anexo A): clic en un trazo = elegir esa carretera (se cambia a modo Carretera y se selecciona)
+      const fcU={type:"FeatureCollection",features:ANEXOA.filter(t=>t.g&&t.g.length>1).map(t=>({type:"Feature",properties:{t},geometry:{type:"LineString",coordinates:t.g.map(p=>[p[1],p[0]])}}))};
+      L.geoJSON(fcU,{
+        style:f=>({color:COLOR_PG[gradoDe(f.properties.t.pg)]||"#888",weight:2,opacity:0.85}),
+        onEachFeature:(f,l)=>{ const t=f.properties.t; l.bindTooltip(`<b>${t.car||t.cp}</b><br>${t.tr||""} · ${t.pg}`,{sticky:true});
+          l.on("click",(ev)=>{ try{L.DomEvent.stop(ev);}catch(e){} const rc=document.querySelector('input[name="modoUb"][value="carretera"]'); if(rc && !rc.checked){ rc.checked=true; rc.dispatchEvent(new Event("change")); } seleccionarTramo(t); }); }
+      }).addTo(mapaUbic);
+      // Clic en zona vacía = fijar un punto de estudio (solo en modo punto o mapa)
+      mapaUbic.on("click",function(e){ const mm=modoUbicacion(); if(mm==="punto"||mm==="mapa") fijarPuntoUbic(e.latlng.lat,e.latlng.lng); });
       setTimeout(function(){try{mapaUbic.invalidateSize();}catch(e){}},60);
       setTimeout(function(){try{mapaUbic.invalidateSize();}catch(e){}},350);
       if(!geoBtnBound){ const b=$("btn-geo"); if(b) b.addEventListener("click",geolocalizarUbic); geoBtnBound=true; }
-      geolocalizarUbic();
     }catch(e){}
   }
   /* =============== Mapa temático: trazo por PG-segmento + estaciones por ∑L =============== */
@@ -9700,6 +9716,7 @@ if (typeof module !== "undefined" && module.exports) module.exports = PG;
     q.value = t.car || t.cp; qlista.innerHTML = "";
     prepararCadenamiento(t);
     const b = resaltarTrazo(t.g); volarA(b, 13);
+    initMapaUbic(); resaltarTrazoUbic(t.g);   // resalta el trazo también en el mapa del módulo de ubicación
     const rc0 = rangoCad(t.cp);
     etiquetasTrazo(t.g, rc0 ? fmtCad(rc0.ini) : "inicio", rc0 ? fmtCad(rc0.fin) : "fin", t.car || t.cp);
     mostrarPanel("carretera");
@@ -9894,7 +9911,7 @@ if (typeof module !== "undefined" && module.exports) module.exports = PG;
     if (aforoFuente.tipo === "DV2026") {
       const v = aforoFuente.vel;
       b.className = "fuente";
-      b.innerHTML = `Aforo de <b>Datos Viales 2026</b> · estación <b>${aforoFuente.est}</b> de la <b>misma carretera</b> (${aforoFuente.dist.toFixed(0)} km).`
+      b.innerHTML = `Aforo de <b>Datos Viales 2026</b> · estación <b>${aforoFuente.est}</b> (${aforoFuente.dist.toFixed(0)} km, ${aforoFuente.misma ? "misma carretera" : "carretera más cercana"}).`
         + (v ? `<br>Velocidad de operación (camiones) <b>${v.vCam} km/h</b> — Velocidades de Punto DGST 2025 (${v.distKm.toFixed(0)} km).` : "")
         + ` Edita cualquier valor si tienes datos más recientes.`;
     } else if (aforoFuente.tipo === "regional") {
@@ -9916,9 +9933,10 @@ if (typeof module !== "undefined" && module.exports) module.exports = PG;
     if (capturaManual) { aforoFuente = { tipo: "manual" }; bannerFuente(); calcularAforo(true); return; }
     if (aforoFuente && aforoFuente.tipo === "manual") { calcularAforo(true); return; }
     const vp = velocidadCercana(estudio.lat, estudio.lon);
-    // 1) Aforo REAL solo si la carretera se eligió explícitamente (Anexo A) y existe estación de la MISMA vía
+    // 1) ANEXO A (carretera elegida explícitamente): comportamiento previo — usa la estación de Datos Viales
+    //    (misma vía si existe; si no, la más cercana). NUNCA propuesta regional.
     const c = explicito ? aforoCercano(estudio.lat, estudio.lon, carNombre) : null;
-    if (c && c.misma) {
+    if (c) {
       const r = c.rec;
       $("tdpa").value = r[2];
       const scv = String(r[3]), scSel = $("sc"); if (scSel && [...scSel.options].some((o) => o.value === scv)) scSel.value = scv;
@@ -9926,10 +9944,10 @@ if (typeof module !== "undefined" && module.exports) module.exports = PG;
       campos.forEach((k) => { if ($("v-" + k)) $("v-" + k).value = mixMap[k]; });
       sumaPct();
       if (vp && $("vel")) $("vel").value = vp.vCam;
-      aforoFuente = { tipo: "DV2026", est: r[4], dist: c.distKm, misma: true, anio: 2026, vel: vp };
+      aforoFuente = { tipo: "DV2026", est: r[4], dist: c.distKm, misma: c.misma, anio: 2026, vel: vp };
       bannerFuente(); calcularAforo(true); return;
     }
-    // 2) PROPUESTA REGIONAL (no hay aforo de la vía en estudio)
+    // 2) PUNTO / COORDENADAS / MAPA (o Anexo A sin ninguna estación): PROPUESTA REGIONAL
     const pr = propuestaRegional(estudio.lat, estudio.lon);
     if (!pr) { aforoFuente = null; bannerFuente(); return; }
     $("tdpa").value = pr.tdpa;
