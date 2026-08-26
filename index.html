@@ -366,8 +366,12 @@ footer.sitio strong{color:#777}
         <!-- Aforo / tránsito -->
         <section class="tarjeta">
           <h2 class="seccion"><svg class="sec-ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M4 20V11M10 20V4M16 20v-6M22 20H2"/></svg>Aforo / tránsito <span class="ayuda" title="Con el TDPA y la composición vehicular se calculan los ejes equivalentes (∑L) por el método II-UNAM y el nivel de ajuste (S/H/V/E).">ⓘ</span></h2>
-          <p class="nota">Se <strong>precarga de Datos Viales 2026</strong> al elegir la ubicación (estación más cercana en la misma carretera) y el ajuste se calcula solo. Edítalo si tienes un aforo más reciente.</p>
+          <p class="nota">Se <strong>precarga de Datos Viales 2026</strong> al elegir la ubicación (estación más cercana en la misma carretera) y el ajuste se calcula solo. Para usar tus propios aforos, pulsa <strong>«Capturar datos viales»</strong>: se habilitan todos los campos y se respeta lo que escribas (DV2026 ya no lo sobrescribe), en los cuatro modos de ubicación.</p>
           <div id="aforo-fuente" class="fuente oculto"></div>
+          <div id="captura-bloque" style="margin:8px 0;display:flex;align-items:center;gap:10px;flex-wrap:wrap">
+            <button type="button" id="btn-capturar" aria-pressed="false" style="background:#fff;color:#611232;border:1px solid #611232;border-radius:8px;padding:8px 12px;font-weight:700;cursor:pointer">✎ Capturar datos viales</button>
+            <span id="captura-estado" style="font-size:12px;color:#8a7f70">Precarga automática (Datos Viales 2026). Actívalo para capturar tus propios aforos.</span>
+          </div>
           <div id="crit-bloque" style="margin:8px 0 4px;padding:8px 10px;border:1px solid #e6ddcf;border-radius:8px;background:#faf7f1">
             <div style="font-size:12px;color:#611232;font-weight:700;margin-bottom:4px">Criterio de análisis</div>
             <label style="display:inline-flex;align-items:center;gap:5px;margin-right:14px;font-size:13px;cursor:pointer"><input type="radio" name="critAnal" value="peor" checked> PG único · más desfavorable</label>
@@ -9181,6 +9185,7 @@ if (typeof module !== "undefined" && module.exports) module.exports = PG;
   let filtroEdo = "";
   let tramoActual = null;   // tramo del Anexo A seleccionado (para cadenamiento)
   let aforoFuente = null;   // origen del aforo usado {tipo:"DV2026"|"manual", est, dist, misma, anio}
+  let capturaManual = false; // modo "Capturar datos viales": campos editables y se respeta lo capturado (DV2026 no sobrescribe)
 
   const COLOR_PG = { 64: "#2c7fb8", 70: "#41ab5d", 76: "#f5a623", 82: "#c0392b" };
   // URL fija del validador del QR (configuración de código; cambiar cuando SICT publique validar.html)
@@ -9593,15 +9598,16 @@ if (typeof module !== "undefined" && module.exports) module.exports = PG;
     const tx = PG.tmaxPavimento(s.TM, lat, s.sM), tn = PG.tminPavimento(s.Tm, lat, s.sm);
     return { s, distKm, tx, tn, ga: PG.gradoAlto(tx), gb: PG.gradoBajo(tn) };
   }
-  function evaluarPunto(lat, lon, carretera, sinMarcador) {
+  // explicito = true solo cuando el usuario ELIGIÓ la carretera (Anexo A); en punto/coordenadas/mapa es false → propuesta regional
+  function evaluarPunto(lat, lon, carretera, sinMarcador, explicito) {
     const { s, distKm, tx, tn, ga, gb } = evalTemp(lat, lon);
     estudio = { carretera, lat, lon, ga, gb, rg: s.rg || "", tx, tn,
                 estNom: s.nm, estDist: distKm, TM: s.TM, sM: s.sM, Tm: s.Tm, sm: s.sm };
     aforoRes = null; diseno = null;
-    const tasa = TASAS[s.rg]; if (tasa != null) $("tasa").value = (tasa * 100).toFixed(1);
+    const tasa = TASAS[s.rg]; if (tasa != null && !capturaManual) $("tasa").value = (tasa * 100).toFixed(1);
     if (!sinMarcador) marcarPunto(lat, lon);
-    aforoFuente = null;   // ubicación nueva (acción explícita) → se permite precargar de nuevo
-    precargarAforo(carretera && carretera.car);
+    if (!capturaManual) aforoFuente = null;   // ubicación nueva → se permite precargar de nuevo (salvo captura manual)
+    precargarAforo(carretera && carretera.car, !!explicito);
     return { s, distKm, tx, tn, ga, gb };
   }
 
@@ -9689,7 +9695,7 @@ if (typeof module !== "undefined" && module.exports) module.exports = PG;
 
   function seleccionarTramo(t) {
     tramoActual = t; segSel = null; capaSeg = quitar(capaSeg);
-    const { s, distKm } = evaluarPunto(t.la, t.lo, t, true);
+    const { s, distKm } = evaluarPunto(t.la, t.lo, t, true, true);   // Anexo A: carretera elegida explícitamente
     capaPunto = quitar(capaPunto);
     q.value = t.car || t.cp; qlista.innerHTML = "";
     prepararCadenamiento(t);
@@ -9754,22 +9760,57 @@ if (typeof module !== "undefined" && module.exports) module.exports = PG;
       "El PG del segmento se rige por el extremo más desfavorable (T. máx mayor y T. mín menor). Para el PG final por tránsito, ve a la pestaña ③ Aforo.");
   }
 
+  /* =============== Identificar la carretera de la RCF más cercana a un punto =============== */
+  // Distancia² (en grados) de un punto al segmento AB — para asociar un clic/coordenada al trazo del Anexo A.
+  function distPuntoSeg2(px, py, ax, ay, bx, by) {
+    const dx = bx - ax, dy = by - ay, l2 = dx * dx + dy * dy;
+    let t = l2 > 0 ? ((px - ax) * dx + (py - ay) * dy) / l2 : 0;
+    t = t < 0 ? 0 : t > 1 ? 1 : t;
+    const cx = ax + t * dx, cy = ay + t * dy, ex = px - cx, ey = py - cy;
+    return ex * ex + ey * ey;
+  }
+  // Devuelve el tramo del Anexo A cuyo TRAZO pasa más cerca del punto (clave, nombre, geometría) y la distancia en km.
+  function tramoCercano(lat, lon) {
+    if (!ANEXOA || !ANEXOA.length) return null;
+    // 1) candidatos por cercanía del punto representativo (rápido); 2) distancia precisa al trazo
+    const cand = ANEXOA.map((t) => [(t.la - lat) ** 2 + (t.lo - lon) ** 2, t]).sort((a, b) => a[0] - b[0]).slice(0, 80).map((x) => x[1]);
+    let best = null, bd = Infinity;
+    for (const t of cand) {
+      const g = t.g; if (!g || !g.length) continue;
+      let dmin = Infinity;
+      if (g.length === 1) dmin = (g[0][0] - lat) ** 2 + (g[0][1] - lon) ** 2;
+      else for (let i = 0; i < g.length - 1; i++) { const d = distPuntoSeg2(lat, lon, g[i][0], g[i][1], g[i + 1][0], g[i + 1][1]); if (d < dmin) dmin = d; }
+      if (dmin < bd) { bd = dmin; best = t; }
+    }
+    return best ? { tramo: best, distKm: Math.sqrt(bd) * 111 } : null;
+  }
+
   /* =============== Calcular PG en un punto =============== */
   function calcularPunto() {
     const lat = parseFloat($("plat").value), lon = parseFloat($("plon").value);
     if (isNaN(lat) || isNaN(lon)) { toast("Ingresa latitud y longitud, o haz clic en el mapa."); return; }
     tramoActual = null; segSel = null; capaSel = quitar(capaSel); capaSeg = quitar(capaSeg); limpiarEtiq();
     const cb = $("cad-bloque"); if (cb) cb.classList.add("oculto");
-    const { s, distKm, tx, tn, ga, gb } = evaluarPunto(lat, lon, null);
-    volarAPunto(lat, lon);
-    $("res-ubicacion").innerHTML = tarjeta(PG.pgTexto(ga, gb), null, `
-      <tr><td>T. máx pavimento (20 mm)</td><td>${tx.toFixed(1)} °C</td></tr>
+    // Asocia el punto a la carretera de la RCF más cercana (≤ 3 km) para mostrar clave/nombre y tomar el aforo de la MISMA vía
+    const tc = tramoCercano(lat, lon);
+    const car = (tc && tc.distKm <= 3) ? tc.tramo : null;
+    const { s, distKm, tx, tn, ga, gb } = evaluarPunto(lat, lon, car);
+    if (car) { const b = resaltarTrazo(car.g); etiquetasTrazo(car.g, "inicio", "fin", car.car || car.cp); marcarPunto(lat, lon); volarA(b, 13); }
+    else volarAPunto(lat, lon);
+    const filasVia = car ? `
+      <tr><td>Carretera (más cercana)</td><td>${car.car || "—"}</td></tr>
+      <tr><td>Tramo</td><td>${car.tr || "—"}</td></tr>
+      <tr><td>Clave PARCF / DGCC</td><td>${car.cp} / ${car.dg || "—"}</td></tr>
+      <tr class="sep"><td>Red · distancia al trazo</td><td>${car.gr || "—"} · ${tc.distKm.toFixed(2)} km</td></tr>`
+      : `<tr><td>Carretera</td><td>Sin trazo de la RCF a ≤ 3 km${tc ? " (más cercano: " + tc.distKm.toFixed(1) + " km)" : ""}</td></tr>`;
+    $("res-ubicacion").innerHTML = tarjeta(PG.pgTexto(ga, gb), car ? (car.car || car.cp) : "Punto (sin carretera asociada)", `
+      ${filasVia}
+      <tr class="sep"><td>T. máx pavimento (20 mm)</td><td>${tx.toFixed(1)} °C</td></tr>
       <tr><td>T. mín pavimento</td><td>${tn.toFixed(1)} °C</td></tr>
       <tr class="sep"><td>Región / crecimiento</td><td>${estudio.rg || "—"} · ${TASAS[estudio.rg] != null ? (TASAS[estudio.rg] * 100).toFixed(1) + " %" : "—"}</td></tr>
-      <tr><td>Estación clima (más cercana)</td><td>${s.nm} (${distKm.toFixed(0)} km)</td></tr>
-      <tr><td>T. aire máx 7 d / σ</td><td>${s.TM} / ${s.sM} °C</td></tr>
-      <tr><td>T. aire mín / σ</td><td>${s.Tm} / ${s.sm} °C</td></tr>`,
-      "Grado por temperatura. Agrega el aforo para el nivel de ajuste.");
+      <tr><td>Estación clima (más cercana)</td><td>${s.nm} (${distKm.toFixed(0)} km)</td></tr>`,
+      car ? "La carretera mostrada es la más cercana al punto (trazo resaltado), solo como referencia para que verifiques que es la vía en estudio. El aforo NO se toma de una estación cercana: se propone con estadísticas de la región (ver aviso en ③ Aforo). Para el aforo exacto de la vía, elígela por Anexo A; o captura tu aforo con «Capturar datos viales»."
+          : "Punto sin carretera de la RCF cercana. El aforo se propone con estadísticas de la región (ver aviso en ③ Aforo); verifícalo o captúralo con «Capturar datos viales».");
   }
 
   /* =============== Avanzado: segmento por coordenadas (inicio y fin) =============== */
@@ -9830,39 +9871,74 @@ if (typeof module !== "undefined" && module.exports) module.exports = PG;
     for (const r of VELOP) { const d = (r[0] - lat) ** 2 + (r[1] - lon) ** 2; if (d < bd) { bd = d; best = r; } }
     return { vAuto: best[2], vBus: best[3], vCam: best[4], distKm: Math.sqrt(bd) * 111 };
   }
+  // PROPUESTA REGIONAL de aforo cuando NO se cuenta con la estación de la vía en estudio:
+  // TDPA por MEDIANA (robusta a autopistas atípicas) y composición vehicular PROMEDIO de las estaciones DV de la región.
+  function propuestaRegional(lat, lon) {
+    if (!DV.length) return null;
+    const conD = DV.map((r) => [Math.sqrt((r[0] - lat) ** 2 + (r[1] - lon) ** 2) * 111, r]).sort((a, b) => a[0] - b[0]);
+    let radio = 40, sample = [];
+    for (const rt of [40, 70, 110, 150]) { sample = conD.filter((x) => x[0] <= rt).map((x) => x[1]); radio = rt; if (sample.length >= 12) break; }
+    if (sample.length < 6) sample = conD.slice(0, 15).map((x) => x[1]);   // respaldo: 15 estaciones más próximas
+    const tdpas = sample.map((r) => +r[2]).sort((a, b) => a - b);
+    const n = tdpas.length, med = n % 2 ? tdpas[(n - 1) / 2] : Math.round((tdpas[n / 2 - 1] + tdpas[n / 2]) / 2);
+    const idx = { m: 5, a: 6, b: 7, c2: 8, c3: 9, t3s2: 10, t3s3: 11, t3s2r4: 12, otros: 13 };
+    const mezcla = {}; let suma = 0;
+    for (const k in idx) { const avg = sample.reduce((s, r) => s + (+r[idx[k]] || 0), 0) / sample.length; mezcla[k] = avg; suma += avg; }
+    if (suma > 0) for (const k in mezcla) mezcla[k] = +(mezcla[k] * 100 / suma).toFixed(1);
+    return { tdpa: Math.round(med), mezcla, n: sample.length, radioKm: radio };
+  }
   function bannerFuente() {
     const b = $("aforo-fuente"); if (!b) return;
+    b.style.cssText = "";
     if (!aforoFuente) { b.className = "fuente oculto"; b.innerHTML = ""; return; }
     if (aforoFuente.tipo === "DV2026") {
       const v = aforoFuente.vel;
       b.className = "fuente";
-      b.innerHTML = `Aforo de <b>Datos Viales 2026</b> · estación <b>${aforoFuente.est}</b> (${aforoFuente.dist.toFixed(0)} km${aforoFuente.misma ? ", misma carretera" : ", carretera más cercana"}).`
+      b.innerHTML = `Aforo de <b>Datos Viales 2026</b> · estación <b>${aforoFuente.est}</b> de la <b>misma carretera</b> (${aforoFuente.dist.toFixed(0)} km).`
         + (v ? `<br>Velocidad de operación (camiones) <b>${v.vCam} km/h</b> — Velocidades de Punto DGST 2025 (${v.distKm.toFixed(0)} km).` : "")
         + ` Edita cualquier valor si tienes datos más recientes.`;
+    } else if (aforoFuente.tipo === "regional") {
+      const v = aforoFuente.vel;
+      b.className = "fuente";
+      b.style.cssText = "background:#fff7e6;border:1px solid #8a6d1a;border-radius:8px;padding:10px 12px;color:#5a4a12";
+      b.innerHTML = `⚠ <b>Propuesta regional (verificar)</b>: los porcentajes de composición vehicular y el TDPA aquí presentados <b>no son el aforo de la vía en estudio</b>; son una <b>propuesta con base en las estadísticas de la región</b> (Datos Viales 2026 · ${aforoFuente.n} estaciones en ~${aforoFuente.radioKm} km · TDPA por mediana, composición promedio).`
+        + (v ? `<br>Velocidad de operación (camiones) <b>${v.vCam} km/h</b> — Velocidades de Punto DGST 2025.` : "")
+        + `<br>El usuario debe <b>verificar que el TDPA corresponda</b> si cuenta con el aforo de la vialidad en estudio; para capturarlo usa el botón «Capturar datos viales».`;
     } else {
       b.className = "fuente manual";
       b.innerHTML = `Aforo <b>capturado manualmente</b>. Se usará este en el reporte.`;
     }
   }
-  // Precarga el aforo del estudio actual y calcula el ajuste automáticamente
-  function precargarAforo(carNombre) {
-    if (!estudio || estudio.ga === "ESP" || !DV.length) { aforoFuente = null; bannerFuente(); return; }
-    // Si el usuario ya editó el aforo, respetar lo capturado (no sobrescribir).
+  // Precarga el aforo del estudio. Solo usa una estación de Datos Viales cuando es la MISMA vía elegida por Anexo A;
+  // en punto/coordenadas/mapa (o vía sin estación propia) entrega una PROPUESTA REGIONAL claramente identificada.
+  function precargarAforo(carNombre, explicito) {
+    if (!estudio || estudio.ga === "ESP" || !DV.length) { if (!capturaManual) { aforoFuente = null; bannerFuente(); } return; }
+    if (capturaManual) { aforoFuente = { tipo: "manual" }; bannerFuente(); calcularAforo(true); return; }
     if (aforoFuente && aforoFuente.tipo === "manual") { calcularAforo(true); return; }
-    const c = aforoCercano(estudio.lat, estudio.lon, carNombre);
-    if (!c) { aforoFuente = null; bannerFuente(); return; }
-    const r = c.rec;
-    $("tdpa").value = r[2];
-    const scv = String(r[3]), scSel = $("sc"); if (scSel && [...scSel.options].some((o) => o.value === scv)) scSel.value = scv;
-    const mixMap = { m: r[5], a: r[6], b: r[7], c2: r[8], c3: r[9], t3s2: r[10], t3s3: r[11], t3s2r4: r[12], otros: r[13] };
-    campos.forEach((k) => { if ($("v-" + k)) $("v-" + k).value = mixMap[k]; });
-    sumaPct();
-    // Velocidad de operación (camiones) de la estación de velocidades de punto DGST más cercana
     const vp = velocidadCercana(estudio.lat, estudio.lon);
+    // 1) Aforo REAL solo si la carretera se eligió explícitamente (Anexo A) y existe estación de la MISMA vía
+    const c = explicito ? aforoCercano(estudio.lat, estudio.lon, carNombre) : null;
+    if (c && c.misma) {
+      const r = c.rec;
+      $("tdpa").value = r[2];
+      const scv = String(r[3]), scSel = $("sc"); if (scSel && [...scSel.options].some((o) => o.value === scv)) scSel.value = scv;
+      const mixMap = { m: r[5], a: r[6], b: r[7], c2: r[8], c3: r[9], t3s2: r[10], t3s3: r[11], t3s2r4: r[12], otros: r[13] };
+      campos.forEach((k) => { if ($("v-" + k)) $("v-" + k).value = mixMap[k]; });
+      sumaPct();
+      if (vp && $("vel")) $("vel").value = vp.vCam;
+      aforoFuente = { tipo: "DV2026", est: r[4], dist: c.distKm, misma: true, anio: 2026, vel: vp };
+      bannerFuente(); calcularAforo(true); return;
+    }
+    // 2) PROPUESTA REGIONAL (no hay aforo de la vía en estudio)
+    const pr = propuestaRegional(estudio.lat, estudio.lon);
+    if (!pr) { aforoFuente = null; bannerFuente(); return; }
+    $("tdpa").value = pr.tdpa;
+    const scSel = $("sc"); if (scSel) scSel.value = "0";   // ambos sentidos por defecto en una propuesta
+    campos.forEach((k) => { if ($("v-" + k)) $("v-" + k).value = pr.mezcla[k]; });
+    sumaPct();
     if (vp && $("vel")) $("vel").value = vp.vCam;
-    aforoFuente = { tipo: "DV2026", est: r[4], dist: c.distKm, misma: c.misma, anio: 2026, vel: vp };
-    bannerFuente();
-    calcularAforo(true);
+    aforoFuente = { tipo: "regional", n: pr.n, radioKm: pr.radioKm, anio: 2026, vel: vp };
+    bannerFuente(); calcularAforo(true);
   }
   function marcarManual() { if (!aforoFuente || aforoFuente.tipo !== "manual") { aforoFuente = { tipo: "manual" }; bannerFuente(); } }
 
@@ -9879,6 +9955,40 @@ if (typeof module !== "undefined" && module.exports) module.exports = PG;
   campos.forEach((k) => $("v-" + k) && $("v-" + k).addEventListener("input", () => { marcarManual(); sumaPct(); }));
   ["tdpa", "sc", "carriles", "vel", "anios", "tasa"].forEach((id) => $(id) && $(id).addEventListener("input", marcarManual));
   document.querySelectorAll("[data-preset]").forEach((b) => b.addEventListener("click", () => aplicarPreset(b.dataset.preset)));
+
+  // ——— Modo "Capturar datos viales": habilita TODOS los campos y respeta lo capturado (para los 4 modos de ubicación) ———
+  const AFORO_IDS = ["tdpa", "v-m", "v-a", "v-b", "v-c2", "v-c3", "v-t3s2", "v-t3s3", "v-t3s2r4", "v-otros", "sc", "carriles", "vel", "anios", "tasa"];
+  function habilitarCamposAforo(on) {
+    AFORO_IDS.forEach((id) => { const e = $(id); if (e) e.disabled = !on; });
+    document.querySelectorAll("[data-preset]").forEach((b) => (b.disabled = !on));
+  }
+  function pintarBtnCaptura() {
+    const btn = $("btn-capturar"), est = $("captura-estado"); if (!btn) return;
+    btn.setAttribute("aria-pressed", capturaManual ? "true" : "false");
+    if (capturaManual) {
+      btn.textContent = "✓ Captura manual activa — clic para volver a Datos Viales 2026";
+      btn.style.background = "#611232"; btn.style.color = "#fff"; btn.style.borderColor = "#611232";
+      if (est) est.textContent = "Captura manual: escribe tus aforos; Datos Viales 2026 no los sobrescribirá.";
+    } else {
+      btn.textContent = "✎ Capturar datos viales";
+      btn.style.background = "#fff"; btn.style.color = "#611232"; btn.style.borderColor = "#611232";
+      if (est) est.textContent = "Precarga automática (Datos Viales 2026). Actívalo para capturar tus propios aforos.";
+    }
+  }
+  $("btn-capturar") && $("btn-capturar").addEventListener("click", () => {
+    capturaManual = !capturaManual;
+    habilitarCamposAforo(capturaManual);
+    pintarBtnCaptura();
+    if (capturaManual) {
+      aforoFuente = { tipo: "manual" }; bannerFuente();
+      const t = $("tdpa"); if (t) { t.focus(); try { t.select(); } catch (e) {} }
+      if (estudio && estudio.ga !== "ESP") { try { calcularAforo(true); } catch (e) {} }
+    } else {
+      aforoFuente = null;
+      precargarAforo(estudio && estudio.carretera ? estudio.carretera.car : null);
+    }
+  });
+  habilitarCamposAforo(false); pintarBtnCaptura();   // estado inicial: precarga automática (campos bloqueados hasta pulsar el botón)
 
   function calcularAforo(auto) {
     if (!estudio || estudio.ga === undefined) { if (!auto) toast("Primero fija un punto o una carretera (pestañas anteriores o clic en el mapa)."); return; }
@@ -10382,7 +10492,7 @@ if (typeof module !== "undefined" && module.exports) module.exports = PG;
       const a = aforoRes, fu = a.fuente || {};
       head(xL, y, Wd - 2 * mx, "Tránsito y ejes equivalentes (∑L, " + a.anios + " años)"); y += 6;
       doc.setFontSize(8); setC(GR); doc.setFont(undefined, "normal"); doc.text(asc("Fuente del aforo:"), xL, y);
-      setC(TN); doc.setFont(undefined, "bold"); doc.text(asc(fu.tipo === "DV2026" ? ("Datos Viales 2026 · " + (fu.est || "") + (fu.dist != null ? " (" + fu.dist.toFixed(0) + " km)" : "")) : "Captura manual"), xL + 24, y); doc.setFont(undefined, "normal"); y += 5;
+      setC(TN); doc.setFont(undefined, "bold"); doc.text(asc(fu.tipo === "DV2026" ? ("Datos Viales 2026 · " + (fu.est || "") + (fu.dist != null ? " (" + fu.dist.toFixed(0) + " km)" : "")) : fu.tipo === "regional" ? ("Propuesta regional (verificar) · " + (fu.n || "") + " est. ~" + (fu.radioKm || "") + " km") : "Captura manual"), xL + 24, y); doc.setFont(undefined, "normal"); y += 5;
       kv(xL, y, cw, "TDPA (SC " + a.sc + ")", a.tdpa.toLocaleString("es-MX"));
       kv(xR, y, cw, "Carriles · vel* · crec", a.carriles + " · " + a.vel + " km/h · " + a.tasa.toFixed(1) + " %"); y += 5;
       kv(xL, y, cw, "Comp. C2/C3/T3S2/T3S3/T3S2R4", a.mezcla.c2 + "/" + a.mezcla.c3 + "/" + a.mezcla.t3s2 + "/" + a.mezcla.t3s3 + "/" + a.mezcla.t3s2r4 + " %");
@@ -10442,7 +10552,7 @@ if (typeof module !== "undefined" && module.exports) module.exports = PG;
       kv(xb, p, cw2, "T. máx / mín pavimento", estudio.tx.toFixed(1) + " / " + estudio.tn.toFixed(1) + " °C"); p += 4.6;
       if (aforoRes) {
         const a = aforoRes, fu = a.fuente || {}, m = a.mezcla || {};
-        kv(xa, p, cw2, "Fuente del aforo", fu.tipo === "DV2026" ? ("Datos Viales 2026 · " + (fu.est || "")) : "Captura manual");
+        kv(xa, p, cw2, "Fuente del aforo", fu.tipo === "DV2026" ? ("Datos Viales 2026 · " + (fu.est || "")) : fu.tipo === "regional" ? ("Propuesta regional — verificar (" + (fu.n || "") + " est.)") : "Captura manual");
         kv(xb, p, cw2, "TDPA · SC", a.tdpa.toLocaleString("es-MX") + " · SC " + a.sc); p += 4.6;
         kv(xa, p, cw2, "Carriles · velocidad · periodo", a.carriles + " · " + a.vel + " km/h · " + a.anios + " años");
         kv(xb, p, cw2, "Tasa de crecimiento", a.tasa.toFixed(1) + " %"); p += 4.6;
