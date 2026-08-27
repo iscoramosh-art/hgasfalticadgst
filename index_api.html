@@ -1009,13 +1009,16 @@ footer.sitio strong{color:#777}
     const u = d.ubicacion || {};
     estudio = Object.assign({
       carretera: extra && extra.carretera ? extra.carretera : null,
-      lat: extra && extra.lat != null ? extra.lat : null,
-      lon: extra && extra.lon != null ? extra.lon : null,
+      lat: (extra && extra.lat != null) ? extra.lat : (u.punto ? u.punto[0] : null),
+      lon: (extra && extra.lon != null) ? extra.lon : (u.punto ? u.punto[1] : null),
       ga: d.grado_alto, gb: d.grado_bajo, rg: d.region || "",
       tx: d.t_max_pavimento, tn: d.t_min_pavimento,
       estNom: (d.estacion_clima || {}).nombre, estDist: (d.estacion_clima || {}).dist_km,
       tasaPct: d.tasa_crecimiento,
-      TM: null, sM: null, Tm: null, sm: null
+      // El reporte imprime "T. aire max 7 d / D.E." y "T. aire min / D.E."; son los estadisticos
+      // crudos de la estacion que rige, que ahora publica /api/evaluar.
+      TM: (d.estacion_clima || {}).tm, sM: (d.estacion_clima || {}).sm,
+      Tm: (d.estacion_clima || {}).tmin, sm: (d.estacion_clima || {}).smin
     }, (extra && extra.estudio) || {});
     if (d.tasa_crecimiento != null && !capturaManual && $("tasa")) $("tasa").value = d.tasa_crecimiento.toFixed(1);
     aforoRes = null; diseno = null;
@@ -1031,7 +1034,12 @@ footer.sitio strong{color:#777}
       aforoFuente = a.fuente;
       aforoRes = { Lu: d.suma_L, nu: d.nivel_ajuste, gob: d.nivel_ajuste, vel: a.velocidad, tdpa: a.tdpa,
                    sc: a.sc, anios: a.anios, tasa: d.tasa_crecimiento, carriles: a.carriles, mezcla: a.mezcla,
-                   pgU: d.pg_seleccionado, pgGob: d.pg_seleccionado, fuente: a.fuente };
+                   pgU: d.pg_seleccionado, pgGob: d.pg_seleccionado,
+                   // el reporte PDF lee est/dist/n/radioKm; la API los manda con otros nombres
+                   fuente: Object.assign({}, a.fuente || {}, {
+                     est: (a.fuente || {}).estacion, dist: (a.fuente || {}).dist_km,
+                     n: (a.fuente || {}).estaciones, radioKm: (a.fuente || {}).radio_km,
+                     misma: (a.fuente || {}).misma_carretera }) };
       bannerFuente();
       $("res-aforo").innerHTML = tarjeta(d.pg_seleccionado, "PG seleccionado · nivel " + (d.nivel_ajuste_texto || ""), `
         <tr><td>PG base (temperatura)</td><td>${d.pg_base}</td></tr>
@@ -1160,9 +1168,13 @@ footer.sitio strong{color:#777}
         if (_pa && _pb) _pm = [(_pa[0] + _pb[0]) / 2, (_pa[1] + _pb[1]) / 2];
       }
     } catch (e) {}
-    aplicarEvaluacion(d, { carretera: { car: tramoActual.car, cp: tramoActual.cp, tr: tramoActual.tr, g: tramoActual.g },
+    aplicarEvaluacion(d, { carretera: { car: tramoActual.car, cp: tramoActual.cp, tr: tramoActual.tr, g: tramoActual.g, gr: tramoActual.gr, dg: tramoActual.dg || "" },
                            lat: _pm ? _pm[0] : null, lon: _pm ? _pm[1] : null,
-                           estudio: { segmento: (ci != null && cf != null) ? { ci: ci, cf: cf } : null } });
+                           estudio: { segmento: (ci != null && cf != null) ? { ci: ci, cf: cf,
+                             e1: (u.extremos && u.extremos.inicio) || null,
+                             e2: (u.extremos && u.extremos.fin) || null,
+                             p1: (u.extremos && u.extremos.inicio && u.extremos.inicio.punto) || null,
+                             p2: (u.extremos && u.extremos.fin && u.extremos.fin.punto) || null } : null } });
     if (ci != null && cf != null && tramoActual.g.length > 1) {
       const r = rangoCad(tramoActual.cp), span = r ? (r.fin - r.ini) : largoTrazoKm(tramoActual.g);
       const f1 = span ? (ci - (r ? r.ini : 0)) / span : 0, f2 = span ? (cf - (r ? r.ini : 0)) / span : 1;
@@ -1214,7 +1226,9 @@ footer.sitio strong{color:#777}
     if (!d) return;
     const u = d.ubicacion || {};
     aplicarEvaluacion(d, { lat: (la1 + la2) / 2, lon: (lo1 + lo2) / 2,
-                           estudio: { segmento: { coords: true, p1: [la1, lo1], p2: [la2, lo2] } } });
+                           estudio: { segmento: { coords: true, p1: [la1, lo1], p2: [la2, lo2],
+                             e1: (u.extremos && u.extremos.inicio) || null,
+                             e2: (u.extremos && u.extremos.fin) || null } } });
     const g = [[la1, lo1], [la2, lo2]];
     segSel = g; capaPunto = quitar(capaPunto); capaSeg = quitar(capaSeg); capaSel = quitar(capaSel);
     try { volarA(L.latLngBounds(g), 14); } catch (e) {}
@@ -1382,6 +1396,9 @@ footer.sitio strong{color:#777}
       area: q.area, delgada: d.clase === "tratamiento", rehab: !!d.rehabilitacion,
       tipo: tipoCapa(c.espesor), metodo: d.metodo || t.subtitulo, tipoMezcla: d.tipo_mezcla || d.clase,
       tonMezcla: q.mezcla_t, tonCA: q.ca_t, tonPetreo: q.petreo_t, Lestr: q.L_estructural,
+      // el reporte PDF tambien imprime el volumen compactado, el volumen de acopio del petreo
+      // y el espesor suelto: la API ya los manda, faltaba pasarlos
+      V: q.volumen, volPetreo: q.petreo_m3, espSuelto: q.espesor_suelto,
       trat: d.tratamiento, emul: d.emulsion, mat: d.material, nom: d.nominal_mm, rap: d.rap || null,
       // requisitos y dosis que arma el servidor (los usa el reporte PDF)
       reqEmul: d.requisitos_emulsion || [], reqPetreo: d.requisitos_petreo || [], critNIT: d.criterios_nit || [],
@@ -1709,9 +1726,9 @@ footer.sitio strong{color:#777}
 
     // Temperaturas (dos columnas)
     head(xL, y, Wd - 2 * mx, "Temperaturas (M·MMP·4·05·064/22, H = 20 mm, 98 %)"); y += 6;
-    kv(xL, y, cw, "T. aire máx 7 d / D.E.", estudio.TM + " / " + estudio.sM + " °C");
+    kv(xL, y, cw, "T. aire máx 7 d / D.E.", (estudio.TM != null ? estudio.TM : "—") + " / " + (estudio.sM != null ? estudio.sM : "—") + " °C");
     kv(xR, y, cw, "T. máx pavimento", estudio.tx.toFixed(1) + " °C"); y += 5;
-    kv(xL, y, cw, "T. aire mín / D.E.", estudio.Tm + " / " + estudio.sm + " °C");
+    kv(xL, y, cw, "T. aire mín / D.E.", (estudio.Tm != null ? estudio.Tm : "—") + " / " + (estudio.sm != null ? estudio.sm : "—") + " °C");
     kv(xR, y, cw, "T. mín pavimento", estudio.tn.toFixed(1) + " °C"); y += 6.5;
 
     // Segmento (si aplica)
@@ -1721,15 +1738,17 @@ footer.sitio strong{color:#777}
         head(xL, y, Wd - 2 * mx, "Segmento por coordenadas (dos extremos)"); y += 6;
         kv(xL, y, cw, "Inicio (lat, lon)", g.p1[0].toFixed(4) + ", " + g.p1[1].toFixed(4));
         kv(xR, y, cw, "PG que rige", PG.pgTexto(estudio.ga, estudio.gb)); y += 5;
-        kv(xL, y, cw, "Inicio: PG · T", PG.pgTexto(g.e1.ga, g.e1.gb) + " · " + g.e1.tx.toFixed(1) + "/" + g.e1.tn.toFixed(1) + " C");
+        if (g.e1) kv(xL, y, cw, "Inicio: PG · T", PG.pgTexto(g.e1.ga, g.e1.gb) + " · " + fx(g.e1.tx, 1) + "/" + fx(g.e1.tn, 1) + " C");
         kv(xR, y, cw, "Fin (lat, lon)", g.p2[0].toFixed(4) + ", " + g.p2[1].toFixed(4)); y += 5;
-        kv(xL, y, cw, "Fin: PG · T", PG.pgTexto(g.e2.ga, g.e2.gb) + " · " + g.e2.tx.toFixed(1) + "/" + g.e2.tn.toFixed(1) + " C"); y += 6.5;
+        if (g.e2) kv(xL, y, cw, "Fin: PG · T", PG.pgTexto(g.e2.ga, g.e2.gb) + " · " + fx(g.e2.tx, 1) + "/" + fx(g.e2.tn, 1) + " C");
+        y += 6.5;
       } else {
         head(xL, y, Wd - 2 * mx, "Segmento en estudio (cadenamiento, dos extremos)"); y += 6;
         kv(xL, y, cw, "Cadenamiento", fmtCad(g.ci) + " a " + fmtCad(g.cf) + " (" + (g.cf - g.ci).toFixed(1) + " km)");
         kv(xR, y, cw, "PG que rige", PG.pgTexto(estudio.ga, estudio.gb)); y += 5;
-        kv(xL, y, cw, "Ext. " + fmtCad(g.ci), PG.pgTexto(g.e1.ga, g.e1.gb) + " · " + g.e1.tx.toFixed(1) + "/" + g.e1.tn.toFixed(1) + " C");
-        kv(xR, y, cw, "Ext. " + fmtCad(g.cf), PG.pgTexto(g.e2.ga, g.e2.gb) + " · " + g.e2.tx.toFixed(1) + "/" + g.e2.tn.toFixed(1) + " C"); y += 6.5;
+        if (g.e1) kv(xL, y, cw, "Ext. " + fmtCad(g.ci), PG.pgTexto(g.e1.ga, g.e1.gb) + " · " + fx(g.e1.tx, 1) + "/" + fx(g.e1.tn, 1) + " C");
+        if (g.e2) kv(xR, y, cw, "Ext. " + fmtCad(g.cf), PG.pgTexto(g.e2.ga, g.e2.gb) + " · " + fx(g.e2.tx, 1) + "/" + fx(g.e2.tn, 1) + " C");
+        y += 6.5;
       }
     }
 
@@ -2140,5 +2159,5 @@ footer.sitio strong{color:#777}
 })();
 </script>
 </body>
-<!-- HGA build v19 -->
+<!-- HGA build v22 -->
 </html>
