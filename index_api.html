@@ -636,6 +636,11 @@ footer.sitio strong{color:#777}
 
   // Trazos de la RCF: sólo los del RECUADRO VISIBLE (la red completa nunca baja al navegador)
   function capaTrazos(m, alElegir) {
+    // UN RENDERER POR MAPA. Una instancia de L.canvas() pertenece a UN solo mapa: si se comparte
+    // entre `mapa` y `mapaUbic`, Leaflet mueve ese lienzo de un mapa al otro y dibuja las capas con
+    // la proyeccion del mapa equivocado — se veian los limites estatales y los trazos corridos
+    // (contornos sobre el Pacifico) en el mapa de Ubicacion.
+    const rm = m.__rcHGA || (m.__rcHGA = (m === mapa ? rc : L.canvas({ padding: 0.5 })));
     let capa = null, pidiendo = false, ultimo = "";
     async function recargar() {
       if (pidiendo) return;
@@ -652,7 +657,7 @@ footer.sitio strong{color:#777}
         capa = L.layerGroup().addTo(m);
         for (const t of d.trazos) {
           if (!t.g || t.g.length < 2) continue;
-          L.polyline(t.g, { color: COLOR_PG[gradoDe(t.pg)] || "#888", weight: 2, opacity: 0.85, renderer: rc })
+          L.polyline(t.g, { color: COLOR_PG[gradoDe(t.pg)] || "#888", weight: 2, opacity: 0.85, renderer: rm })
             .addTo(capa)
             .bindTooltip("<b>" + (t.carretera || "") + "</b><br>" + t.pg, { sticky: true })
             .on("click", (ev) => { try { L.DomEvent.stop(ev); } catch (e) {} alElegir && alElegir({ id: t.id, clave: "", carretera: t.carretera, pg: t.pg }); });
