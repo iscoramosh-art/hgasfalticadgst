@@ -545,8 +545,15 @@ footer.sitio strong{color:#777}
 
   async function api(ruta, opciones) {
     const url = API + ruta;
+    // Toda llamada lleva reloj: una peticion que se queda colgada dejaba la herramienta esperando
+    // para siempre (el boton "Generando PDF..." era el sintoma mas visible).
+    const ctrl = (typeof AbortController !== "undefined") ? new AbortController() : null;
+    const reloj = ctrl ? setTimeout(function () { try { ctrl.abort(); } catch (e) {} }, 25000) : null;
     try {
-      const r = await fetch(url, Object.assign({ headers: { "Content-Type": "application/json" } }, opciones || {}));
+      const base = { headers: { "Content-Type": "application/json" } };
+      if (ctrl) base.signal = ctrl.signal;
+      const r = await fetch(url, Object.assign(base, opciones || {}));
+      if (reloj) clearTimeout(reloj);
       if (r.status === 429) { toast("Demasiadas consultas seguidas; espera unos segundos.", "warn"); return null; }
       if (!r.ok) {
         let det = "";
@@ -557,6 +564,7 @@ footer.sitio strong{color:#777}
       if (apiCaida) { apiCaida = false; const b = document.getElementById("hga-apibanner"); if (b) b.remove(); }
       return await r.json();
     } catch (e) {
+      if (reloj) clearTimeout(reloj);
       apiCaida = true;
       avisoAPI("<b>Sin conexión con el servicio de cálculo.</b> La herramienta necesita internet para operar. " +
                "Revisa tu conexión y vuelve a intentar.");
@@ -1406,6 +1414,121 @@ footer.sitio strong{color:#777}
   function edoDe() { return (tramoActual && (tramoActual.estados || []).join(", ")) || ""; }
 
   /* =============== Captura del mapa para el PDF =============== */
+  /* Composición directa de la imagen del mapa para el PDF.
+     Los mosaicos y los lienzos vectoriales YA están en la página: basta dibujarlos en el mismo orden
+     y la misma posición. Antes se usaba html2canvas, que clona medio documento y en algunos equipos
+     se queda colgado para siempre sin resolver ni fallar (el síntoma era el botón atorado en
+     "Generando PDF…"). Esto es determinista, rápido y no depende de ningún CDN. */
+  function _rectRedondo(ctx, x, y, w, h, r) {
+    ctx.beginPath();
+    if (!r) { ctx.rect(x, y, w, h); return; }
+    ctx.moveTo(x + r, y); ctx.lineTo(x + w - r, y); ctx.quadraticCurveTo(x + w, y, x + w, y + r);
+    ctx.lineTo(x + w, y + h - r); ctx.quadraticCurveTo(x + w, y + h, x + w - r, y + h);
+    ctx.lineTo(x + r, y + h); ctx.quadraticCurveTo(x, y + h, x, y + h - r);
+    ctx.lineTo(x, y + r); ctx.quadraticCurveTo(x, y, x + r, y); ctx.closePath();
+  }
+  function componerMapa(cont, esc, cb) {
+    var caja, cv, ctx;
+    try {
+      if (!cont) return cb(null);
+      caja = cont.getBoundingClientRect();
+      if (!caja.width || !caja.height) return cb(null);
+      cv = document.createElement("canvas");
+      cv.width = Math.round(caja.width * esc); cv.height = Math.round(caja.height * esc);
+      ctx = cv.getContext("2d");
+      ctx.fillStyle = "#ffffff"; ctx.fillRect(0, 0, cv.width, cv.height);
+    } catch (e) { return cb(null); }
+
+    var opac = function (n) {
+      var cs = getComputedStyle(n);
+      if (cs.display === "none" || cs.visibility === "hidden") return 0;
+      return parseFloat(cs.opacity || "1");
+    };
+    var dentro = function (r) {
+      return r.width > 0 && r.height > 0 && r.right > caja.left - 2 && r.left < caja.right + 2 &&
+             r.bottom > caja.top - 2 && r.top < caja.bottom + 2;
+    };
+
+    // 1) mosaicos, lienzos vectoriales, iconos y el logo — en el orden del DOM,
+    //    que es el mismo orden de apilado que usa Leaflet
+    var nodos = cont.querySelectorAll(".leaflet-pane img, .leaflet-pane canvas, .leaflet-control-container img");
+    for (var i = 0; i < nodos.length; i++) {
+      var n = nodos[i];
+      try {
+        // la banderita de la atribución sobreescribiría el texto: se omite
+        if (n.closest && n.closest(".leaflet-control-attribution")) continue;
+        if (n.tagName === "IMG" && (!n.complete || !n.naturalWidth)) continue;
+        if (n.tagName === "CANVAS" && (!n.width || !n.height)) continue;
+        var op = opac(n); if (op < 0.02) continue;
+        var r = n.getBoundingClientRect(); if (!dentro(r)) continue;
+        ctx.globalAlpha = op;
+        ctx.drawImage(n, (r.left - caja.left) * esc, (r.top - caja.top) * esc, r.width * esc, r.height * esc);
+      } catch (e) {}
+    }
+    ctx.globalAlpha = 1;
+
+    // 2) etiquetas de cadenamiento, escala y atribución: son HTML, se redibujan como texto
+    //    (la atribución de OpenStreetMap no es opcional: su licencia obliga a mostrarla)
+    var textos = cont.querySelectorAll(".leaflet-tooltip, .leaflet-control-scale-line, .leaflet-control-attribution");
+    for (var j = 0; j < textos.length; j++) {
+      var t = textos[j];
+      try {
+        var opt = opac(t); if (opt < 0.02) continue;
+        var rt = t.getBoundingClientRect(); if (!dentro(rt)) continue;
+        var cs = getComputedStyle(t);
+        var x = (rt.left - caja.left) * esc, y = (rt.top - caja.top) * esc;
+        var w = rt.width * esc, h = rt.height * esc;
+        var rad = Math.min((parseFloat(cs.borderTopLeftRadius) || 0) * esc, h / 2);
+        ctx.globalAlpha = opt;
+        if (cs.backgroundColor && cs.backgroundColor !== "rgba(0, 0, 0, 0)" && cs.backgroundColor !== "transparent") {
+          ctx.fillStyle = cs.backgroundColor; _rectRedondo(ctx, x, y, w, h, rad); ctx.fill();
+        }
+        var bw = (parseFloat(cs.borderTopWidth) || 0) * esc;
+        if (bw > 0 && cs.borderTopStyle !== "none") {
+          ctx.strokeStyle = cs.borderTopColor; ctx.lineWidth = bw;
+          _rectRedondo(ctx, x, y, w, h, rad); ctx.stroke();
+        }
+        var txt = (t.textContent || "").replace(/\s+/g, " ").trim();
+        if (txt) {
+          var fs = (parseFloat(cs.fontSize) || 12) * esc;
+          var peso = (parseInt(cs.fontWeight, 10) >= 600 || cs.fontWeight === "bold") ? "700 " : "";
+          ctx.fillStyle = cs.color || "#111"; ctx.textBaseline = "middle";
+          ctx.font = peso + fs + "px " + (cs.fontFamily || "sans-serif");
+          ctx.fillText(txt, x + (parseFloat(cs.paddingLeft) || 0) * esc + bw, y + h / 2);
+        }
+      } catch (e) {}
+    }
+    ctx.globalAlpha = 1;
+
+    // 3) la rosa de los vientos es un <svg> en línea: se rasteriza (dato local, no contamina el lienzo)
+    var cerrar = function () {
+      try { cv.toDataURL("image/png"); } catch (e) { return cb(null); }  // lienzo contaminado
+      cb(cv);
+    };
+    var svgs = cont.querySelectorAll(".leaflet-control-container svg");
+    var pend = svgs.length;
+    if (!pend) return cerrar();
+    var cerrado = false;
+    var acabar = function () { if (cerrado) return; cerrado = true; cerrar(); };
+    var reloj = setTimeout(acabar, 2000);
+    var uno = function () { if (--pend <= 0) { clearTimeout(reloj); acabar(); } };
+    for (var k = 0; k < svgs.length; k++) {
+      (function (sv) {
+        try {
+          var rs = sv.getBoundingClientRect();
+          var txtSvg = new XMLSerializer().serializeToString(sv);
+          var im = new Image();
+          im.onload = function () {
+            try { ctx.drawImage(im, (rs.left - caja.left) * esc, (rs.top - caja.top) * esc, rs.width * esc, rs.height * esc); } catch (e) {}
+            uno();
+          };
+          im.onerror = uno;
+          im.src = "data:image/svg+xml;charset=utf-8," + encodeURIComponent(txtSvg);
+        } catch (e) { uno(); }
+      })(svgs[k]);
+    }
+  }
+
   function capturarMapa(cb) {
     if (!window.html2canvas) { cb(null); return; }
     try { mapa.stop(); } catch (e) {}
@@ -1413,10 +1536,24 @@ footer.sitio strong{color:#777}
     // Oculta controles interactivos (zoom y selector de capas) en la captura; deja logo, escala y norte
     const ocultar = (el) => el && el.classList && (el.classList.contains("leaflet-control-zoom") || el.classList.contains("leaflet-control-layers"));
     setTimeout(function () {
+      var listo = false;
+      var acabar = function (cv) { if (listo) return; listo = true; cb(cv); };
+      // Reloj de seguridad pase lo que pase: el PDF SIEMPRE se emite. Si la captura no llega,
+      // el reporte sale sin la imagen del mapa en lugar de dejar el boton en "Generando PDF...".
+      var reloj = setTimeout(function () { acabar(null); }, 12000);
+      // Camino principal: composicion directa desde el DOM, sin librerias externas.
       try {
-        window.html2canvas(document.getElementById("mapa"), { useCORS: true, allowTaint: false, backgroundColor: "#ffffff", logging: false, scale: 2, ignoreElements: ocultar })
-          .then((cv) => cb(cv)).catch(() => cb(null));
-      } catch (e) { cb(null); }
+        componerMapa(document.getElementById("mapa"), 2, function (propio) {
+          if (propio) { clearTimeout(reloj); acabar(propio); return; }
+          // Respaldo: html2canvas (puede colgarse; por eso el reloj de arriba sigue corriendo)
+          try {
+            if (!window.html2canvas) { clearTimeout(reloj); acabar(null); return; }
+            window.html2canvas(document.getElementById("mapa"), { useCORS: true, allowTaint: false, backgroundColor: "#ffffff", logging: false, scale: 2, imageTimeout: 8000, ignoreElements: ocultar })
+              .then(function (cv) { clearTimeout(reloj); acabar(cv); })
+              .catch(function () { clearTimeout(reloj); acabar(null); });
+          } catch (e) { clearTimeout(reloj); acabar(null); }
+        });
+      } catch (e) { clearTimeout(reloj); acabar(null); }
     }, 350);
   }
 
@@ -1983,4 +2120,5 @@ footer.sitio strong{color:#777}
 })();
 </script>
 </body>
+<!-- HGA build v18 -->
 </html>
