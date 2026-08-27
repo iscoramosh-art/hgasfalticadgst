@@ -860,7 +860,14 @@ footer.sitio strong{color:#777}
   // `var` a propósito: el selector de modo dispara un "change" durante la carga y llama a
   // initMapaUbic() antes de esta línea; con `let` eso caía en zona muerta temporal
   // («Cannot access 'mapaUbic' before initialization»), error que arrastraba la versión anterior.
-  var mapaUbic=null, mkGeoUbic=null, mkStudyUbic=null, geoBtnBound=false, capaSelUbic=null;
+  // OJO: el "change" del selector de modo se dispara DURANTE la carga y llama a initMapaUbic()
+  // antes de esta linea. Con `let` eso era zona muerta temporal; con `var` a secas, el `= null`
+  // de aqui se ejecutaba despues y BORRABA el mapa ya creado: la variable quedaba en null, el
+  // mapa seguia vivo en el DOM (tiles y trazos) pero resaltarTrazoUbic(), fijarPuntoUbic() y la
+  // geolocalizacion no hacian nada, e initMapaUbic() intentaba crearlo otra vez
+  // ("Map container is already initialized", tragado por el try/catch). De ahi que el mapa no se
+  // moviera al elegir carretera. Se conserva lo que ya exista.
+  var mapaUbic=mapaUbic||null, mkGeoUbic=mkGeoUbic||null, mkStudyUbic=mkStudyUbic||null, geoBtnBound=geoBtnBound||false, capaSelUbic=capaSelUbic||null;
   // Resalta en el mapa de ubicación el trazo de la carretera seleccionada (como el módulo de análisis)
   function resaltarTrazoUbic(g){
     if(!mapaUbic || !g || !g.length) return;
