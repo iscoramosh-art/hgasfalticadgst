@@ -1144,7 +1144,24 @@ footer.sitio strong{color:#777}
     const d = await apiPOST("/api/evaluar", { modo: "carretera", tramo_id: tramoActual.id, cad_ini: ci, cad_fin: cf, aforo: cuerpoAforo() });
     if (!d) return;
     const u = d.ubicacion || {};
+    // Punto del estudio = punto medio del segmento, igual que la herramienta publicada
+    // (app.js: lat:(p1[0]+p2[0])/2). Sin esto estudio.lat quedaba en null y generarPDF() reventaba
+    // en fx(estudio.lat, 5) DEJANDO EL BOTON ATORADO EN "Generando PDF..." para siempre.
+    var _pm = null;
+    try {
+      if (tramoActual.g && tramoActual.g.length > 1) {
+        var _r0 = rangoCad(tramoActual.cp);
+        var _ini0 = _r0 ? _r0.ini : 0;
+        var _span0 = _r0 ? (_r0.fin - _r0.ini) : largoTrazoKm(tramoActual.g);
+        var _fa = (ci != null && _span0) ? Math.max(0, Math.min(1, (ci - _ini0) / _span0)) : 0;
+        var _fb = (cf != null && _span0) ? Math.max(0, Math.min(1, (cf - _ini0) / _span0)) : 1;
+        var _pa = puntoEnFraccion(tramoActual.g, Math.min(_fa, _fb));
+        var _pb = puntoEnFraccion(tramoActual.g, Math.max(_fa, _fb));
+        if (_pa && _pb) _pm = [(_pa[0] + _pb[0]) / 2, (_pa[1] + _pb[1]) / 2];
+      }
+    } catch (e) {}
     aplicarEvaluacion(d, { carretera: { car: tramoActual.car, cp: tramoActual.cp, tr: tramoActual.tr, g: tramoActual.g },
+                           lat: _pm ? _pm[0] : null, lon: _pm ? _pm[1] : null,
                            estudio: { segmento: (ci != null && cf != null) ? { ci: ci, cf: cf } : null } });
     if (ci != null && cf != null && tramoActual.g.length > 1) {
       const r = rangoCad(tramoActual.cp), span = r ? (r.fin - r.ini) : largoTrazoKm(tramoActual.g);
@@ -1573,6 +1590,9 @@ footer.sitio strong{color:#777}
   const b64e = (s) => btoa(unescape(encodeURIComponent(s)));
 
   /* =============== Reporte PDF =============== */
+  // Formateo tolerante: si falta un valor sale vacio, en vez de tirar una excepcion que
+  // dejaria el boton en "Generando PDF..." para siempre.
+  function fx(v, n) { return (v == null || isNaN(v)) ? "" : (+v).toFixed(n); }
   function generarPDF() {
     if (!estudio) { toast("Realiza primero un cálculo (punto o carretera)."); return; }
     if (!window.jspdf) { toast("No se pudo cargar la librería de PDF (revisa la conexión a internet)."); return; }
@@ -1588,7 +1608,7 @@ footer.sitio strong{color:#777}
     const grado = (typeof estudio.ga === "number") ? ("" + estudio.ga + Math.abs(estudio.gb)) : "ESP";
     const numRep = yy + mm + dd + "-" + grado + "-" + consecutivo(), fechaStr = now.toLocaleString("es-MX");
     const dbx = ((($("m-dropbox") || {}).value) || "").trim(), fname = "Reporte_" + numRep + ".pdf";
-    const canon = [numRep, now.toISOString(), meta.proy, meta.unidad, estudio.carretera ? estudio.carretera.cp : "", estudio.lat.toFixed(5), estudio.lon.toFixed(5),
+    const canon = [numRep, now.toISOString(), meta.proy, meta.unidad, estudio.carretera ? estudio.carretera.cp : "", fx(estudio.lat, 5), fx(estudio.lon, 5),
       PG.pgTexto(estudio.ga, estudio.gb), aforoRes ? aforoRes.pgGob + "|" + (aforoRes.Lu || 0).toFixed(0) : "",
       diseno ? (diseno.rehab ? "REHAB|" + (diseno.area || 0).toFixed(1) : (diseno.delgada ? "AREA|" + diseno.area.toFixed(1) : diseno.tonMezcla.toFixed(2) + "|" + diseno.tonCA.toFixed(2) + "|" + diseno.tonPetreo.toFixed(2))) : ""].join("~");
     capturarMapa(function (cv) {
@@ -1602,7 +1622,7 @@ footer.sitio strong{color:#777}
           proy: meta.proy, uni: meta.unidad, dir: meta.dirigido, resp: meta.resp,
           car: c ? c.car : "", tr: c ? c.tr : "", cp: c ? c.cp : "", dg: c ? c.dg : "",
           edo: (tramoActual && (tramoActual.estados || []).join(", ")) || "", red: c ? c.gr : "",
-          lat: +estudio.lat.toFixed(4), lon: +estudio.lon.toFixed(4),
+          lat: +fx(estudio.lat, 4), lon: +fx(estudio.lon, 4),
           pg: PG.pgTexto(estudio.ga, estudio.gb),
           pgg: aforoRes ? aforoRes.pgGob : "", niv: aforoRes ? PG.NIVELES[aforoRes.gob] : "",
           L: aforoRes ? +(aforoRes.Lu / 1e6).toFixed(2) : null, vel: aforoRes ? aforoRes.vel : null,
@@ -1677,7 +1697,7 @@ footer.sitio strong{color:#777}
       ry = campo(rX, ry, rW, "Clave PARCF / DGCC", c.cp + " / " + (c.dg || "—"));
       ry = campo(rX, ry, rW, "Estado / Red", (edoDe(c.cp) || "—") + " · " + c.gr);
     }
-    ry = campo(rX, ry, rW, "Coordenadas (lat, lon)", estudio.lat.toFixed(4) + ", " + estudio.lon.toFixed(4));
+    ry = campo(rX, ry, rW, "Coordenadas (lat, lon)", fx(estudio.lat, 4) + ", " + fx(estudio.lon, 4));
     ry = campo(rX, ry, rW, "Región / crecimiento", (estudio.rg || "—") + (estudio.tasaPct != null ? " · " + estudio.tasaPct.toFixed(1) + " %" : ""));
     ry = campo(rX, ry, rW, "Estación clima (más cercana)", estudio.estNom + " (" + estudio.estDist.toFixed(0) + " km)");
     doc.setFillColor(244, 238, 241); doc.roundedRect(rX, ry, rW, 8.5, 1.5, 1.5, "F");
@@ -1771,7 +1791,7 @@ footer.sitio strong{color:#777}
       const cw2 = (cwd - 6) / 2, xa = mx, xb = mx + cw2 + 6;
       const modoTxt = estudio.carretera ? "Carretera (Anexo A)" : (estudio.segmento && estudio.segmento.coords ? "Segmento por coordenadas" : "Punto por coordenadas");
       kv(xa, p, cw2, "Modo de ubicación", modoTxt);
-      kv(xb, p, cw2, "Coordenadas (lat, lon)", estudio.lat.toFixed(4) + ", " + estudio.lon.toFixed(4)); p += 4.6;
+      kv(xb, p, cw2, "Coordenadas (lat, lon)", fx(estudio.lat, 4) + ", " + fx(estudio.lon, 4)); p += 4.6;
       if (estudio.carretera) { const cc = estudio.carretera; kv(xa, p, cw2, "Carretera / clave", (cc.car || "-") + " / " + cc.cp); kv(xb, p, cw2, "Estado / Red", (edoDe(cc.cp) || "-") + " · " + (cc.gr || "-")); p += 4.6; }
       if (estudio.segmento) { const g = estudio.segmento; kv(xa, p, cw2, "Segmento", g.coords ? "coordenadas inicio/fin" : (fmtCad(g.ci) + " a " + fmtCad(g.cf))); kv(xb, p, cw2, "PG por temperatura", PG.pgTexto(estudio.ga, estudio.gb)); p += 4.6; }
       kv(xa, p, cw2, "Estación clima (SMN)", estudio.estNom + " (" + estudio.estDist.toFixed(0) + " km)");
@@ -2042,7 +2062,7 @@ footer.sitio strong{color:#777}
       doc.text(lineasPie, mx, yPie);
       doc.text("Página " + pi + " de " + total, Wd - mx, 274, { align: "right" });
     }
-    doc.save(ex && ex.fname ? ex.fname : ("Reporte_PG_" + (c ? c.cp : estudio.lat.toFixed(3) + "_" + estudio.lon.toFixed(3)) + ".pdf"));
+    doc.save(ex && ex.fname ? ex.fname : ("Reporte_PG_" + (c ? c.cp : fx(estudio.lat, 3) + "_" + fx(estudio.lon, 3)) + ".pdf"));
   }
 
   /* =============== Inicio =============== */
@@ -2120,5 +2140,5 @@ footer.sitio strong{color:#777}
 })();
 </script>
 </body>
-<!-- HGA build v18 -->
+<!-- HGA build v19 -->
 </html>
