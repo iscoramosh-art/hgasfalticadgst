@@ -1052,8 +1052,9 @@ footer.sitio strong{color:#777}
 
   async function buscar(texto) {
     const t = (texto || "").trim();
-    if (t.length < 2) { pinta([]); return; }
-    const r = await apiGET("/api/buscar?q=" + encodeURIComponent(t) + (filtroEdo ? "&estado=" + encodeURIComponent(filtroEdo) : "") + "&limite=25");
+    // Con 0 o 1 caracter NO se responde «sin coincidencias»: se pide la cabecera del Anexo A,
+    // igual que la herramienta publicada (al hacer clic muestra la lista; filtra desde la 1a letra).
+    const r = await apiGET("/api/buscar?q=" + encodeURIComponent(t) + (filtroEdo ? "&estado=" + encodeURIComponent(filtroEdo) : "") + "&limite=" + (t.length ? 25 : 60));
     if (!r) return;
     if (t !== ultimaQ) return;          // llegó tarde: ya se tecleó otra cosa
     pinta(r.resultados || []);
@@ -1063,7 +1064,7 @@ footer.sitio strong{color:#777}
       ultimaQ = q.value.trim(); mostrarLista();
       clearTimeout(tecleo); tecleo = setTimeout(() => buscar(q.value), 180);
     });
-    q.addEventListener("focus", () => { mostrarLista(); if (q.value.trim().length >= 2) buscar(q.value); });
+    q.addEventListener("focus", () => { mostrarLista(); ultimaQ = q.value.trim(); buscar(q.value); });
     q.addEventListener("blur", () => setTimeout(ocultarLista, 150));
     q.addEventListener("keydown", (e) => {
       if (!items.length) return;
@@ -1954,6 +1955,19 @@ footer.sitio strong{color:#777}
   })();
   initEstados(); leyenda(); sumaPct();
   setTimeout(function () { try { mapa.invalidateSize(); } catch (e) {} }, 300);
+  // Al cambiar el tamano de la ventana Leaflet NO recalcula el origen en pixeles del contenedor:
+  // el fondo se redibuja pero las capas vectoriales (trazos y limites estatales del INEGI) quedan
+  // desplazadas. invalidateSize() lo corrige; va con retardo para no dispararlo en cada pixel.
+  (function () {
+    var _rt = null;
+    window.addEventListener("resize", function () {
+      clearTimeout(_rt);
+      _rt = setTimeout(function () {
+        try { mapa.invalidateSize(); } catch (e) {}
+        try { if (typeof mapaUbic !== "undefined" && mapaUbic) mapaUbic.invalidateSize(); } catch (e) {}
+      }, 150);
+    });
+  })();
 })();
 </script>
 </body>
