@@ -1,97 +1,169 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-  <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Validación de reporte · HG Asfáltica DGST</title>
-  <style>
-    :root{--guinda:#611232;--verde:#1e5b4f;--gris:#98989a;--linea:#e4e0da;--bg:#f4f3f1;--tinta:#161a1d}
-    *{box-sizing:border-box}body{margin:0;font-family:'Noto Sans','Segoe UI',Arial,sans-serif;color:var(--tinta);background:var(--bg)}
-    .barra{height:6px;background:linear-gradient(90deg,var(--guinda) 0 62%,var(--verde) 62% 100%)}
-    header{background:#fff;border-bottom:1px solid var(--linea);padding:14px 18px}
-    header h1{margin:0;color:var(--guinda);font-size:18px}
-    header p{margin:3px 0 0;color:var(--gris);font-size:12px}
-    .wrap{max-width:820px;margin:16px auto;padding:0 18px}
-    .badge{display:inline-block;padding:8px 14px;border-radius:8px;font-weight:800;font-size:15px;margin:6px 0 14px}
-    .ok{background:#e8f2ef;color:var(--verde);border:1px solid #bfe0d6}
-    .bad{background:#fbe9ec;color:var(--guinda);border:1px solid #e9c4cf}
-    .na{background:#f1eee8;color:#777;border:1px solid var(--linea)}
-    .card{background:#fff;border:1px solid var(--linea);border-radius:12px;padding:16px 18px;box-shadow:0 1px 3px rgba(0,0,0,.06);margin-bottom:14px}
-    h2{font-size:14px;color:var(--verde);margin:0 0 10px;border-bottom:2px solid #e6d194;padding-bottom:6px}
-    table{width:100%;border-collapse:collapse;font-size:13.5px}
-    td{padding:5px 4px;border-bottom:1px solid #eceae6}td:last-child{text-align:right;font-weight:600}
-    .pg{font-size:30px;font-weight:800;color:var(--guinda);text-align:center;margin:4px 0}
-    .nota{font-size:12px;color:#666;line-height:1.5}
-    code{background:#f1eee8;padding:1px 5px;border-radius:4px;font-size:11px;word-break:break-all}
-  </style>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Validación de reporte · HG Asfáltica DGST</title>
+<style>
+  :root{ --guinda:#611232; --verde:#1E5B4F; --gris:#78787a; --tinta:#2d2d2d; --linea:#e3e0e2; }
+  *{box-sizing:border-box}
+  body{margin:0;background:#f6f4f5;color:var(--tinta);
+       font-family:"Noto Sans","Segoe UI",Roboto,Helvetica,Arial,sans-serif;font-size:15px;line-height:1.5}
+  .barra{height:6px;background:linear-gradient(90deg,var(--guinda) 0 62%,var(--verde) 62% 100%)}
+  header{background:#fff;border-bottom:1px solid var(--linea);padding:18px 20px}
+  header h1{margin:0;font-size:20px;color:var(--guinda);letter-spacing:.2px}
+  header p{margin:4px 0 0;color:var(--gris);font-size:13px;max-width:70ch}
+  main{max-width:900px;margin:22px auto 60px;padding:0 16px}
+  .caja{background:#fff;border:1px solid var(--linea);border-radius:10px;padding:18px 20px;margin-bottom:18px}
+  .veredicto{display:flex;gap:14px;align-items:flex-start;border-radius:10px;padding:18px 20px;margin-bottom:18px;
+             border:1px solid var(--linea);background:#fff}
+  .veredicto .marca{font-size:26px;line-height:1;margin-top:2px}
+  .veredicto h2{margin:0 0 4px;font-size:17px}
+  .veredicto p{margin:0;font-size:14px}
+  .ok{border-left:6px solid var(--verde)} .ok h2{color:var(--verde)}
+  .mal{border-left:6px solid #b3261e} .mal h2{color:#b3261e}
+  .duda{border-left:6px solid #a57f2c} .duda h2{color:#8a6a1f}
+  h3{margin:0 0 10px;font-size:14px;text-transform:uppercase;letter-spacing:.6px;color:var(--guinda)}
+  table{width:100%;border-collapse:collapse}
+  td{padding:6px 0;border-bottom:1px solid var(--linea);vertical-align:top;font-size:14px}
+  td:first-child{color:var(--gris);width:46%;padding-right:14px}
+  td:last-child{text-align:right;font-variant-numeric:tabular-nums}
+  .mono{font-family:ui-monospace,SFMono-Regular,Consolas,monospace;font-size:12px;word-break:break-all}
+  .nota{color:var(--gris);font-size:12.5px;margin-top:14px}
+  footer{color:var(--gris);font-size:12px;text-align:center;padding:0 16px 30px}
+  @media (max-width:560px){ td:first-child{width:52%} }
+</style>
 </head>
 <body>
-  <div class="barra"></div>
-  <header>
-    <h1>Validación de reporte</h1>
-    <p>HG Asfáltica DGST · Herramienta Guía Asfáltica de la Dirección General de Servicios Técnicos · SICT</p>
-  </header>
-  <div class="wrap" id="cont"><p>Cargando reporte…</p></div>
+<div class="barra"></div>
+<header>
+  <h1>Validación de reporte · HG Asfáltica DGST</h1>
+  <p>Dirección General de Servicios Técnicos, SICT. Esta página comprueba, contra el servicio de la
+     DGST, que el reporte fue emitido por la herramienta y que su contenido no fue alterado.</p>
+</header>
+<main>
+  <div id="veredicto" class="veredicto duda">
+    <div class="marca">⏳</div>
+    <div><h2>Comprobando…</h2><p id="vmsg">Consultando el servicio de validación.</p></div>
+  </div>
+  <div class="caja" id="caja-datos" style="display:none">
+    <h3>Datos del reporte</h3>
+    <table id="datos"></table>
+    <div class="nota" id="nota-sello"></div>
+  </div>
+</main>
+<footer>HG Asfáltica DGST · hgasfaltica.com</footer>
 
-  <script>
-    async function sha256Hex(str){try{const b=await crypto.subtle.digest("SHA-256",new TextEncoder().encode(str));return[...new Uint8Array(b)].map(x=>x.toString(16).padStart(2,"0")).join("");}catch(e){return"";}}
-    function b64d(s){return decodeURIComponent(escape(atob(s.replace(/-/g,"+").replace(/_/g,"/"))));}
-    const cont=document.getElementById("cont");
-    const fila=(k,v)=>v!==undefined&&v!==""&&v!==null?`<tr><td>${k}</td><td>${v}</td></tr>`:"";
-    (async()=>{
-      const raw=(location.hash||"").replace(/^#/,"");
-      if(!raw){cont.innerHTML='<div class="card"><span class="badge na">Sin datos</span><p class="nota">Este validador se abre desde el código QR de un reporte HG Asfáltica DGST.</p></div>';return;}
-      let d;try{d=JSON.parse(b64d(raw));}catch(e){cont.innerHTML='<div class="card"><span class="badge bad">No se pudo leer el reporte</span><p class="nota">El contenido del QR no es válido.</p></div>';return;}
-      let badge='<span class="badge na">Reporte sin sello</span>';
-      if(d.c&&d.h){const h=await sha256Hex(d.c);badge=(h===d.h)?'<span class="badge ok">✓ SELLO VÁLIDO — el reporte no fue alterado</span>':'<span class="badge bad">✗ EL SELLO NO COINCIDE — el reporte pudo ser alterado</span>';}
-      const dd=d.d||null;
-      cont.innerHTML=`
-        ${badge}
-        <div class="card">
-          <h2>Datos del reporte</h2>
-          <table>
-            ${fila("Número de reporte",d.r)}
-            ${fila("Fecha y hora de generación",d.f)}
-            ${fila("Proyecto",d.proy)}
-            ${fila("Unidad responsable",d.uni)}
-            ${fila("Dirigido a",d.dir)}
-            ${fila("Elaboró / responsable técnico",d.resp)}
-          </table>
-        </div>
-        <div class="card">
-          <h2>Ubicación</h2>
-          <table>
-            ${fila("Carretera",d.car)}${fila("Tramo",d.tr)}
-            ${fila("Clave PARCF / DGCC",(d.cp||"")+(d.dg?" / "+d.dg:""))}
-            ${fila("Estado / Red",(d.edo||"")+(d.red?" · "+d.red:""))}
-            ${fila("Coordenadas (lat, lon)",(d.lat!=null?d.lat+", "+d.lon:""))}
-          </table>
-        </div>
-        <div class="card">
-          <h2>Resultado (Grado PG)</h2>
-          <div class="pg">${d.pgg||d.pg||""}</div>
-          <table>
-            ${fila("PG por temperatura",d.pg)}
-            ${fila("∑L (Inst. Ing. UNAM)",(d.L!=null?d.L+" × 10⁶":""))}
-            ${fila("Nivel de ajuste",d.niv)}
-            ${fila("Velocidad · TDPA · SC",(d.vel!=null?d.vel+" km/h · "+d.tdpa+" · SC "+d.sc:""))}
-          </table>
-        </div>
-        ${dd?`<div class="card"><h2>Diseño de mezcla y cantidades</h2><table>
-            ${fila("Espesor · ancho · longitud",dd.esp+" cm · "+dd.anc+" m · "+dd.lar+" m")}
-            ${fila("Tipo · método",(dd.tipo||"")+" · "+(dd.met||""))}
-            ${fila("Mezcla asfáltica",dd.tonM+" t")}
-            ${fila("Cemento asfáltico",dd.tonCA+" t")}
-            ${fila("Material pétreo",dd.tonP+" t")}
-            ${fila("∑L estructural",(dd.Lestr!=null?dd.Lestr+" × 10⁶":""))}
-          </table></div>`:""}
-        <div class="card">
-          <h2>Integridad</h2>
-          <p class="nota">Sello de integridad (SHA-256): <code>${d.h||"—"}</code><br>
-          Este validador recalcula el sello con los datos del reporte incrustados en el QR y lo compara con el sello firmado. Si el PDF fue alterado, el sello no coincide.</p>
-        </div>
-        <p class="nota">Herramienta de referencia; el criterio del proyectista prevalece. DGST · SICT.</p>`;
-    })();
-  </script>
+<script>
+(function () {
+  var API = "https://hga-api-kty4zrlv2q-pv.a.run.app";
+  var $ = function (id) { return document.getElementById(id); };
+
+  function veredicto(clase, marca, titulo, msg) {
+    var v = $("veredicto");
+    v.className = "veredicto " + clase;
+    v.querySelector(".marca").textContent = marca;
+    v.querySelector("h2").textContent = titulo;
+    $("vmsg").textContent = msg;
+  }
+
+  function fila(k, v) {
+    if (v === null || v === undefined || v === "") return "";
+    return "<tr><td>" + k + "</td><td>" + String(v) + "</td></tr>";
+  }
+
+  function leerPayload() {
+    var h = (location.hash || "").replace(/^#/, "");
+    if (!h) return null;
+    try { return JSON.parse(decodeURIComponent(escape(atob(h)))); } catch (e) { return null; }
+  }
+
+  var pl = leerPayload();
+
+  if (!pl) {
+    veredicto("duda", "❔", "No hay reporte que validar",
+      "Abra esta página escaneando el código QR impreso en el reporte; el enlace lleva los datos.");
+    return;
+  }
+
+  // ---- Datos del reporte (vienen del propio QR; se muestran para cotejarlos con la hoja) ----
+  var d = pl.d || {};
+  var html = ""
+    + fila("Número de reporte", pl.r)
+    + fila("Folio", pl.fo)
+    + fila("Emitido (UTC)", pl.em)
+    + fila("Fecha de elaboración", pl.f)
+    + fila("Proyecto", pl.proy)
+    + fila("Unidad responsable", pl.uni)
+    + fila("Dirigido a", pl.dir)
+    + fila("Elaboró", pl.resp)
+    + fila("Carretera", pl.car)
+    + fila("Tramo", pl.tr)
+    + fila("Clave PARCF", pl.cp)
+    + fila("Red", pl.red)
+    + fila("Estados", pl.edo)
+    + fila("Coordenadas", (pl.lat != null && pl.lon != null) ? (pl.lat + ", " + pl.lon) : "")
+    + fila("PG por temperatura", pl.pg)
+    + fila("PG seleccionado", pl.pgg)
+    + fila("Nivel de ajuste", pl.niv)
+    + fila("∑L (×10⁶)", pl.L)
+    + fila("TDPA · velocidad", (pl.tdpa !== "" && pl.tdpa != null) ? (pl.tdpa + (pl.vel ? " · " + pl.vel + " km/h" : "")) : "")
+    + fila("Carriles por sentido (SC)", pl.sc)
+    + (d.esp ? fila("Espesor · ancho · largo", d.esp + " cm · " + d.anc + " m · " + d.lar + " m") : "")
+    + (d.tonM ? fila("Mezcla asfáltica", d.tonM + " t") : "")
+    + (d.tonCA ? fila("Cemento asfáltico", d.tonCA + " t") : "")
+    + (d.tonP ? fila("Material pétreo", d.tonP + " t") : "")
+    + (d.area ? fila("Área tratada", d.area + " m²") : "")
+    + fila("Sello (SHA-256 · HMAC)", '<span class="mono">' + (pl.h || "") + "</span>");
+  $("datos").innerHTML = html;
+  $("caja-datos").style.display = "";
+
+  // ---- Comprobación contra el servidor ----
+  // El sello es un HMAC con llave que sólo conoce el servicio: por eso esta comprobación
+  // demuestra AUTENTICIDAD (que lo emitió la DGST) y no sólo integridad.
+  if (!pl.fo || !pl.em || !pl.h || !pl.c) {
+    veredicto("duda", "⚠️", "Reporte de una versión anterior",
+      "Este reporte no trae folio ni sello con llave del servidor, así que no se puede comprobar su "
+      + "autenticidad. Coteje los datos de arriba contra la hoja impresa y vuelva a emitirlo con la "
+      + "versión vigente de la herramienta.");
+    return;
+  }
+
+  var ctrl = new AbortController();
+  var reloj = setTimeout(function () { ctrl.abort(); }, 25000);
+
+  fetch(API + "/api/validar", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ resumen: { canon: pl.c }, folio: pl.fo, emitido: pl.em, sello: pl.h }),
+    signal: ctrl.signal
+  })
+    .then(function (r) { if (!r.ok) throw new Error("HTTP " + r.status); return r.json(); })
+    .then(function (j) {
+      clearTimeout(reloj);
+      if (j.valido) {
+        veredicto("ok", "✔", "Reporte válido", j.mensaje ||
+          "Reporte emitido por la DGST; los datos no fueron alterados.");
+        $("nota-sello").textContent =
+          "El sello se recalculó en el servicio de la DGST con su llave privada y coincide. "
+          + "Compruebe además que los datos de arriba sean los mismos que aparecen impresos en la hoja.";
+      } else {
+        veredicto("mal", "✖", "El sello no coincide", j.mensaje ||
+          "El reporte no fue emitido por la DGST o su contenido fue alterado.");
+        $("nota-sello").textContent =
+          "No utilice este documento como respaldo técnico. Si lo recibió de un tercero, "
+          + "solicite que lo emitan de nuevo desde hgasfaltica.com.";
+      }
+    })
+    .catch(function (e) {
+      clearTimeout(reloj);
+      veredicto("duda", "⚠️", "No se pudo comprobar el sello",
+        "No hubo respuesta del servicio de validación (" + ((e && e.message) || "sin conexión") + "). "
+        + "Los datos de arriba son los que trae el código QR, pero su autenticidad queda sin comprobar. "
+        + "Vuelva a intentarlo en unos momentos.");
+      $("nota-sello").textContent = "";
+    });
+})();
+</script>
 </body>
 </html>

@@ -590,7 +590,7 @@ footer.sitio strong{color:#777}
   let ultimaEval = null;    // última respuesta de /api/evaluar
 
   const COLOR_PG = { 64: "#2c7fb8", 70: "#41ab5d", 76: "#f5a623", 82: "#c0392b" };
-  const VALIDADOR_URL = "https://iscoramosh-art.github.io/hgasfalticadgst/validar.html";
+  const VALIDADOR_URL = "https://hgasfaltica.com/validar.html";
   const CARPETA_REPORTES_URL = "";
   const $ = (id) => document.getElementById(id);
   function toast(msg, tipo) {
@@ -778,6 +778,11 @@ footer.sitio strong{color:#777}
   function modoUbicacion() { const r = document.querySelector('input[name="modoUb"]:checked'); return r ? r.value : "carretera"; }
   document.querySelectorAll('input[name="modoUb"]').forEach((r) => r.addEventListener("change", () => {
     const m = modoUbicacion();
+    // La longitud de diseno pertenece al tramo/segmento elegido. Sin esto conservaba la del modo
+    // anterior: al pasar de "Carretera" (A-004-01, 63,492 m) a "Punto" el reporte calculaba las
+    // cantidades de obra sobre esos 63,492 m heredados. Se limpia y prepararDiseno() la vuelve a
+    // llenar con la del nuevo modo.
+    if ($("d-long")) $("d-long").value = "";
     $("ub-carretera") && $("ub-carretera").classList.toggle("oculto", m !== "carretera");
     $("ub-punto") && $("ub-punto").classList.toggle("oculto", m !== "punto");
     $("ub-segmento") && $("ub-segmento").classList.toggle("oculto", m !== "segmento");
@@ -1592,7 +1597,9 @@ footer.sitio strong{color:#777}
   }
 
   /* =============== Número de reporte, integridad (hash) y QR =============== */
-  function consecutivo() { let n = 1; try { n = (parseInt(localStorage.getItem("hga_consec") || "0", 10) || 0) + 1; localStorage.setItem("hga_consec", String(n)); } catch (e) {} return String(n).padStart(5, "0"); }
+  // El consecutivo local (localStorage "hga_consec") se elimino: era POR NAVEGADOR, de modo que
+  // dos personas distintas emitian el mismo folio 00001. El numero de reporte se arma ahora con el
+  // folio que emite /api/reporte, derivado por HMAC del contenido y del instante de emision.
   async function sha256Hex(str) { try { const b = await crypto.subtle.digest("SHA-256", new TextEncoder().encode(str)); return [...new Uint8Array(b)].map((x) => x.toString(16).padStart(2, "0")).join(""); } catch (e) { return ""; } }
   function qrDataURL(texto) {
     if (typeof QRCode === "undefined") return null;
@@ -1623,9 +1630,10 @@ footer.sitio strong{color:#777}
     const meta = leerMeta(), now = new Date();
     const yy = String(now.getFullYear()).slice(2), mm = String(now.getMonth() + 1).padStart(2, "0"), dd = String(now.getDate()).padStart(2, "0");
     const grado = (typeof estudio.ga === "number") ? ("" + estudio.ga + Math.abs(estudio.gb)) : "ESP";
-    const numRep = yy + mm + dd + "-" + grado + "-" + consecutivo(), fechaStr = now.toLocaleString("es-MX");
-    const dbx = ((($("m-dropbox") || {}).value) || "").trim(), fname = "Reporte_" + numRep + ".pdf";
-    const canon = [numRep, now.toISOString(), meta.proy, meta.unidad, estudio.carretera ? estudio.carretera.cp : "", fx(estudio.lat, 5), fx(estudio.lon, 5),
+    const fechaStr = now.toLocaleString("es-MX");
+    const dbx = ((($("m-dropbox") || {}).value) || "").trim();
+    // El numero de reporte ya no entra en el canon: se deriva del folio que devuelve el servidor.
+    const canon = [now.toISOString(), meta.proy, meta.unidad, estudio.carretera ? estudio.carretera.cp : "", fx(estudio.lat, 5), fx(estudio.lon, 5),
       PG.pgTexto(estudio.ga, estudio.gb), aforoRes ? aforoRes.pgGob + "|" + (aforoRes.Lu || 0).toFixed(0) : "",
       diseno ? (diseno.rehab ? "REHAB|" + (diseno.area || 0).toFixed(1) : (diseno.delgada ? "AREA|" + diseno.area.toFixed(1) : diseno.tonMezcla.toFixed(2) + "|" + diseno.tonCA.toFixed(2) + "|" + diseno.tonPetreo.toFixed(2))) : ""].join("~");
     capturarMapa(function (cv) {
@@ -1633,6 +1641,9 @@ footer.sitio strong{color:#777}
         if (!rep) { toast("No fue posible sellar el reporte: sin conexión con el servicio.", "warn"); if (btnPDF && btnPDF.tagName === "BUTTON") { btnPDF.disabled = false; btnPDF.textContent = "⭳ Descargar PDF del reporte"; } return; }
         const hash = rep.sello, sello = (rep.sello || "").slice(0, 16).toUpperCase();
         const folio = rep.folio, emitido = rep.emitido;
+        // Numero de reporte = fecha + grado + sufijo del folio del servidor (unico por reporte).
+        const numRep = yy + mm + dd + "-" + grado + "-" + (String(folio || "").split("-").pop() || "000000");
+        const fname = "Reporte_" + numRep + ".pdf";
         const c = estudio.carretera;
         const pl = {
           r: numRep, f: fechaStr, h: hash, c: canon, fo: folio, em: emitido,
@@ -1655,7 +1666,7 @@ footer.sitio strong{color:#777}
         else { url = VALIDADOR_URL + "#" + b64; modo = "sict"; }
         const qr = qrDataURL(url);
         try { construirPDF(cv, { meta, numRep, fechaStr, hash, sello, qr, url, fname, dbx, modo }); }
-        finally { if (btnPDF && btnPDF.tagName === "BUTTON") { btnPDF.disabled = false; btnPDF.textContent = "⭳ Descargar PDF del cálculo"; } }
+        finally { if (btnPDF && btnPDF.tagName === "BUTTON") { btnPDF.disabled = false; btnPDF.textContent = "⭳ Descargar PDF del reporte"; } }
       });
     });
   }
@@ -2159,5 +2170,5 @@ footer.sitio strong{color:#777}
 })();
 </script>
 </body>
-<!-- HGA build v23 -->
+<!-- HGA build v24 -->
 </html>
