@@ -782,7 +782,7 @@ footer.sitio strong{color:#777}
     // anterior: al pasar de "Carretera" (A-004-01, 63,492 m) a "Punto" el reporte calculaba las
     // cantidades de obra sobre esos 63,492 m heredados. Se limpia y prepararDiseno() la vuelve a
     // llenar con la del nuevo modo.
-    if ($("d-long")) $("d-long").value = "";
+    if ($("d-long")) { $("d-long").value = ""; if (m === "carretera") actualizarLongitud(); }
     $("ub-carretera") && $("ub-carretera").classList.toggle("oculto", m !== "carretera");
     $("ub-punto") && $("ub-punto").classList.toggle("oculto", m !== "punto");
     $("ub-segmento") && $("ub-segmento").classList.toggle("oculto", m !== "segmento");
@@ -2170,5 +2170,5 @@ footer.sitio strong{color:#777}
 })();
 </script>
 </body>
-<!-- HGA build v24 -->
+<!-- HGA build v25 -->
 </html>
