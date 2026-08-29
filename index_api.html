@@ -899,7 +899,7 @@ footer.sitio strong{color:#777}
     }, function(err){ if(co)co.textContent="No se pudo obtener tu ubicación ("+((err&&err.message)||"permiso denegado")+"). Haz clic en el mapa para fijar el punto."; }, {enableHighAccuracy:true,timeout:9000,maximumAge:60000});
   }
   function initMapaUbic(){
-    if(mapaUbic){ setTimeout(function(){try{mapaUbic.invalidateSize();}catch(e){}},60); return; }
+    if(mapaUbic){ setTimeout(function(){try{mapaUbic.invalidateSize();mapaUbic.fire("moveend");}catch(e){} /* invalidateSize() NO dispara moveend si el centro no se corre: sin este fire, al mostrar el panel el renderer de canvas nunca redibuja y capaTrazos nunca vuelve a pedir /api/trazos, asi que el mapa de Ubicacion se quedaba SIN TRAZOS (modo mapa inservible). */},60); return; }
     try{
       mapaUbic=L.map("mapa-ubic",{center:[23.6,-102],zoom:5,preferCanvas:true});
       L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png",{maxZoom:19,attribution:"© OpenStreetMap"}).addTo(mapaUbic);
@@ -911,8 +911,8 @@ footer.sitio strong{color:#777}
       });
       // Clic en zona vacía = fijar un punto de estudio (solo en modo punto o mapa)
       mapaUbic.on("click",function(e){ const mm=modoUbicacion(); if(mm==="punto"||mm==="mapa") fijarPuntoUbic(e.latlng.lat,e.latlng.lng); });
-      setTimeout(function(){try{mapaUbic.invalidateSize();}catch(e){}},60);
-      setTimeout(function(){try{mapaUbic.invalidateSize();}catch(e){}},350);
+      setTimeout(function(){try{mapaUbic.invalidateSize();mapaUbic.fire("moveend");}catch(e){} /* invalidateSize() NO dispara moveend si el centro no se corre: sin este fire, al mostrar el panel el renderer de canvas nunca redibuja y capaTrazos nunca vuelve a pedir /api/trazos, asi que el mapa de Ubicacion se quedaba SIN TRAZOS (modo mapa inservible). */},60);
+      setTimeout(function(){try{mapaUbic.invalidateSize();mapaUbic.fire("moveend");}catch(e){} /* invalidateSize() NO dispara moveend si el centro no se corre: sin este fire, al mostrar el panel el renderer de canvas nunca redibuja y capaTrazos nunca vuelve a pedir /api/trazos, asi que el mapa de Ubicacion se quedaba SIN TRAZOS (modo mapa inservible). */},350);
       if(!geoBtnBound){ const b=$("btn-geo"); if(b) b.addEventListener("click",geolocalizarUbic); geoBtnBound=true; }
     }catch(e){}
   }
@@ -2159,5 +2159,5 @@ footer.sitio strong{color:#777}
 })();
 </script>
 </body>
-<!-- HGA build v22 -->
+<!-- HGA build v23 -->
 </html>
