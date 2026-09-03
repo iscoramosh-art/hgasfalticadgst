@@ -580,7 +580,38 @@ footer.sitio strong{color:#777}
     pgTexto: function (ga, gb) {
       if (ga === "ESP" || gb === "ESP" || ga == null || gb == null) return "Diseño especial";
       return "PG " + ga + "-" + Math.abs(gb);
-    }
+    },
+    /* ---------------------------------------------------------------------------------------
+       GRADO BAJO: lo que el sitio EXIGE contra lo que se ESPECIFICA.
+
+       El M·MMP·4·05·064/22 calcula la temperatura minima del pavimento y, con ella, el grado
+       bajo que el sitio requiere. En practicamente todo el pais esa exigencia resulta mas
+       benigna que -16 (del orden de -10). Pero la norma vigente N·CMT·4·05·004/25 solo lista
+       tres cementos asfalticos -- PG 64-16, PG 70-16 y PG 76-16 --: el grado bajo que puede
+       especificarse es siempre -16. No es un defecto del calculo ni de la norma; son dos cosas
+       distintas y el reporte informa las dos por separado, sin que el usuario tenga que
+       adivinar cual manda. Si algun sitio exigiera algo mas frio que -16 la norma no lo
+       cubriria y el caso seria de diseno especial.                                            */
+    GB_NORMA: -16,
+    gbNorma: function (gb) {
+      if (typeof gb !== "number") return "ESP";
+      return (gb >= PG.GB_NORMA) ? PG.GB_NORMA : "ESP";
+    },
+    // "PG 64V-10" -> "PG 64V-16" (conserva la letra del nivel de ajuste, si la trae).
+    pgNorma: function (pgTxt, gb) {
+      if (PG.gbNorma(gb) === "ESP") return "Diseño especial";
+      var t = String(pgTxt || "");
+      if (!/-\s*\d+\s*$/.test(t)) return "Diseño especial";
+      return t.replace(/-\s*\d+\s*$/, "-" + Math.abs(PG.GB_NORMA));
+    },
+    // "-7.4 °C → equivale a PG -10": la exigencia del sitio, informativa.
+    exigeTexto: function (tn, gb) {
+      var t = (typeof tn === "number") ? tn.toFixed(1) + " °C" : "—";
+      return t + ((typeof gb === "number") ? " → equivale a PG " + gb : "");
+    },
+    NOTA_NORMA: "El grado bajo se especifica −16 porque es el único que admite la N·CMT·4·05·004/25 " +
+                "(PG 64-16, 70-16 y 76-16). La temperatura mínima que el sitio requiere se calcula con el " +
+                "M·MMP·4·05·064/22 y se informa aparte: sirve para verificar que el −16 la cubre con holgura."
   };
 
   let filtroEdo = "";
@@ -1046,12 +1077,15 @@ footer.sitio strong{color:#777}
                      n: (a.fuente || {}).estaciones, radioKm: (a.fuente || {}).radio_km,
                      misma: (a.fuente || {}).misma_carretera }) };
       bannerFuente();
-      $("res-aforo").innerHTML = tarjeta(d.pg_seleccionado, "PG seleccionado · nivel " + (d.nivel_ajuste_texto || ""), `
-        <tr><td>PG base (temperatura)</td><td>${d.pg_base}</td></tr>
+      $("res-aforo").innerHTML = tarjeta(PG.pgNorma(d.pg_seleccionado, d.grado_bajo),
+        "Grado a especificar conforme a la norma · nivel " + (d.nivel_ajuste_texto || ""), `
+        <tr><td>Temperatura mínima requerida por el sitio</td><td>${PG.exigeTexto(d.t_min_pavimento, d.grado_bajo)}</td></tr>
+        <tr><td>PG base (temperatura, informativo)</td><td>${d.pg_base}</td></tr>
+        <tr><td>PG del cálculo con tránsito (informativo)</td><td>${d.pg_seleccionado}</td></tr>
         <tr class="sep"><td><b>∑L (Inst. Ing. UNAM, ${a.anios} años)</b></td><td><b>${d.suma_L_texto}</b></td></tr>
         <tr><td>Nivel de ajuste</td><td>${d.nivel_ajuste_texto}</td></tr>
         <tr class="sep"><td>Región (tasa) · velocidad</td><td>${d.region || "—"} (${d.tasa_crecimiento} %) · ${a.velocidad} km/h</td></tr>`,
-        d.metodo || "");
+        (d.metodo ? d.metodo + " " : "") + PG.NOTA_NORMA);
       prepararDiseno();
     } else if (d.pg_seleccionado === "Diseño especial") {
       $("res-aforo").innerHTML = tarjeta("Diseño especial", "T. máx pavimento > 76 °C — aprobación de la Secretaría", "", d.aviso || "");
@@ -1186,17 +1220,18 @@ footer.sitio strong{color:#777}
       segSel = subTrazo(tramoActual.g, Math.max(0, Math.min(f1, f2)), Math.min(1, Math.max(f1, f2)));
       const b = resaltarSegmento(segSel); etiquetasTrazo(segSel, fmtCad(ci), fmtCad(cf), tramoActual.car || tramoActual.cp); volarA(b, 13);
     }
-    $("res-ubicacion").innerHTML = tarjeta(d.pg_base, tramoActual.car || tramoActual.cp, `
+    $("res-ubicacion").innerHTML = tarjeta(PG.pgNorma(d.pg_base, d.grado_bajo), tramoActual.car || tramoActual.cp, `
       <tr><td>Carretera</td><td>${tramoActual.car || "—"}</td></tr>
       <tr><td>Tramo</td><td>${tramoActual.tr || "—"}</td></tr>
       <tr><td>Clave PARCF</td><td>${tramoActual.cp}</td></tr>
       <tr><td>Red · estados</td><td>${tramoActual.gr || "—"} · ${(tramoActual.estados || []).join(", ") || "—"}</td></tr>
       ${(u.cad_ini != null) ? `<tr class="sep"><td>Segmento</td><td>${fmtCad(u.cad_ini)} a ${fmtCad(u.cad_fin)}</td></tr>` : ""}
       <tr class="sep"><td>T. máx pavimento (20 mm)</td><td>${d.t_max_pavimento} °C</td></tr>
-      <tr><td>T. mín pavimento</td><td>${d.t_min_pavimento} °C</td></tr>
+      <tr><td>T. mín requerida por el sitio</td><td>${PG.exigeTexto(d.t_min_pavimento, d.grado_bajo)}</td></tr>
+      <tr><td>Grado por temperatura (cálculo, informativo)</td><td>${d.pg_base}</td></tr>
       <tr class="sep"><td>Región / crecimiento</td><td>${d.region || "—"} · ${d.tasa_crecimiento} %</td></tr>
       <tr><td>Estación clima (más cercana)</td><td>${(d.estacion_clima || {}).nombre} (${(d.estacion_clima || {}).dist_km} km)</td></tr>`,
-      "PG por temperatura del pavimento (M·MMP·4·05·064/22). El aforo y la letra se calculan en el paso ③.");
+      "PG por temperatura del pavimento (M·MMP·4·05·064/22). El aforo y la letra se calculan en el paso ③. " + PG.NOTA_NORMA);
   }
 
   async function analizarSegmento() { await evaluarCarretera(); }
@@ -1210,14 +1245,15 @@ footer.sitio strong{color:#777}
     if (!d) return;
     aplicarEvaluacion(d, { lat: lat, lon: lon });
     marcarPunto(lat, lon); volarAPunto(lat, lon);
-    $("res-ubicacion").innerHTML = tarjeta(d.pg_base, "Punto de estudio", `
+    $("res-ubicacion").innerHTML = tarjeta(PG.pgNorma(d.pg_base, d.grado_bajo), "Punto de estudio", `
       <tr><td>Coordenadas</td><td>${lat.toFixed(4)}, ${lon.toFixed(4)}</td></tr>
       <tr class="sep"><td>T. máx pavimento (20 mm)</td><td>${d.t_max_pavimento} °C</td></tr>
-      <tr><td>T. mín pavimento</td><td>${d.t_min_pavimento} °C</td></tr>
+      <tr><td>T. mín requerida por el sitio</td><td>${PG.exigeTexto(d.t_min_pavimento, d.grado_bajo)}</td></tr>
+      <tr><td>Grado por temperatura (cálculo, informativo)</td><td>${d.pg_base}</td></tr>
       <tr class="sep"><td>Región / crecimiento</td><td>${d.region || "—"} · ${d.tasa_crecimiento} %</td></tr>
       <tr><td>Estación clima (más cercana)</td><td>${(d.estacion_clima || {}).nombre} (${(d.estacion_clima || {}).dist_km} km)</td></tr>`,
       "El aforo NO se toma de una estación de la vía: se propone con estadísticas de la región (ver aviso en ③ Aforo). " +
-      "Para el aforo exacto de la vía, elígela por Anexo A; o captura el tuyo con «Capturar datos viales».");
+      "Para el aforo exacto de la vía, elígela por Anexo A; o captura el tuyo con «Capturar datos viales». " + PG.NOTA_NORMA);
   }
 
   async function calcularSegmentoCoords() {
@@ -1238,12 +1274,14 @@ footer.sitio strong{color:#777}
     segSel = g; capaPunto = quitar(capaPunto); capaSeg = quitar(capaSeg); capaSel = quitar(capaSel);
     try { volarA(L.latLngBounds(g), 14); } catch (e) {}
     etiquetasTrazo(g, "inicio", "fin", "Segmento (coordenadas)");
-    $("res-ubicacion").innerHTML = tarjeta(d.pg_base, "Segmento por coordenadas · rige el extremo más desfavorable", `
+    $("res-ubicacion").innerHTML = tarjeta(PG.pgNorma(d.pg_base, d.grado_bajo), "Segmento por coordenadas · rige el extremo más desfavorable", `
       <tr><td><b>Inicio (${la1.toFixed(4)}, ${lo1.toFixed(4)})</b></td><td><b>${u.pg_inicio || "—"}</b></td></tr>
       <tr class="sep"><td><b>Fin (${la2.toFixed(4)}, ${lo2.toFixed(4)})</b></td><td><b>${u.pg_fin || "—"}</b></td></tr>
       <tr class="sep"><td>Rige (más desfavorable)</td><td>T. máx ${d.t_max_pavimento} °C · T. mín ${d.t_min_pavimento} °C</td></tr>
+      <tr><td>T. mín requerida por el sitio</td><td>${PG.exigeTexto(d.t_min_pavimento, d.grado_bajo)}</td></tr>
+      <tr><td>Grado por temperatura (cálculo, informativo)</td><td>${d.pg_base}</td></tr>
       <tr><td>Estación clima (extremo que rige)</td><td>${(d.estacion_clima || {}).nombre} (${(d.estacion_clima || {}).dist_km} km)</td></tr>`,
-      "PG del segmento por los dos extremos (M·MMP·4·05·064/22). El aforo se propone del punto medio; edítalo en el paso ③ si tienes uno propio.");
+      "PG del segmento por los dos extremos (M·MMP·4·05·064/22). El aforo se propone del punto medio; edítalo en el paso ③ si tienes uno propio. " + PG.NOTA_NORMA);
   }
   /* =============== Aforo: origen y captura manual =============== */
   function bannerFuente() {
@@ -1629,7 +1667,9 @@ footer.sitio strong{color:#777}
     if (btnPDF && btnPDF.tagName === "BUTTON") { btnPDF.disabled = true; btnPDF.textContent = "Generando PDF…"; }
     const meta = leerMeta(), now = new Date();
     const yy = String(now.getFullYear()).slice(2), mm = String(now.getMonth() + 1).padStart(2, "0"), dd = String(now.getDate()).padStart(2, "0");
-    const grado = (typeof estudio.ga === "number") ? ("" + estudio.ga + Math.abs(estudio.gb)) : "ESP";
+    // El numero de reporte identifica el grado que se especifica (norma), no el del calculo.
+    const gbRep = PG.gbNorma(estudio.gb);
+    const grado = (typeof estudio.ga === "number" && gbRep !== "ESP") ? ("" + estudio.ga + Math.abs(gbRep)) : "ESP";
     const fechaStr = now.toLocaleString("es-MX");
     const dbx = ((($("m-dropbox") || {}).value) || "").trim();
     // El numero de reporte ya no entra en el canon: se deriva del folio que devuelve el servidor.
@@ -1652,6 +1692,9 @@ footer.sitio strong{color:#777}
           edo: (tramoActual && (tramoActual.estados || []).join(", ")) || "", red: c ? c.gr : "",
           lat: +fx(estudio.lat, 4), lon: +fx(estudio.lon, 4),
           pg: PG.pgTexto(estudio.ga, estudio.gb),
+          // pgn = grado que se especifica (norma); pg/pgg = los del calculo, informativos.
+          pgn: PG.pgNorma(aforoRes ? aforoRes.pgGob : PG.pgTexto(estudio.ga, estudio.gb), estudio.gb),
+          tn: (typeof estudio.tn === "number") ? +estudio.tn.toFixed(1) : null,
           pgg: aforoRes ? aforoRes.pgGob : "", niv: aforoRes ? PG.NIVELES[aforoRes.gob] : "",
           L: aforoRes ? +(aforoRes.Lu / 1e6).toFixed(2) : null, vel: aforoRes ? aforoRes.vel : null,
           tdpa: aforoRes ? aforoRes.tdpa : "", sc: aforoRes ? aforoRes.sc : "",
@@ -1728,9 +1771,13 @@ footer.sitio strong{color:#777}
     ry = campo(rX, ry, rW, "Coordenadas (lat, lon)", fx(estudio.lat, 4) + ", " + fx(estudio.lon, 4));
     ry = campo(rX, ry, rW, "Región / crecimiento", (estudio.rg || "—") + (estudio.tasaPct != null ? " · " + estudio.tasaPct.toFixed(1) + " %" : ""));
     ry = campo(rX, ry, rW, "Estación clima (más cercana)", estudio.estNom + " (" + estudio.estDist.toFixed(0) + " km)");
-    doc.setFillColor(244, 238, 241); doc.roundedRect(rX, ry, rW, 8.5, 1.5, 1.5, "F");
-    setC(G); doc.setFont(undefined, "bold"); doc.setFontSize(9.5); doc.text(asc("PG por temperatura:  " + PG.pgTexto(estudio.ga, estudio.gb)), rX + 3, ry + 5.6); doc.setFont(undefined, "normal");
-    ry += 12;
+    doc.setFillColor(244, 238, 241); doc.roundedRect(rX, ry, rW, 14, 1.5, 1.5, "F");
+    setC(G); doc.setFont(undefined, "bold"); doc.setFontSize(9.5);
+    doc.text(asc("Grado a especificar (norma):  " + PG.pgNorma(PG.pgTexto(estudio.ga, estudio.gb), estudio.gb)), rX + 3, ry + 5.4);
+    doc.setFont(undefined, "normal"); doc.setFontSize(6.9); setC(GR);
+    doc.text(asc("T. min requerida por el sitio: " + PG.exigeTexto(estudio.tn, estudio.gb)), rX + 3, ry + 9.4);
+    doc.text(asc("(informativo, calculo M-MMP-4-05-064/22)"), rX + 3, ry + 12.2);
+    ry += 17.5;
 
     let y = Math.max(mapBot, ry) + 5;
     const cw = (Wd - 2 * mx - colGap) / 2, xL = mx, xR = mx + cw + colGap;
@@ -1740,7 +1787,7 @@ footer.sitio strong{color:#777}
     kv(xL, y, cw, "T. aire máx 7 d / D.E.", (estudio.TM != null ? estudio.TM : "—") + " / " + (estudio.sM != null ? estudio.sM : "—") + " °C");
     kv(xR, y, cw, "T. máx pavimento", estudio.tx.toFixed(1) + " °C"); y += 5;
     kv(xL, y, cw, "T. aire mín / D.E.", (estudio.Tm != null ? estudio.Tm : "—") + " / " + (estudio.sm != null ? estudio.sm : "—") + " °C");
-    kv(xR, y, cw, "T. mín pavimento", estudio.tn.toFixed(1) + " °C"); y += 6.5;
+    kv(xR, y, cw, "T. mín pavimento (requerida)", estudio.tn.toFixed(1) + " °C"); y += 6.5;
 
     // Segmento (si aplica)
     if (estudio.segmento) {
@@ -1775,8 +1822,17 @@ footer.sitio strong{color:#777}
       kv(xR, y, cw, "∑L UNAM (Inst. Ing.)", (a.Lu / 1e6).toFixed(2) + " x10^6 -> " + a.pgU); y += 5;
       kv(xL, y, cw, "Nivel de ajuste", PG.NIVELES[a.gob]); y += 7;
       doc.setFillColor(245, 240, 235); doc.roundedRect(mx, y - 3, Wd - 2 * mx, 15, 2, 2, "F");
-      setC(G); doc.setFontSize(16); doc.setFont(undefined, "bold"); doc.text(asc("PG SELECCIONADO:  " + a.pgGob), mx + 5, y + 6.5);
+      setC(G); doc.setFontSize(16); doc.setFont(undefined, "bold");
+      doc.text(asc("PG A ESPECIFICAR:  " + PG.pgNorma(a.pgGob, estudio.gb)), mx + 5, y + 6.5);
       doc.setFontSize(9); doc.setFont(undefined, "normal"); setC(V); doc.text(asc("Nivel " + PG.NIVELES[a.gob]), Wd - mx - 5, y + 6.5, { align: "right" }); y += 16;
+      // Las dos lineas que sostienen ese numero: lo que exige el sitio y lo que admite la norma.
+      doc.setFontSize(7.2); setC(GR); doc.setFont(undefined, "normal");
+      const nNorma = doc.splitTextToSize(asc(
+        "Temperatura minima requerida por el sitio: " + PG.exigeTexto(estudio.tn, estudio.gb)
+        + " (informativo, calculo M-MMP-4-05-064/22).  Grado bajo a especificar -16: unico que admite la "
+        + "N-CMT-4-05-004/25, que lista PG 64-16, 70-16 y 76-16; cubre con holgura la exigencia del sitio. "
+        + "El grado alto y la letra del nivel de ajuste no cambian."), Wd - 2 * mx);
+      doc.text(nNorma, mx, y); y += nNorma.length * 3.2 + 3;
     } else {
       doc.setFillColor(245, 240, 235); doc.roundedRect(mx, y - 3, Wd - 2 * mx, 12, 2, 2, "F");
       setC(G); doc.setFontSize(13); doc.setFont(undefined, "bold"); doc.text(asc("DISEÑO ESPECIAL — PG (temperatura):  " + PG.pgTexto(estudio.ga, estudio.gb)), mx + 5, y + 5); doc.setFont(undefined, "normal"); y += 14;
@@ -1888,9 +1944,14 @@ footer.sitio strong{color:#777}
       } else {
       // Requisitos del cemento asfáltico SOLO del PG seleccionado — N·CMT·4·05·004/25
       const gaSel = (typeof estudio.ga === "number") ? estudio.ga : 76;
-      const gbSel = (typeof estudio.gb === "number") ? estudio.gb : -16;
+      // Los requisitos de la Tabla 1 son los del grado que se ESPECIFICA, no los del que arroja
+      // el calculo: la norma solo lista -16, y de ahi sale la temperatura de la prueba BBR
+      // (grado bajo + 10 = -6 C). Con el grado calculado (-10) saldria 0 C, que no esta en la norma.
+      const gbSel = PG.GB_NORMA;
       const Lz = aforoRes ? aforoRes.gob : "S";
-      const pgSel = aforoRes ? aforoRes.pgGob : PG.pgTexto(estudio.ga, estudio.gb);
+      const pgCalc = aforoRes ? aforoRes.pgGob : PG.pgTexto(estudio.ga, estudio.gb);
+      const pgNor = PG.pgNorma(pgCalc, estudio.gb);
+      const pgSel = (pgNor === "Diseño especial") ? pgCalc : pgNor;
       const reb = gaSel >= 70 ? "55" : "48";                    // punto de reblandecimiento min
       const sep = gaSel >= 70 ? "2" : null;                     // separacion (solo modificado)
       const ret = gaSel >= 76 ? "35" : (gaSel >= 70 ? "30" : null); // rec. elastica torsion 25 C
@@ -2170,5 +2231,5 @@ footer.sitio strong{color:#777}
 })();
 </script>
 </body>
-<!-- HGA build v25 -->
+<!-- HGA build v26 -->
 </html>

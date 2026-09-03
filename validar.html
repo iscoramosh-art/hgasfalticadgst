@@ -103,8 +103,13 @@
     + fila("Red", pl.red)
     + fila("Estados", pl.edo)
     + fila("Coordenadas", (pl.lat != null && pl.lon != null) ? (pl.lat + ", " + pl.lon) : "")
-    + fila("PG por temperatura", pl.pg)
-    + fila("PG seleccionado", pl.pgg)
+    // pgn y tn sólo vienen en reportes emitidos desde la versión que separa el grado que el sitio
+    // EXIGE (cálculo M·MMP·4·05·064/22) del grado que se ESPECIFICA (norma N·CMT·4·05·004/25, que
+    // sólo admite −16). En reportes anteriores no existen y fila() los omite sin ruido.
+    + fila("Grado a especificar (norma)", pl.pgn)
+    + fila("T. mín requerida por el sitio", (pl.tn != null && pl.tn !== "") ? (pl.tn + " °C") : "")
+    + fila("PG por temperatura (cálculo, informativo)", pl.pg)
+    + fila("PG con tránsito (cálculo, informativo)", pl.pgg)
     + fila("Nivel de ajuste", pl.niv)
     + fila("∑L (×10⁶)", pl.L)
     + fila("TDPA · velocidad", (pl.tdpa !== "" && pl.tdpa != null) ? (pl.tdpa + (pl.vel ? " · " + pl.vel + " km/h" : "")) : "")
