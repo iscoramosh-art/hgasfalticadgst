@@ -1662,7 +1662,12 @@ footer.sitio strong{color:#777}
         if (n.closest && n.closest(".leaflet-control-attribution")) continue;
         if (n.tagName === "IMG" && (!n.complete || !n.naturalWidth)) continue;
         if (n.tagName === "CANVAS" && (!n.width || !n.height)) continue;
-        var op = opac(n); if (op < 0.02) continue;
+        var op = opac(n);
+        // Un mosaico ya cargado se dibuja opaco aunque Leaflet no haya terminado su fundido de
+        // entrada: el fundido corre con requestAnimationFrame, que el navegador congela si la
+        // pestana esta en segundo plano, y el PDF salia sin fondo de mapa.
+        if (n.classList && n.classList.contains("leaflet-tile") && n.classList.contains("leaflet-tile-loaded")) op = 1;
+        if (op < 0.02) continue;
         var r = n.getBoundingClientRect(); if (!dentro(r)) continue;
         ctx.globalAlpha = op;
         ctx.drawImage(n, (r.left - caja.left) * esc, (r.top - caja.top) * esc, r.width * esc, r.height * esc);
@@ -2400,5 +2405,5 @@ footer.sitio strong{color:#777}
 })();
 </script>
 </body>
-<!-- HGA build v35 -->
+<!-- HGA build v36 -->
 </html>
