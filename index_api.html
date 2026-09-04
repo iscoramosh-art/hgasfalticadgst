@@ -1849,6 +1849,12 @@ footer.sitio strong{color:#777}
       .replace(/σ/g, "D.E.").replace(/Σ/g, "Suma")
       .replace(/→/g, "->").replace(/←/g, "<-").replace(/–/g, "-").replace(/—/g, "-").replace(/−/g, "-").replace(/≈/g, "~")
       .replace(/[⁰¹²³⁴⁵⁶⁷⁸⁹]/g, (d) => "^" + "⁰¹²³⁴⁵⁶⁷⁸⁹".indexOf(d));
+    // El pie de pagina se mide ANTES de acomodar el contenido: v32 lo hizo mas largo (6 lineas) y las
+    // reglas fijas de salto (p > 250) dejaban que los ultimos parrafos se encimaran con el.
+    const PIE_TXT = asc("Metodo M-MMP-4-05-064/22 y Norma N-CMT-4-05-004/25. Temperaturas de pavimento a H = 20 mm y 98 % de confiabilidad; grado alto {64, 70, 76} (mayor a 76 °C = diseno especial). El reporte muestra dos grados bajos, el GRADO A CONSIDERAR ES -16 de acuerdo con la Norma N-CMT-4-05-004/25 ya que la clausula E solo fija requisitos de calidad para PG 64-16, 70-16 y 76-16: fuera de ese grado bajo no hay criterios de aceptacion que verificar en obra. El -10 se registra para solo identificar que un cemento asfaltico -10 es suficiente, por lo que el -16 cumple con lo necesario para el sitio en estudio. Ejes equivalentes por el metodo del Instituto de Ingenieria UNAM (factores de dano superficial a 6.0 kg/cm²; camion, eje estandar 5.8): el SL superficial (z = 0) gobierna la letra del PG, mientras que el SL de fatiga a la profundidad de la capa, que aparece en el bloque de cantidades, es el del diseno estructural. Clima: estaciones del SMN con >=20 años. Datos Viales / Anexo A PARCF 2026. *Velocidad de operacion (camiones): DGST Velocidades de Punto 2025. Herramienta de referencia; el criterio del proyectista prevalece.");
+    const LINEAS_PIE = (function () { doc.setFontSize(7.5); return doc.splitTextToSize(PIE_TXT, Wd - 2 * mx); })();
+    const Y_PIE = 279.4 - 10 - LINEAS_PIE.length * 3.1;
+    const LIM_Y = Y_PIE - 5;   // ultimo renglon admisible del contenido (la raya del pie va en Y_PIE - 3)
     const setC = (col) => doc.setTextColor(col[0], col[1], col[2]);
     const head = (x, y2, w, t) => { doc.setFont(undefined, "bold"); doc.setFontSize(9.3); setC(V); doc.text(asc(t), x, y2); doc.setDrawColor(...V); doc.setLineWidth(0.35); doc.line(x, y2 + 1.5, x + w, y2 + 1.5); doc.setFont(undefined, "normal"); };
     const kv = (x, y2, w, k, v) => { doc.setFont(undefined, "normal"); doc.setFontSize(8); setC(GR); doc.text(asc(k), x, y2); doc.setFont(undefined, "bold"); setC(TN); doc.text(asc(v), x + w, y2, { align: "right" }); doc.setFont(undefined, "normal"); };
@@ -1994,7 +2000,7 @@ footer.sitio strong{color:#777}
       doc.setFillColor(...G); doc.rect(0, 0, Wd * 0.6, 3.5, "F"); doc.setFillColor(...V); doc.rect(Wd * 0.6, 0, Wd * 0.4, 3.5, "F");
       setC(G); doc.setFontSize(12); doc.setFont(undefined, "bold"); doc.text(asc("Requisitos de calidad, cantidades y recomendaciones"), mx, 14); doc.setFont(undefined, "normal");
       let p = 22, cwd = Wd - 2 * mx;
-      const nlp = (h) => { if (p + h > 250) { doc.addPage(); p = 20; } };
+      const nlp = (h) => { if (p + h > LIM_Y) { doc.addPage(); p = 20; } };
       const linkN = (x, y, t, u) => { setC([40, 80, 160]); doc.setFontSize(7.4); doc.setFont(undefined, "normal"); try { doc.textWithLink(asc(t), x, y, { url: u }); } catch (e) { doc.text(asc(t), x, y); } setC(TN); };
       const NORMA = { ca: "https://normas.imt.mx/storage/normativa/N-CMT-4-05-004-25.pdf", mez: "https://normas.imt.mx/storage/normativa/N-CMT-4-05-003-25.pdf", pet: "https://normas.imt.mx/storage/normativa/N-CMT-4-04-17.pdf" };
       // Datos del reporte y validación (QR + sello de integridad)
@@ -2249,13 +2255,14 @@ footer.sitio strong{color:#777}
       ];
       doc.setFontSize(7.8);
       notas.forEach((n) => {
-        if (p > 250) { doc.addPage(); p = 20; }
         doc.setFont(undefined, n[1] ? "bold" : "normal"); setC(n[1] ? G : TN);
-        const ls = doc.splitTextToSize(asc("• " + n[0]), cwd); doc.text(ls, mx, p); p += ls.length * 3.3 + 1.2;
+        const ls = doc.splitTextToSize(asc("• " + n[0]), cwd);
+        if (p + ls.length * 3.3 > LIM_Y) { doc.addPage(); p = 20; }
+        doc.text(ls, mx, p); p += ls.length * 3.3 + 1.2;
       });
       doc.setFont(undefined, "normal");
       // Criterios para seleccionar el tipo de mezcla asfáltica
-      if (p > 222) { doc.addPage(); p = 20; } else p += 3;
+      if (p > LIM_Y - 28) { doc.addPage(); p = 20; } else p += 3;
       head(mx, p, cwd, "Criterios para seleccionar el tipo de mezcla (NAPA IS-128, FHWA, AI, AMAAC, SICT)"); p += 5;
       const crit = [
         "Por nivel de tránsito: bajo -> solo mezcla densa; moderado -> densa (preferente); alto -> densa estructural y, en rodadura, SMA o discontinua. La SMA no se justifica en bajo volumen por el costo de agregados y ligante premium (NAPA IS-128; N·CMT·4·05·003).",
@@ -2268,7 +2275,7 @@ footer.sitio strong{color:#777}
         "Preservación (FHWA): sobrecarpetas delgadas, microaglomerados y riegos según la condición del pavimento; una rodadura delgada sobre un pavimento estructuralmente deficiente reduce su vida útil.",
       ];
       doc.setFontSize(7.8); setC(TN); doc.setFont(undefined, "normal");
-      crit.forEach((c) => { if (p > 250) { doc.addPage(); p = 20; } const ls = doc.splitTextToSize(asc("• " + c), cwd); doc.text(ls, mx, p); p += ls.length * 3.3 + 1.2; });
+      crit.forEach((c) => { const ls = doc.splitTextToSize(asc("• " + c), cwd); if (p + ls.length * 3.3 > LIM_Y) { doc.addPage(); p = 20; } doc.text(ls, mx, p); p += ls.length * 3.3 + 1.2; });
       // ===== Apéndice (solo modo Segmentos): segmentos homogéneos + estaciones consideradas =====
       if (ultimaSeg && ultimaSeg.R && ultimaSeg.R.segs && ultimaSeg.R.segs.length) {
         const R = ultimaSeg.R, ests = ultimaSeg.ests || [];
@@ -2285,7 +2292,7 @@ footer.sitio strong{color:#777}
         const thS = ["#", "Cadenamiento", "Long", "Estación de aforo", "TDPA", "∑L", "Umbral", "PG (norma)"];
         const filaS = (v, b) => { doc.setFontSize(7.1); doc.setFont(undefined, b ? "bold" : "normal"); setC(b ? G : TN); for (let i = 0; i < v.length; i++) doc.text(clip(v[i], [3, 22, 7, 24, 10, 9, 6, 15][i]), cS[i], p); doc.setFont(undefined, "normal"); };
         filaS(thS, true); p += 1.6; doc.setDrawColor(...GR); doc.setLineWidth(0.2); doc.line(mx, p, mx + cwd, p); p += 3;
-        for (let i = 0; i < R.segs.length; i++) { const s = R.segs[i]; if (p > 250) { doc.addPage(); p = 20; filaS(thS, true); p += 4.6; }
+        for (let i = 0; i < R.segs.length; i++) { const s = R.segs[i]; if (p > LIM_Y - 4) { doc.addPage(); p = 20; filaS(thS, true); p += 4.6; }
           filaS([String(i + 1), fmtCad(s.cadIni) + " – " + fmtCad(s.cadFin), Math.abs(s.cadFin - s.cadIni).toFixed(1), (s.estAf || "—"), (s.tdpaMax ? s.tdpaMax.toLocaleString("es-MX") : "—"), (s.sumaLMax ? (s.sumaLMax / 1e6).toFixed(1) + "M" : "—"), PG.umbralTxt(s.pg), PG.pgNormaTxt(s.pg)]); p += 4.2;
         }
         p += 5;
@@ -2297,7 +2304,7 @@ footer.sitio strong{color:#777}
           const thE = ["Estación de aforo", "Km", "Estación SMN (dist.)", "T máx/mín pav.", "Umbral", "TDPA·SC", "∑L", "PG (norma)"];
           const filaE = (v, b) => { doc.setFontSize(6.6); doc.setFont(undefined, b ? "bold" : "normal"); setC(b ? G : TN); for (let i = 0; i < v.length; i++) doc.text(clip(v[i], [30, 5, 23, 13, 7, 12, 10, 14][i]), cE[i], p); doc.setFont(undefined, "normal"); };
           filaE(thE, true); p += 1.6; doc.setDrawColor(...GR); doc.line(mx, p, mx + cwd, p); p += 3;
-          for (const e of ests) { if (p > 252) { doc.addPage(); p = 20; filaE(thE, true); p += 4.6; }
+          for (const e of ests) { if (p > LIM_Y - 4) { doc.addPage(); p = 20; filaE(thE, true); p += 4.6; }
             filaE([e.nom, (e.km != null ? String(e.km) : "—"), (e.estNom || "—") + " (" + (e.dist != null ? e.dist.toFixed(0) : "?") + " km)", (isFinite(e.tx) ? e.tx.toFixed(1) : "—") + " / " + (isFinite(e.tn) ? e.tn.toFixed(1) : "—"), PG.umbralTxt(e.pg), (e.tdpa ? e.tdpa.toLocaleString("es-MX") : "—") + "·" + e.sc, (e.sumaL ? (e.sumaL / 1e6).toFixed(1) + "M" : "—"), PG.pgNormaTxt(e.pg)]); p += 3.8;
           }
           nlp(8); doc.setFontSize(6.6); setC(GR); doc.text(asc("«PG (norma)» es el grado a especificar conforme a la N-CMT-4-05-004/25, el mismo que encabeza este reporte. «Umbral» es el grado bajo que arroja el M-MMP-4-05-064/22 para ese punto: es informativo, sirve para leer por que se corto el segmento, y NO es una designacion de compra. SL por II-UNAM con la composicion del aforo y la tasa de su region; T del pavimento por la estacion SMN mas cercana (M-MMP-4-05-064/22). Corte de segmento donde cambia el PG (letra por SL o grado por temperatura); longitud minima 1 km."), mx, p, { maxWidth: cwd }); p += 6;
@@ -2305,9 +2312,8 @@ footer.sitio strong{color:#777}
       }
     }
     // Pie de página + numeración en todas las hojas (anclado al fondo, sin encimarse)
-    const pie = asc("Metodo M-MMP-4-05-064/22 y Norma N-CMT-4-05-004/25. Temperaturas de pavimento a H = 20 mm y 98 % de confiabilidad; grado alto {64, 70, 76} (mayor a 76 °C = diseno especial). El reporte muestra dos grados bajos, el GRADO A CONSIDERAR ES -16 de acuerdo con la Norma N-CMT-4-05-004/25 ya que la clausula E solo fija requisitos de calidad para PG 64-16, 70-16 y 76-16: fuera de ese grado bajo no hay criterios de aceptacion que verificar en obra. El -10 se registra para solo identificar que un cemento asfaltico -10 es suficiente, por lo que el -16 cumple con lo necesario para el sitio en estudio. Ejes equivalentes por el metodo del Instituto de Ingenieria UNAM (factores de dano superficial a 6.0 kg/cm²; camion, eje estandar 5.8): el SL superficial (z = 0) gobierna la letra del PG, mientras que el SL de fatiga a la profundidad de la capa, que aparece en el bloque de cantidades, es el del diseno estructural. Clima: estaciones del SMN con >=20 años. Datos Viales / Anexo A PARCF 2026. *Velocidad de operacion (camiones): DGST Velocidades de Punto 2025. Herramienta de referencia; el criterio del proyectista prevalece.");
-    const lineasPie = doc.splitTextToSize(pie, Wd - 2 * mx);
-    const yPie = 279.4 - 10 - lineasPie.length * 3.1;
+    // (el texto del pie y su altura se calculan al inicio de construirPDF: LIM_Y)
+    const lineasPie = LINEAS_PIE, yPie = Y_PIE;
     const total = doc.getNumberOfPages();
     for (let pi = 1; pi <= total; pi++) {
       doc.setPage(pi);
@@ -2394,5 +2400,5 @@ footer.sitio strong{color:#777}
 })();
 </script>
 </body>
-<!-- HGA build v34 -->
+<!-- HGA build v35 -->
 </html>
