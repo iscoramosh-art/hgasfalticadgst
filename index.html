@@ -500,12 +500,11 @@ footer.sitio strong{color:#777}
   <footer class="sitio">
     Método <strong>M·MMP·4·05·064/22</strong> y Norma <strong>N·CMT·4·05·004/25</strong>. Temperaturas de pavimento a H = 20 mm y 98 % de confiabilidad;
     grado alto {64, 70, 76} (mayor a 76 °C = diseño especial).
-    El reporte muestra <strong>dos grados bajos, y los dos tienen sustento normativo</strong>:
-    el <strong>umbral a considerar</strong> (del orden de −10), que es el resultado del
-    <strong>M·MMP·4·05·064/22</strong> —el método que la cláusula D de la Norma ordena aplicar—, y el
-    <strong>grado a especificar</strong>, que es <strong>−16</strong> porque la cláusula B lo acota
-    «para esta Norma» y porque la cláusula E sólo fija requisitos de calidad para PG 64-16, 70-16 y
-    76-16: fuera de ese grado bajo no hay criterios de aceptación que verificar en obra.
+    El reporte muestra <strong>dos grados bajos</strong>, el <strong>grado a considerar es −16</strong>
+    de acuerdo con la Norma <strong>N·CMT·4·05·004/25</strong> ya que la cláusula E sólo fija requisitos
+    de calidad para PG 64-16, 70-16 y 76-16: fuera de ese grado bajo no hay criterios de aceptación que
+    verificar en obra. El −10 se registra para sólo identificar que un cemento asfáltico −10 es
+    suficiente, por lo que el −16 cumple con lo necesario para el sitio en estudio.
     Ejes equivalentes por el método del Instituto de Ingeniería UNAM (factores de daño superficial a 6.0 kg/cm²; camión, eje estándar 5.8). Clima: estaciones del SMN con ≥ 20 años.
     Herramienta de referencia; el criterio del proyectista prevalece.
   </footer>
@@ -637,18 +636,6 @@ footer.sitio strong{color:#777}
       }
       return r;
     },
-    // Las DOS lecturas y la clausula que sostiene a cada una. Ninguna es una interpretacion:
-    // las dos estan en el texto de la norma vigente.
-    NOTA_NORMA: "Los dos grados bajos se muestran a propósito y los dos tienen sustento normativo. " +
-      "El <b>umbral a considerar (−10)</b> es el que arroja el M·MMP·4·05·064/22, que es el método " +
-      "que la propia N·CMT·4·05·004/25 ordena aplicar en su cláusula D; su cláusula B además " +
-      "reconoce que la escala «se extiende tanto como sea necesario con incrementos estandarizados " +
-      "de seis grados», y −10 es el escalón contiguo al −16. " +
-      "El <b>grado a especificar (−16)</b> es el que manda esa misma cláusula B —«para esta Norma … " +
-      "sólo se considerará la temperatura mínima de −16 °C»— y, sobre todo, el único para el que la " +
-      "cláusula E fija requisitos de calidad: fuera de él no hay criterios de aceptación contra los " +
-      "cuales verificar el cemento asfáltico en obra. Un ligante −16 cubre por exceso una exigencia " +
-      "de −10."
   };
 
   /* Longitud del segmento por coordenadas: los dos umbrales salen de medir, sobre los 7 739
@@ -730,10 +717,18 @@ footer.sitio strong{color:#777}
   const rc = L.canvas({ padding: 0.5 });
   const mapa = L.map("mapa", { center: [23.6, -102], zoom: 5, zoomControl: false, preferCanvas: true, minZoom: 4, maxZoom: 18 });
 
-  const bmClaro = L.tileLayer("https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png", { maxZoom: 19, crossOrigin: true, subdomains: "abcd", attribution: "© OpenStreetMap · © CARTO" });
+  // «Claro»: gris claro de Esri, sin clave. Base sin rótulos + referencia con rótulos, como una sola capa.
+  // CARTO (el fondo anterior) exige clave de API desde 2026 y estampa marca de agua en cada tesela.
+  const ESRI_CANVAS = "https://server.arcgisonline.com/ArcGIS/rest/services/Canvas/";
+  const bmClaro = L.layerGroup([
+    L.tileLayer(ESRI_CANVAS + "World_Light_Gray_Base/MapServer/tile/{z}/{y}/{x}",
+                { maxNativeZoom: 16, maxZoom: 19, crossOrigin: true, attribution: "Fondo © Esri, HERE, Garmin, OpenStreetMap" }),
+    L.tileLayer(ESRI_CANVAS + "World_Light_Gray_Reference/MapServer/tile/{z}/{y}/{x}",
+                { maxNativeZoom: 16, maxZoom: 19, crossOrigin: true, pane: "overlayPane" })
+  ]);
   const bmCalle = L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", { maxZoom: 19, crossOrigin: true, attribution: "© OpenStreetMap" });
   const bmSat = L.tileLayer("https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}", { maxZoom: 19, crossOrigin: true, attribution: "Imágenes © Esri, Maxar, Earthstar Geographics" });
-  bmCalle.addTo(mapa);   // fondo por omisión: OpenStreetMap (CARTO "Claro" ya exige API key y estampa marca de agua)
+  bmClaro.addTo(mapa);   // fondo por omisión: el lienzo neutro hace legibles los trazos de color del PG
   L.control.layers({ "Claro": bmClaro, "Calle": bmCalle, "Satélite": bmSat }, null, { position: "topright", collapsed: false }).addTo(mapa);
   L.control.zoom({ position: "topright" }).addTo(mapa);
   L.control.scale({ metric: true, imperial: false, position: "bottomleft", maxWidth: 160 }).addTo(mapa);
@@ -1157,7 +1152,7 @@ footer.sitio strong{color:#777}
         <tr class="sep"><td><b>∑L superficial · z = 0 (II-UNAM, ${a.anios} años)</b></td><td><b>${d.suma_L_texto}</b></td></tr>
         <tr><td>Nivel de ajuste</td><td>${d.nivel_ajuste_texto}</td></tr>
         <tr class="sep"><td>Región (tasa) · velocidad</td><td>${d.region || "—"} (${d.tasa_crecimiento} %) · ${a.velocidad} km/h</td></tr>`,
-        (d.metodo ? d.metodo + " " : "") + PG.NOTA_NORMA);
+        (d.metodo ? d.metodo + " " : ""));
       prepararDiseno();
     } else if (d.pg_seleccionado === "Diseño especial") {
       $("res-aforo").innerHTML = tarjeta("Diseño especial", "T. máx pavimento > 76 °C — aprobación de la Secretaría", "", d.aviso || "");
@@ -1317,7 +1312,7 @@ footer.sitio strong{color:#777}
       <tr><td>PG por temperatura, con el umbral a considerar</td><td>${d.pg_base}</td></tr>
       <tr class="sep"><td>Región / crecimiento</td><td>${d.region || "—"} · ${d.tasa_crecimiento} %</td></tr>
       <tr><td>Estación clima (más cercana)</td><td>${(d.estacion_clima || {}).nombre} (${(d.estacion_clima || {}).dist_km} km)</td></tr>`,
-      "PG por temperatura del pavimento (M·MMP·4·05·064/22). El aforo y la letra se calculan en el paso ③. " + PG.NOTA_NORMA);
+      "PG por temperatura del pavimento (M·MMP·4·05·064/22). El aforo y la letra se calculan en el paso ③.");
   }
 
   async function analizarSegmento() { await evaluarCarretera(); }
@@ -1339,7 +1334,7 @@ footer.sitio strong{color:#777}
       <tr class="sep"><td>Región / crecimiento</td><td>${d.region || "—"} · ${d.tasa_crecimiento} %</td></tr>
       <tr><td>Estación clima (más cercana)</td><td>${(d.estacion_clima || {}).nombre} (${(d.estacion_clima || {}).dist_km} km)</td></tr>`,
       "El aforo NO se toma de una estación de la vía: se propone con estadísticas de la región (ver aviso en ③ Aforo). " +
-      "Para el aforo exacto de la vía, elígela por Anexo A; o captura el tuyo con «Capturar datos viales». " + PG.NOTA_NORMA);
+      "Para el aforo exacto de la vía, elígela por Anexo A; o captura el tuyo con «Capturar datos viales».");
   }
 
   async function calcularSegmentoCoords() {
@@ -1392,7 +1387,7 @@ footer.sitio strong{color:#777}
       <tr><td><b>Umbral a considerar</b> (M·MMP·4·05·064/22)</td><td><b>${PG.exigeTexto(d.t_min_pavimento, d.grado_bajo, true)}</b></td></tr>
       <tr><td>PG por temperatura, con el umbral a considerar</td><td>${d.pg_base}</td></tr>
       <tr><td>Estación clima (extremo que rige)</td><td>${(d.estacion_clima || {}).nombre} (${(d.estacion_clima || {}).dist_km} km)</td></tr>`,
-      "PG del segmento por los dos extremos (M·MMP·4·05·064/22). El aforo se propone del punto medio; edítalo en el paso ③ si tienes uno propio. " + PG.NOTA_NORMA,
+      "PG del segmento por los dos extremos (M·MMP·4·05·064/22). El aforo se propone del punto medio; edítalo en el paso ③ si tienes uno propio.",
       segLargo ? { titulo: "Segmento de " + segKm.toFixed(1) + " km: confianza espacial \u2265 " +
                (confSegmento(segKm).esp * 100).toFixed(1).replace(".", ",") + " %",
         texto: "Hasta 8 km, el grado que resulta de los dos extremos cubre al del interior del tramo en " +
@@ -2310,7 +2305,7 @@ footer.sitio strong{color:#777}
       }
     }
     // Pie de página + numeración en todas las hojas (anclado al fondo, sin encimarse)
-    const pie = asc("Norma N·CMT·4·05·004/25 y Manual M·MMP·4·05·064/22. Grado alto {64,70,76} (>76 °C = diseño especial). Se informan dos grados bajos y los dos son normativos: el UMBRAL A CONSIDERAR (del orden de -10) es el resultado del M·MMP·4·05·064/22, metodo que ordena la clausula D de la Norma; el GRADO A ESPECIFICAR es -16 porque la clausula B lo acota para esta Norma y la clausula E solo fija requisitos de calidad para PG 64-16, 70-16 y 76-16. SL superficial (z = 0) por el metodo del Inst. Ing. UNAM (factores de dano superficial a 6.0 kg/cm²; camion, eje estandar 5.8): es el que gobierna la letra del PG. El SL de fatiga a la profundidad de la capa, que aparece en el bloque de cantidades, es el del diseno estructural. Clima: estaciones del SMN con >=20 años. Datos Viales / Anexo A PARCF 2026. *Velocidad de operación (camiones): DGST Velocidades de Punto 2025. Herramienta de referencia; el criterio del proyectista prevalece.");
+    const pie = asc("Metodo M-MMP-4-05-064/22 y Norma N-CMT-4-05-004/25. Temperaturas de pavimento a H = 20 mm y 98 % de confiabilidad; grado alto {64, 70, 76} (mayor a 76 °C = diseno especial). El reporte muestra dos grados bajos, el GRADO A CONSIDERAR ES -16 de acuerdo con la Norma N-CMT-4-05-004/25 ya que la clausula E solo fija requisitos de calidad para PG 64-16, 70-16 y 76-16: fuera de ese grado bajo no hay criterios de aceptacion que verificar en obra. El -10 se registra para solo identificar que un cemento asfaltico -10 es suficiente, por lo que el -16 cumple con lo necesario para el sitio en estudio. Ejes equivalentes por el metodo del Instituto de Ingenieria UNAM (factores de dano superficial a 6.0 kg/cm²; camion, eje estandar 5.8): el SL superficial (z = 0) gobierna la letra del PG, mientras que el SL de fatiga a la profundidad de la capa, que aparece en el bloque de cantidades, es el del diseno estructural. Clima: estaciones del SMN con >=20 años. Datos Viales / Anexo A PARCF 2026. *Velocidad de operacion (camiones): DGST Velocidades de Punto 2025. Herramienta de referencia; el criterio del proyectista prevalece.");
     const lineasPie = doc.splitTextToSize(pie, Wd - 2 * mx);
     const yPie = 279.4 - 10 - lineasPie.length * 3.1;
     const total = doc.getNumberOfPages();
@@ -2399,5 +2394,5 @@ footer.sitio strong{color:#777}
 })();
 </script>
 </body>
-<!-- HGA build v31b -->
+<!-- HGA build v33 -->
 </html>
