@@ -1,0 +1,176 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Validación de reporte · HG Asfáltica DGST</title>
+<style>
+  :root{ --guinda:#611232; --verde:#1E5B4F; --gris:#78787a; --tinta:#2d2d2d; --linea:#e3e0e2; }
+  *{box-sizing:border-box}
+  body{margin:0;background:#f6f4f5;color:var(--tinta);
+       font-family:"Noto Sans","Segoe UI",Roboto,Helvetica,Arial,sans-serif;font-size:15px;line-height:1.5}
+  .barra{height:6px;background:linear-gradient(90deg,var(--guinda) 0 62%,var(--verde) 62% 100%)}
+  header{background:#fff;border-bottom:1px solid var(--linea);padding:18px 20px}
+  header h1{margin:0;font-size:20px;color:var(--guinda);letter-spacing:.2px}
+  header p{margin:4px 0 0;color:var(--gris);font-size:13px;max-width:70ch}
+  main{max-width:900px;margin:22px auto 60px;padding:0 16px}
+  .caja{background:#fff;border:1px solid var(--linea);border-radius:10px;padding:18px 20px;margin-bottom:18px}
+  .veredicto{display:flex;gap:14px;align-items:flex-start;border-radius:10px;padding:18px 20px;margin-bottom:18px;
+             border:1px solid var(--linea);background:#fff}
+  .veredicto .marca{font-size:26px;line-height:1;margin-top:2px}
+  .veredicto h2{margin:0 0 4px;font-size:17px}
+  .veredicto p{margin:0;font-size:14px}
+  .ok{border-left:6px solid var(--verde)} .ok h2{color:var(--verde)}
+  .mal{border-left:6px solid #b3261e} .mal h2{color:#b3261e}
+  .duda{border-left:6px solid #a57f2c} .duda h2{color:#8a6a1f}
+  h3{margin:0 0 10px;font-size:14px;text-transform:uppercase;letter-spacing:.6px;color:var(--guinda)}
+  table{width:100%;border-collapse:collapse}
+  td{padding:6px 0;border-bottom:1px solid var(--linea);vertical-align:top;font-size:14px}
+  td:first-child{color:var(--gris);width:46%;padding-right:14px}
+  td:last-child{text-align:right;font-variant-numeric:tabular-nums}
+  .mono{font-family:ui-monospace,SFMono-Regular,Consolas,monospace;font-size:12px;word-break:break-all}
+  .nota{color:var(--gris);font-size:12.5px;margin-top:14px}
+  footer{color:var(--gris);font-size:12px;text-align:center;padding:0 16px 30px}
+  @media (max-width:560px){ td:first-child{width:52%} }
+</style>
+</head>
+<body>
+<div class="barra"></div>
+<header>
+  <h1>Validación de reporte · HG Asfáltica DGST</h1>
+  <p>Dirección General de Servicios Técnicos, SICT. Esta página comprueba, contra el servicio de la
+     DGST, que el reporte fue emitido por la herramienta y que su contenido no fue alterado.</p>
+</header>
+<main>
+  <div id="veredicto" class="veredicto duda">
+    <div class="marca">⏳</div>
+    <div><h2>Comprobando…</h2><p id="vmsg">Consultando el servicio de validación.</p></div>
+  </div>
+  <div class="caja" id="caja-datos" style="display:none">
+    <h3>Datos del reporte</h3>
+    <table id="datos"></table>
+    <div class="nota" id="nota-sello"></div>
+  </div>
+</main>
+<footer>HG Asfáltica DGST · hgasfaltica.com</footer>
+
+<script>
+(function () {
+  var API = "https://hga-api-kty4zrlv2q-pv.a.run.app";
+  var $ = function (id) { return document.getElementById(id); };
+
+  function veredicto(clase, marca, titulo, msg) {
+    var v = $("veredicto");
+    v.className = "veredicto " + clase;
+    v.querySelector(".marca").textContent = marca;
+    v.querySelector("h2").textContent = titulo;
+    $("vmsg").textContent = msg;
+  }
+
+  // Grado bajo de la norma: cualquier PG con grado bajo se muestra con −16 (PG 64-16, 70-16, 76-16).
+  function pgNorma(t) { t = (t == null) ? "" : String(t); return /-\s*\d+\s*$/.test(t) ? t.replace(/-\s*\d+\s*$/, "-16") : t; }
+  function fila(k, v) {
+    if (v === null || v === undefined || v === "") return "";
+    return "<tr><td>" + k + "</td><td>" + String(v) + "</td></tr>";
+  }
+
+  function leerPayload() {
+    var h = (location.hash || "").replace(/^#/, "");
+    if (!h) return null;
+    try { return JSON.parse(decodeURIComponent(escape(atob(h)))); } catch (e) { return null; }
+  }
+
+  var pl = leerPayload();
+
+  if (!pl) {
+    veredicto("duda", "❔", "No hay reporte que validar",
+      "Abra esta página escaneando el código QR impreso en el reporte; el enlace lleva los datos.");
+    return;
+  }
+
+  // ---- Datos del reporte (vienen del propio QR; se muestran para cotejarlos con la hoja) ----
+  var d = pl.d || {};
+  var html = ""
+    + fila("Número de reporte", pl.r)
+    + fila("Folio", pl.fo)
+    + fila("Emitido (UTC)", pl.em)
+    + fila("Fecha de elaboración", pl.f)
+    + fila("Proyecto", pl.proy)
+    + fila("Unidad responsable", pl.uni)
+    + fila("Dirigido a", pl.dir)
+    + fila("Elaboró", pl.resp)
+    + fila("Carretera", pl.car)
+    + fila("Tramo", pl.tr)
+    + fila("Clave PARCF", pl.cp)
+    + fila("Red", pl.red)
+    + fila("Estados", pl.edo)
+    + fila("Coordenadas", (pl.lat != null && pl.lon != null) ? (pl.lat + ", " + pl.lon) : "")
+    // El grado bajo que se especifica es siempre el de la norma N·CMT·4·05·004/25 (−16); los PG
+    // del reporte se muestran ya con ese grado bajo. pgn y tn no existen en reportes antiguos y
+    // fila() los omite sin ruido.
+    + fila("Grado a especificar (norma)", pl.pgn)
+    + fila("T. mín pavimento (M·MMP·4·05·064/22)", (pl.tn != null && pl.tn !== "") ? (pl.tn + " °C") : "")
+    + fila("PG por temperatura", pgNorma(pl.pg))
+    + fila("PG con tránsito", pgNorma(pl.pgg))
+    + fila("Nivel de ajuste", pl.niv)
+    + fila("∑L (×10⁶)", pl.L)
+    + fila("TDPA · velocidad", (pl.tdpa !== "" && pl.tdpa != null) ? (pl.tdpa + (pl.vel ? " · " + pl.vel + " km/h" : "")) : "")
+    + fila("Carriles por sentido (SC)", pl.sc)
+    + (d.esp ? fila("Espesor · ancho · largo", d.esp + " cm · " + d.anc + " m · " + d.lar + " m") : "")
+    + (d.tonM ? fila("Mezcla asfáltica", d.tonM + " t") : "")
+    + (d.tonCA ? fila("Cemento asfáltico", d.tonCA + " t") : "")
+    + (d.tonP ? fila("Material pétreo", d.tonP + " t") : "")
+    + (d.area ? fila("Área tratada", d.area + " m²") : "")
+    + fila("Sello (SHA-256 · HMAC)", '<span class="mono">' + (pl.h || "") + "</span>");
+  $("datos").innerHTML = html;
+  $("caja-datos").style.display = "";
+
+  // ---- Comprobación contra el servidor ----
+  // El sello es un HMAC con llave que sólo conoce el servicio: por eso esta comprobación
+  // demuestra AUTENTICIDAD (que lo emitió la DGST) y no sólo integridad.
+  if (!pl.fo || !pl.em || !pl.h || !pl.c) {
+    veredicto("duda", "⚠️", "Reporte de una versión anterior",
+      "Este reporte no trae folio ni sello con llave del servidor, así que no se puede comprobar su "
+      + "autenticidad. Coteje los datos de arriba contra la hoja impresa y vuelva a emitirlo con la "
+      + "versión vigente de la herramienta.");
+    return;
+  }
+
+  var ctrl = new AbortController();
+  var reloj = setTimeout(function () { ctrl.abort(); }, 25000);
+
+  fetch(API + "/api/validar", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ resumen: { canon: pl.c }, folio: pl.fo, emitido: pl.em, sello: pl.h }),
+    signal: ctrl.signal
+  })
+    .then(function (r) { if (!r.ok) throw new Error("HTTP " + r.status); return r.json(); })
+    .then(function (j) {
+      clearTimeout(reloj);
+      if (j.valido) {
+        veredicto("ok", "✔", "Reporte válido", j.mensaje ||
+          "Reporte emitido por la DGST; los datos no fueron alterados.");
+        $("nota-sello").textContent =
+          "El sello se recalculó en el servicio de la DGST con su llave privada y coincide. "
+          + "Compruebe además que los datos de arriba sean los mismos que aparecen impresos en la hoja.";
+      } else {
+        veredicto("mal", "✖", "El sello no coincide", j.mensaje ||
+          "El reporte no fue emitido por la DGST o su contenido fue alterado.");
+        $("nota-sello").textContent =
+          "No utilice este documento como respaldo técnico. Si lo recibió de un tercero, "
+          + "solicite que lo emitan de nuevo desde hgasfaltica.com.";
+      }
+    })
+    .catch(function (e) {
+      clearTimeout(reloj);
+      veredicto("duda", "⚠️", "No se pudo comprobar el sello",
+        "No hubo respuesta del servicio de validación (" + ((e && e.message) || "sin conexión") + "). "
+        + "Los datos de arriba son los que trae el código QR, pero su autenticidad queda sin comprobar. "
+        + "Vuelva a intentarlo en unos momentos.");
+      $("nota-sello").textContent = "";
+    });
+})();
+</script>
+</body>
+</html>
