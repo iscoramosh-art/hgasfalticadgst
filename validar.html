@@ -107,7 +107,7 @@
     // EXIGE (cálculo M·MMP·4·05·064/22) del grado que se ESPECIFICA (norma N·CMT·4·05·004/25, que
     // sólo admite −16). En reportes anteriores no existen y fila() los omite sin ruido.
     + fila("Grado a especificar (norma)", pl.pgn)
-    + fila("T. mín requerida por el sitio", (pl.tn != null && pl.tn !== "") ? (pl.tn + " °C") : "")
+    + fila("Umbral a considerar (M·MMP·4·05·064/22)", (pl.tn != null && pl.tn !== "") ? (pl.tn + " °C") : "")
     + fila("PG por temperatura (cálculo, informativo)", pl.pg)
     + fila("PG con tránsito (cálculo, informativo)", pl.pgg)
     + fila("Nivel de ajuste", pl.niv)
