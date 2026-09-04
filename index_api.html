@@ -1847,7 +1847,7 @@ footer.sitio strong{color:#777}
     const asc = (s) => String(s)
       .replace(/≥/g, ">=").replace(/≤/g, "<=").replace(/∑/g, "S").replace(/×/g, "x")
       .replace(/σ/g, "D.E.").replace(/Σ/g, "Suma")
-      .replace(/→/g, "->").replace(/←/g, "<-").replace(/–/g, "-").replace(/—/g, "-")
+      .replace(/→/g, "->").replace(/←/g, "<-").replace(/–/g, "-").replace(/—/g, "-").replace(/−/g, "-").replace(/≈/g, "~")
       .replace(/[⁰¹²³⁴⁵⁶⁷⁸⁹]/g, (d) => "^" + "⁰¹²³⁴⁵⁶⁷⁸⁹".indexOf(d));
     const setC = (col) => doc.setTextColor(col[0], col[1], col[2]);
     const head = (x, y2, w, t) => { doc.setFont(undefined, "bold"); doc.setFontSize(9.3); setC(V); doc.text(asc(t), x, y2); doc.setDrawColor(...V); doc.setLineWidth(0.35); doc.line(x, y2 + 1.5, x + w, y2 + 1.5); doc.setFont(undefined, "normal"); };
@@ -2394,5 +2394,5 @@ footer.sitio strong{color:#777}
 })();
 </script>
 </body>
-<!-- HGA build v33 -->
+<!-- HGA build v34 -->
 </html>
