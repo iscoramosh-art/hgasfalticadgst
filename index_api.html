@@ -508,7 +508,7 @@ footer.sitio .actualizado{display:block;margin-top:10px;font-size:10.5px;color:#
     suficiente, por lo que el −16 cumple con lo necesario para el sitio en estudio.
     Ejes equivalentes por el método del Instituto de Ingeniería UNAM (factores de daño superficial a 6.0 kg/cm²; camión, eje estándar 5.8). Clima: estaciones del SMN con ≥ 20 años.
     Herramienta de referencia; el criterio del proyectista prevalece.
-    <span class="actualizado" id="hga-actualizado">Última actualización: 4 de septiembre de 2026 · versión 26.38</span>
+    <span class="actualizado" id="hga-actualizado">Última actualización: 4 de septiembre de 2026 · versión 26.39</span>
   </footer>
 
   <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
@@ -918,7 +918,7 @@ footer.sitio .actualizado{display:block;margin-top:10px;font-size:10.5px;color:#
   }
 
   function adaptarEstaciones(lista) {
-    return (lista || []).map((e) => ({ nom: e.nombre, km: e.km, la: e.lat, lo: e.lon, estNom: e.estacion_clima,
+    return (lista || []).map((e) => ({ nom: e.nombre, punto: e.punto || null, km: e.km, la: e.lat, lo: e.lon, estNom: e.estacion_clima,
                                        dist: e.dist_km, tx: e.t_max, tn: e.t_min, tdpa: e.tdpa, sc: e.sc,
                                        sumaL: e.suma_L, letra: e.letra, pg: e.pg }));
   }
@@ -1071,7 +1071,7 @@ footer.sitio .actualizado{display:block;margin-top:10px;font-size:10.5px;color:#
     for(const e of ests){ try {
       const sp=snapATrazo(g, e.la, e.lo);
       L.circleMarker([sp[0],sp[1]], {radius:6, color:"#333", weight:1, fillColor:colorEsal(e.sumaL), fillOpacity:0.95, renderer:rc})
-        .addTo(capaEst).bindTooltip("<b>"+e.nom+"</b>"+(e.km!=null?" · km "+e.km:"")+"<br>TDPA "+(e.tdpa?e.tdpa.toLocaleString("es-MX"):"—")+" · SC "+e.sc+"<br>∑L "+(e.sumaL/1e6).toFixed(1)+"×10⁶ ("+anios+" años)<br>"+PG.pgNormaTxt(e.pg)+" · umbral del sitio "+PG.umbralTxt(e.pg), {sticky:true});
+        .addTo(capaEst).bindTooltip("<b>"+(e.punto||e.nom)+"</b>"+(e.punto?"<br>"+e.nom:"")+(e.km!=null?" · km "+e.km:"")+"<br>TDPA "+(e.tdpa?e.tdpa.toLocaleString("es-MX"):"—")+" · SC "+e.sc+"<br>∑L "+(e.sumaL/1e6).toFixed(1)+"×10⁶ ("+anios+" años)<br>"+PG.pgNormaTxt(e.pg)+" · umbral del sitio "+PG.umbralTxt(e.pg), {sticky:true});
     } catch(_e){} }
     leyendaSeg();
     try {
@@ -2312,7 +2312,7 @@ footer.sitio .actualizado{display:block;margin-top:10px;font-size:10.5px;color:#
           const filaE = (v, b) => { doc.setFontSize(6.6); doc.setFont(undefined, b ? "bold" : "normal"); setC(b ? G : TN); for (let i = 0; i < v.length; i++) doc.text(clip(v[i], [30, 5, 23, 13, 7, 12, 10, 14][i]), cE[i], p); doc.setFont(undefined, "normal"); };
           filaE(thE, true); p += 1.6; doc.setDrawColor(...GR); doc.line(mx, p, mx + cwd, p); p += 3;
           for (const e of ests) { if (p > LIM_Y - 4) { doc.addPage(); p = 20; filaE(thE, true); p += 4.6; }
-            filaE([e.nom, (e.km != null ? String(e.km) : "—"), (e.estNom || "—") + " (" + (e.dist != null ? e.dist.toFixed(0) : "?") + " km)", (isFinite(e.tx) ? e.tx.toFixed(1) : "—") + " / " + (isFinite(e.tn) ? e.tn.toFixed(1) : "—"), PG.umbralTxt(e.pg), (e.tdpa ? e.tdpa.toLocaleString("es-MX") : "—") + "·" + e.sc, (e.sumaL ? (e.sumaL / 1e6).toFixed(1) + "M" : "—"), PG.pgNormaTxt(e.pg)]); p += 3.8;
+            filaE([(e.punto || e.nom), (e.km != null ? String(e.km) : "—"), (e.estNom || "—") + " (" + (e.dist != null ? e.dist.toFixed(0) : "?") + " km)", (isFinite(e.tx) ? e.tx.toFixed(1) : "—") + " / " + (isFinite(e.tn) ? e.tn.toFixed(1) : "—"), PG.umbralTxt(e.pg), (e.tdpa ? e.tdpa.toLocaleString("es-MX") : "—") + "·" + e.sc, (e.sumaL ? (e.sumaL / 1e6).toFixed(1) + "M" : "—"), PG.pgNormaTxt(e.pg)]); p += 3.8;
           }
           nlp(8); doc.setFontSize(6.6); setC(GR); doc.text(asc("«PG (norma)» es el grado a especificar conforme a la N-CMT-4-05-004/25, el mismo que encabeza este reporte. «Umbral» es el grado bajo que arroja el M-MMP-4-05-064/22 para ese punto: es informativo, sirve para leer por que se corto el segmento, y NO es una designacion de compra. SL por II-UNAM con la composicion del aforo y la tasa de su region; T del pavimento por la estacion SMN mas cercana (M-MMP-4-05-064/22). Corte de segmento donde cambia el PG (letra por SL o grado por temperatura); longitud minima 1 km."), mx, p, { maxWidth: cwd }); p += 6;
         }
@@ -2407,5 +2407,5 @@ footer.sitio .actualizado{display:block;margin-top:10px;font-size:10.5px;color:#
 })();
 </script>
 </body>
-<!-- HGA build v38 -->
+<!-- HGA build v39 -->
 </html>
