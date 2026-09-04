@@ -316,7 +316,7 @@ footer.sitio strong{color:#777}
           <div class="segmented" role="radiogroup">
             <label><input type="radio" name="modoUb" value="carretera" checked> Carretera (Anexo A)</label>
             <label><input type="radio" name="modoUb" value="punto"> Punto por coordenadas</label>
-            <label><input type="radio" name="modoUb" value="segmento"> Segmento por coordenadas</label>
+            <label><input type="radio" name="modoUb" value="segmento"> Segmento por coordenadas <span class="ayuda" title="El Grado PG se rige por el extremo más desfavorable, como exige el M·MMP·4·05·064/22. Máximo 10 km entre las coordenadas de inicio y de fin: hasta ahí el grado entregado cubre al del interior del tramo en 99.6 % de los casos medidos. Arriba de 8 km el resultado sale marcado, porque ahí aparece la primera subestimación (0.4 %); de 0 a 8 km la cobertura fue del 100 %. Para tramos largos usa el modo Carretera con «Segmentos homogéneos».">ⓘ</span></label>
             <label><input type="radio" name="modoUb" value="mapa"> Elegir en el mapa</label>
           </div>
 
@@ -499,8 +499,13 @@ footer.sitio strong{color:#777}
 
   <footer class="sitio">
     Método <strong>M·MMP·4·05·064/22</strong> y Norma <strong>N·CMT·4·05·004/25</strong>. Temperaturas de pavimento a H = 20 mm y 98 % de confiabilidad;
-    grado alto {64, 70, 76} (mayor a 76 °C = diseño especial), grado bajo con piso en −10.
-    El grado bajo indicado es el <strong>mínimo requerido</strong>: puede emplearse un cemento asfáltico de grado bajo más frío (<strong>−16 o −22</strong>) siempre que cumpla todos los requisitos de calidad a temperaturas alta y baja (Norma <strong>N·CMT·4·05·004</strong>).
+    grado alto {64, 70, 76} (mayor a 76 °C = diseño especial).
+    El reporte muestra <strong>dos grados bajos, y los dos tienen sustento normativo</strong>:
+    el <strong>umbral a considerar</strong> (del orden de −10), que es el resultado del
+    <strong>M·MMP·4·05·064/22</strong> —el método que la cláusula D de la Norma ordena aplicar—, y el
+    <strong>grado a especificar</strong>, que es <strong>−16</strong> porque la cláusula B lo acota
+    «para esta Norma» y porque la cláusula E sólo fija requisitos de calidad para PG 64-16, 70-16 y
+    76-16: fuera de ese grado bajo no hay criterios de aceptación que verificar en obra.
     Ejes equivalentes por el método del Instituto de Ingeniería UNAM (factores de daño superficial a 6.0 kg/cm²; camión, eje estándar 5.8). Clima: estaciones del SMN con ≥ 20 años.
     Herramienta de referencia; el criterio del proyectista prevalece.
   </footer>
@@ -597,6 +602,23 @@ footer.sitio strong{color:#777}
       if (typeof gb !== "number") return "ESP";
       return (gb >= PG.GB_NORMA) ? PG.GB_NORMA : "ESP";
     },
+    /* El grado bajo va implícito en el texto del PG ("PG 64V-10" → −10). Estas dos utilidades
+       permiten aplicar la regla de la norma a un PG que ya viene formateado del servicio, sin
+       necesidad de que el llamador acarree el grado bajo por separado. */
+    gbDeTexto: function (pgTxt) {
+      var m = String(pgTxt || "").match(/-\s*(\d+)\s*$/);
+      return m ? -Math.abs(+m[1]) : null;
+    },
+    // "PG 64V-10" -> "PG 64V-16"; deja intacto cualquier texto que no traiga grado bajo.
+    pgNormaTxt: function (pgTxt) {
+      var gb = PG.gbDeTexto(pgTxt);
+      return (gb == null) ? String(pgTxt || "—") : PG.pgNorma(pgTxt, gb);
+    },
+    // "PG 64V-10" -> "-10": el umbral que el sitio exige, informativo.
+    umbralTxt: function (pgTxt) {
+      var gb = PG.gbDeTexto(pgTxt);
+      return (gb == null) ? "—" : String(gb);
+    },
     // "PG 64V-10" -> "PG 64V-16" (conserva la letra del nivel de ajuste, si la trae).
     pgNorma: function (pgTxt, gb) {
       if (PG.gbNorma(gb) === "ESP") return "Diseño especial";
@@ -604,15 +626,61 @@ footer.sitio strong{color:#777}
       if (!/-\s*\d+\s*$/.test(t)) return "Diseño especial";
       return t.replace(/-\s*\d+\s*$/, "-" + Math.abs(PG.GB_NORMA));
     },
-    // "-7.4 °C → equivale a PG -10": la exigencia del sitio, informativa.
-    exigeTexto: function (tn, gb) {
+    // "-7.4 °C → PG -10 · margen sobre el -16: 8.6 °C": el UMBRAL A CONSIDERAR, que es el
+    // resultado del M-MMP-4-05-064/22, el metodo que la propia N-CMT-4-05-004/25 manda aplicar
+    // en su clausula D. El margen es lo que el -16 deja de holgura sobre esa exigencia.
+    exigeTexto: function (tn, gb, conMargen) {
       var t = (typeof tn === "number") ? tn.toFixed(1) + " °C" : "—";
-      return t + ((typeof gb === "number") ? " → equivale a PG " + gb : "");
+      var r = t + ((typeof gb === "number") ? " → PG " + gb : "");
+      if (conMargen && typeof tn === "number" && PG.gbNorma(gb) !== "ESP") {
+        r += " · margen sobre el −16: " + (tn - PG.GB_NORMA).toFixed(1) + " °C";
+      }
+      return r;
     },
-    NOTA_NORMA: "El grado bajo se especifica −16 porque es el único que admite la N·CMT·4·05·004/25 " +
-                "(PG 64-16, 70-16 y 76-16). La temperatura mínima que el sitio requiere se calcula con el " +
-                "M·MMP·4·05·064/22 y se informa aparte: sirve para verificar que el −16 la cubre con holgura."
+    // Las DOS lecturas y la clausula que sostiene a cada una. Ninguna es una interpretacion:
+    // las dos estan en el texto de la norma vigente.
+    NOTA_NORMA: "Los dos grados bajos se muestran a propósito y los dos tienen sustento normativo. " +
+      "El <b>umbral a considerar (−10)</b> es el que arroja el M·MMP·4·05·064/22, que es el método " +
+      "que la propia N·CMT·4·05·004/25 ordena aplicar en su cláusula D; su cláusula B además " +
+      "reconoce que la escala «se extiende tanto como sea necesario con incrementos estandarizados " +
+      "de seis grados», y −10 es el escalón contiguo al −16. " +
+      "El <b>grado a especificar (−16)</b> es el que manda esa misma cláusula B —«para esta Norma … " +
+      "sólo se considerará la temperatura mínima de −16 °C»— y, sobre todo, el único para el que la " +
+      "cláusula E fija requisitos de calidad: fuera de él no hay criterios de aceptación contra los " +
+      "cuales verificar el cemento asfáltico en obra. Un ligante −16 cubre por exceso una exigencia " +
+      "de −10."
   };
+
+  /* Longitud del segmento por coordenadas: los dos umbrales salen de medir, sobre los 7 739
+     puntos de aforo de la RCF y las 2 480 estaciones del SMN, qué tanto coincide el grado alto
+     entre dos puntos según su separación. Coincide 100 % hasta 2 km y 96,4 % entre 4 y 6 km;
+     de 6 a 8 km cae a 91,4 % y a partir de ~10 km se estanca en 88-89 % (deja de empeorar).
+     La mediana de la distancia de un punto a su estación gobernante es 5,3 km. */
+  const SEG_AVISO_KM = 8;      // primera subestimación real (0,4 %); antes de aquí la cobertura es 100 %
+  const SEG_TOPE_KM = 10;      // aquí la confianza baja de 99 %: no se calcula
+
+  /* Confianza ESPACIAL del segmento: probabilidad de que el grado entregado (el más desfavorable
+     de los dos extremos) cubra al que rige en el interior. Se cita la cota inferior del IC 95 %,
+     medida sobre 900 segmentos por intervalo con el interior interpolado cada 400 m. */
+  const SEG_CONF = [{ max: 2, cob: 0.996 }, { max: 4, cob: 0.996 }, { max: 6, cob: 0.996 },
+                    { max: 8, cob: 0.996 }, { max: 10, cob: 0.989 }];
+  const CONF_CLIMA = 0.98;     // z = 2,055 de la ecuación del M·MMP·4·05·064/22
+
+  function confSegmento(km) {
+    const f = SEG_CONF.find((x) => km <= x.max) || SEG_CONF[SEG_CONF.length - 1];
+    return { esp: f.cob, conj: f.cob * CONF_CLIMA };
+  }
+
+  function confTexto(km) {
+    const c = confSegmento(km);
+    return "espacial ≥ " + (c.esp * 100).toFixed(1) + " % (IC 95 %) · climática " +
+           (CONF_CLIMA * 100).toFixed(0) + " % · conjunta ≈ " + (c.conj * 100).toFixed(1) + " %";
+  }
+
+  function distKm(la1, lo1, la2, lo2) {
+    const dl = la2 - la1, dn = (lo2 - lo1) * Math.cos((la1 + la2) / 2 * Math.PI / 180);
+    return Math.hypot(dl, dn) * 111.0;
+  }
 
   let filtroEdo = "";
   let tramoActual = null;   // { cp, dg?, car, tr, pg, gr, g, cadIni, cadFin, estados }
@@ -829,7 +897,10 @@ footer.sitio strong{color:#777}
 
   // Orquestador: calcula ubicación + aforo + diseño y pasa al módulo de análisis
   /* =============== Segmentos homogéneos (los calcula la API) =============== */
-  function sevSeg(s) { const ga = s.ga === "ESP" ? 999 : s.ga; const lr = { S: 0, H: 1, V: 2, E: 3, ESP: 4 }[s.letra] || 0; return ga * 1000 + lr * 100 + (-(s.gb || 0)); }
+  /* Un segmento admite un PG menor que el gobernante cuando el propio servicio lo marca así
+     (`menor_que_gobernante`). La comparación anterior se hacía sobre campos que el adaptador
+     nunca llenaba, daba NaN y por eso jamás detectaba variación. */
+  function segMenor(s) { return !!s.menor; }
   function colorSeg(s) { return s.color || "#4a8a79"; }
   function largoTrazoKm(g) { let t = 0; for (let i = 0; i < g.length - 1; i++) { const dl = g[i + 1][0] - g[i][0], dn = (g[i + 1][1] - g[i][1]) * Math.cos(g[i][0] * Math.PI / 180); t += Math.hypot(dl, dn); } return t * 111; }
 
@@ -878,22 +949,23 @@ footer.sitio strong{color:#777}
   function renderSegmentos(R){
     const segs=R.segs, gov=R.gov, tot=R.totalKm||1;
     const fc=(v)=> (typeof fmtCad==="function"? fmtCad(v) : (Math.floor(v)+"+"+String(Math.round((v-Math.floor(v))*1000)).padStart(3,"0")));
-    let kmBelow=0; for(const s of segs){ if(sevSeg(s)<sevSeg(gov)) kmBelow+=Math.abs(s.cadFin-s.cadIni); }
+    let kmBelow=0; for(const s of segs){ if(segMenor(s)) kmBelow+=Math.abs(s.cadFin-s.cadIni); }
+    if(!kmBelow && typeof R.kmMenor==="number") kmBelow=R.kmMenor;
     const pct=Math.round(kmBelow/tot*100);
-    const strip=segs.map(s=>{ const L=Math.abs(s.cadFin-s.cadIni); const w=Math.max(2,L/tot*100); return '<div title="'+s.pg+'" style="flex:'+w+' 0 0;background:'+colorSeg(s)+';color:#fff;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;min-width:0;overflow:hidden;white-space:nowrap;padding:0 2px">'+(L>=tot*0.08?s.pg:"")+'</div>'; }).join("");
-    const rows=segs.map((s,i)=>{ const L=Math.abs(s.cadFin-s.cadIni); const dif=sevSeg(s)<sevSeg(gov); return '<tr>'+
+    const strip=segs.map(s=>{ const L=Math.abs(s.cadFin-s.cadIni); const w=Math.max(2,L/tot*100); const pgn=PG.pgNormaTxt(s.pg); return '<div title="'+pgn+' · umbral del sitio '+PG.umbralTxt(s.pg)+'" style="flex:'+w+' 0 0;background:'+colorSeg(s)+';color:#fff;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;min-width:0;overflow:hidden;white-space:nowrap;padding:0 2px">'+(L>=tot*0.08?pgn:"")+'</div>'; }).join("");
+    const rows=segs.map((s,i)=>{ const L=Math.abs(s.cadFin-s.cadIni); const dif=segMenor(s); return '<tr>'+
       '<td style="padding:5px 7px;border-bottom:1px solid #ece7df">'+(i+1)+'</td>'+
       '<td style="padding:5px 7px;border-bottom:1px solid #ece7df">'+fc(s.cadIni)+' – '+fc(s.cadFin)+'</td>'+
       '<td style="padding:5px 7px;border-bottom:1px solid #ece7df;text-align:right">'+L.toFixed(1)+'</td>'+
       '<td style="padding:5px 7px;border-bottom:1px solid #ece7df">'+(s.estAf||"—")+'</td>'+
       '<td style="padding:5px 7px;border-bottom:1px solid #ece7df;text-align:right">'+(s.tdpaMax? s.tdpaMax.toLocaleString("es-MX"):"—")+'</td>'+
       '<td style="padding:5px 7px;border-bottom:1px solid #ece7df;text-align:right">'+(s.sumaLMax?(s.sumaLMax/1e6).toFixed(1):"—")+'</td>'+
-      '<td style="padding:5px 7px;border-bottom:1px solid #ece7df;font-weight:700"><span style="background:'+colorSeg(s)+';color:#fff;padding:2px 7px;border-radius:5px">'+s.pg+'</span>'+(dif?' <span style="color:#1E5B4F;font-size:11px">▼ menor</span>':'')+'</td>'+
+      '<td style="padding:5px 7px;border-bottom:1px solid #ece7df;font-weight:700"><span style="background:'+colorSeg(s)+';color:#fff;padding:2px 7px;border-radius:5px">'+PG.pgNormaTxt(s.pg)+'</span>'+(dif?' <span style="color:#1E5B4F;font-size:11px">▼ menor</span>':'')+'</td>'+
     '</tr>'; }).join("");
     const heads=["#","Cadenamiento","Long. (km)","Estación aforo","TDPA","∑L (10⁶)","PG"].map(h=>'<th style="text-align:left;padding:6px 7px;background:#f4efe8;color:#611232;font-size:11px;border-bottom:1px solid #e0d8cc">'+h+'</th>').join("");
     return '<div class="segpanel-in" style="margin-top:14px;border:1px solid #e6ddcf;border-radius:10px;padding:14px 16px;background:#fff">'+
       '<h2 style="font-size:16px;color:#611232;margin:0 0 4px">Análisis por segmentos homogéneos</h2>'+
-      '<div style="font-size:12.5px;color:#555;margin-bottom:10px">'+segs.length+' segmento(s) en '+tot.toFixed(1)+' km · gobernante (peor caso): <b style="color:#611232">'+gov.pg+'</b>'+(kmBelow>0?' · <b style="color:#1E5B4F">'+kmBelow.toFixed(1)+' km ('+pct+'%)</b> admiten un PG menor':' · sin variación (PG uniforme)')+'</div>'+
+      '<div style="font-size:12.5px;color:#555;margin-bottom:10px">'+segs.length+' segmento(s) en '+tot.toFixed(1)+' km · gobernante (peor caso): <b style="color:#611232">'+PG.pgNormaTxt(gov.pg)+'</b>'+(kmBelow>0?' · <b style="color:#1E5B4F">'+kmBelow.toFixed(1)+' km ('+pct+'%)</b> admiten un PG menor':' · sin variación (PG uniforme)')+'</div>'+
       '<div style="display:flex;height:40px;border-radius:8px;overflow:hidden;border:1px solid #e0d8cc">'+strip+'</div>'+
       '<div style="display:flex;justify-content:space-between;font-size:11px;color:#777;margin:4px 2px 12px"><span>'+fc(Math.min(R.cadA,R.cadB))+'</span><span>'+fc(Math.max(R.cadA,R.cadB))+'</span></div>'+
       '<table style="width:100%;border-collapse:collapse;font-size:12px"><thead><tr>'+heads+'</tr></thead><tbody>'+rows+'</tbody></table>'+
@@ -994,7 +1066,7 @@ footer.sitio strong{color:#777}
     for(const s of R.segs){
       const f1=span0?(s.cadIni-cadIni0)/span0:0, f2=span0?(s.cadFin-cadIni0)/span0:1;
       const pts=subTrazo(g, Math.max(0,Math.min(f1,f2)), Math.min(1,Math.max(f1,f2)));
-      L.polyline(pts.map(p=>[p[0],p[1]]), {color:colorSeg(s), weight:7, opacity:0.95, renderer:rc}).addTo(capaSegPG).bindTooltip(s.pg+" · "+Math.abs(s.cadFin-s.cadIni).toFixed(1)+" km", {sticky:true});
+      L.polyline(pts.map(p=>[p[0],p[1]]), {color:colorSeg(s), weight:7, opacity:0.95, renderer:rc}).addTo(capaSegPG).bindTooltip(PG.pgNormaTxt(s.pg)+" · "+Math.abs(s.cadFin-s.cadIni).toFixed(1)+" km", {sticky:true});
     }
     capaEst=L.layerGroup().addTo(mapa);
     const anios=+$("anios").value||10, carriles=+$("carriles").value||2;
@@ -1002,7 +1074,7 @@ footer.sitio strong{color:#777}
     for(const e of ests){ try {
       const sp=snapATrazo(g, e.la, e.lo);
       L.circleMarker([sp[0],sp[1]], {radius:6, color:"#333", weight:1, fillColor:colorEsal(e.sumaL), fillOpacity:0.95, renderer:rc})
-        .addTo(capaEst).bindTooltip("<b>"+e.nom+"</b>"+(e.km!=null?" · km "+e.km:"")+"<br>TDPA "+(e.tdpa?e.tdpa.toLocaleString("es-MX"):"—")+" · SC "+e.sc+"<br>∑L "+(e.sumaL/1e6).toFixed(1)+"×10⁶ ("+anios+" años)<br>"+e.pg, {sticky:true});
+        .addTo(capaEst).bindTooltip("<b>"+e.nom+"</b>"+(e.km!=null?" · km "+e.km:"")+"<br>TDPA "+(e.tdpa?e.tdpa.toLocaleString("es-MX"):"—")+" · SC "+e.sc+"<br>∑L "+(e.sumaL/1e6).toFixed(1)+"×10⁶ ("+anios+" años)<br>"+PG.pgNormaTxt(e.pg)+" · umbral del sitio "+PG.umbralTxt(e.pg), {sticky:true});
     } catch(_e){} }
     leyendaSeg();
     try {
@@ -1078,11 +1150,11 @@ footer.sitio strong{color:#777}
                      misma: (a.fuente || {}).misma_carretera }) };
       bannerFuente();
       $("res-aforo").innerHTML = tarjeta(PG.pgNorma(d.pg_seleccionado, d.grado_bajo),
-        "Grado a especificar conforme a la norma · nivel " + (d.nivel_ajuste_texto || ""), `
-        <tr><td>Temperatura mínima requerida por el sitio</td><td>${PG.exigeTexto(d.t_min_pavimento, d.grado_bajo)}</td></tr>
-        <tr><td>PG base (temperatura, informativo)</td><td>${d.pg_base}</td></tr>
-        <tr><td>PG del cálculo con tránsito (informativo)</td><td>${d.pg_seleccionado}</td></tr>
-        <tr class="sep"><td><b>∑L (Inst. Ing. UNAM, ${a.anios} años)</b></td><td><b>${d.suma_L_texto}</b></td></tr>
+        "Grado a especificar · apego a la N·CMT·4·05·004/25 · nivel " + (d.nivel_ajuste_texto || ""), `
+        <tr><td><b>Umbral a considerar</b> (M·MMP·4·05·064/22)</td><td><b>${PG.exigeTexto(d.t_min_pavimento, d.grado_bajo, true)}</b></td></tr>
+        <tr><td>PG por temperatura, con el umbral a considerar</td><td>${d.pg_base}</td></tr>
+        <tr><td>PG con tránsito, con el umbral a considerar</td><td>${d.pg_seleccionado}</td></tr>
+        <tr class="sep"><td><b>∑L superficial · z = 0 (II-UNAM, ${a.anios} años)</b></td><td><b>${d.suma_L_texto}</b></td></tr>
         <tr><td>Nivel de ajuste</td><td>${d.nivel_ajuste_texto}</td></tr>
         <tr class="sep"><td>Región (tasa) · velocidad</td><td>${d.region || "—"} (${d.tasa_crecimiento} %) · ${a.velocidad} km/h</td></tr>`,
         (d.metodo ? d.metodo + " " : "") + PG.NOTA_NORMA);
@@ -1104,12 +1176,26 @@ footer.sitio strong{color:#777}
   const q = $("q"), qlista = $("q-lista");
   let sel = -1, items = [], tecleo = null, ultimaQ = "";
 
+  /* "· 36+700 a 124+700 (88.0 km)" a partir de lo que traiga el resultado de /api/buscar.
+     Devuelve cadena vacía si el servicio no envía el rango, para no romper la lista. */
+  function rangoTramo(t) {
+    const a = t.cad_ini, b = t.cad_fin;
+    if (typeof a !== "number" || typeof b !== "number" || !isFinite(a) || !isFinite(b)) return "";
+    const L = Math.abs(b - a);
+    return " · " + fmtCad(Math.min(a, b)) + " a " + fmtCad(Math.max(a, b)) +
+           " (" + L.toFixed(1) + " km)";
+  }
+
   function pinta(lista) {
     qlista.innerHTML = ""; items = lista; sel = -1;
     if (!lista.length) { qlista.innerHTML = '<div class="item vacio">Sin coincidencias en el Anexo A</div>'; return; }
     lista.forEach((t, i) => {
       const d = document.createElement("div"); d.className = "item"; d.setAttribute("role", "option"); d.dataset.i = i;
-      d.innerHTML = `<b>${t.carretera || t.clave}</b><span>${t.tramo || ""} · ${t.clave} · <em>${t.pg}</em></span>`;
+      // El cadenamiento va pegado a la clave porque juntos son lo que distingue a dos opciones
+      // con el mismo nombre de carretera (cuerpo A / cuerpo B). Si el servicio aún no lo manda,
+      // la línea queda como antes.
+      const rg = rangoTramo(t);
+      d.innerHTML = `<b>${t.carretera || t.clave}</b><span>${t.tramo || ""} · ${t.clave}${rg} · <em>${t.pg}</em></span>`;
       d.addEventListener("mousedown", (e) => { e.preventDefault(); seleccionarTramo(t); });
       qlista.appendChild(d);
     });
@@ -1227,8 +1313,8 @@ footer.sitio strong{color:#777}
       <tr><td>Red · estados</td><td>${tramoActual.gr || "—"} · ${(tramoActual.estados || []).join(", ") || "—"}</td></tr>
       ${(u.cad_ini != null) ? `<tr class="sep"><td>Segmento</td><td>${fmtCad(u.cad_ini)} a ${fmtCad(u.cad_fin)}</td></tr>` : ""}
       <tr class="sep"><td>T. máx pavimento (20 mm)</td><td>${d.t_max_pavimento} °C</td></tr>
-      <tr><td>T. mín requerida por el sitio</td><td>${PG.exigeTexto(d.t_min_pavimento, d.grado_bajo)}</td></tr>
-      <tr><td>Grado por temperatura (cálculo, informativo)</td><td>${d.pg_base}</td></tr>
+      <tr><td><b>Umbral a considerar</b> (M·MMP·4·05·064/22)</td><td><b>${PG.exigeTexto(d.t_min_pavimento, d.grado_bajo, true)}</b></td></tr>
+      <tr><td>PG por temperatura, con el umbral a considerar</td><td>${d.pg_base}</td></tr>
       <tr class="sep"><td>Región / crecimiento</td><td>${d.region || "—"} · ${d.tasa_crecimiento} %</td></tr>
       <tr><td>Estación clima (más cercana)</td><td>${(d.estacion_clima || {}).nombre} (${(d.estacion_clima || {}).dist_km} km)</td></tr>`,
       "PG por temperatura del pavimento (M·MMP·4·05·064/22). El aforo y la letra se calculan en el paso ③. " + PG.NOTA_NORMA);
@@ -1248,8 +1334,8 @@ footer.sitio strong{color:#777}
     $("res-ubicacion").innerHTML = tarjeta(PG.pgNorma(d.pg_base, d.grado_bajo), "Punto de estudio", `
       <tr><td>Coordenadas</td><td>${lat.toFixed(4)}, ${lon.toFixed(4)}</td></tr>
       <tr class="sep"><td>T. máx pavimento (20 mm)</td><td>${d.t_max_pavimento} °C</td></tr>
-      <tr><td>T. mín requerida por el sitio</td><td>${PG.exigeTexto(d.t_min_pavimento, d.grado_bajo)}</td></tr>
-      <tr><td>Grado por temperatura (cálculo, informativo)</td><td>${d.pg_base}</td></tr>
+      <tr><td><b>Umbral a considerar</b> (M·MMP·4·05·064/22)</td><td><b>${PG.exigeTexto(d.t_min_pavimento, d.grado_bajo, true)}</b></td></tr>
+      <tr><td>PG por temperatura, con el umbral a considerar</td><td>${d.pg_base}</td></tr>
       <tr class="sep"><td>Región / crecimiento</td><td>${d.region || "—"} · ${d.tasa_crecimiento} %</td></tr>
       <tr><td>Estación clima (más cercana)</td><td>${(d.estacion_clima || {}).nombre} (${(d.estacion_clima || {}).dist_km} km)</td></tr>`,
       "El aforo NO se toma de una estación de la vía: se propone con estadísticas de la región (ver aviso en ③ Aforo). " +
@@ -1261,6 +1347,27 @@ footer.sitio strong{color:#777}
     const la2 = parseFloat($("plat2").value), lo2 = parseFloat($("plon2").value);
     if ([la1, lo1, la2, lo2].some(isNaN)) { toast("Captura las coordenadas de INICIO (arriba) y de FIN del segmento."); return; }
     if (la1 === la2 && lo1 === lo2) { toast("Las coordenadas de inicio y de fin no pueden ser iguales."); return; }
+    // Longitud del segmento: por encima del tope no se calcula, porque evaluar sólo los dos
+    // extremos deja de representar al tramo (ver SEG_AVISO_KM / SEG_TOPE_KM).
+    const segKm = distKm(la1, lo1, la2, lo2);
+    if (segKm > SEG_TOPE_KM) {
+      $("res-ubicacion").innerHTML = tarjeta("Segmento demasiado largo",
+        "El segmento mide " + segKm.toFixed(1) + " km", `
+        <tr><td>Longitud capturada</td><td><b>${segKm.toFixed(1)} km</b></td></tr>
+        <tr><td>Máximo admitido en este modo</td><td><b>${SEG_TOPE_KM} km</b></td></tr>`,
+        "Evaluar sólo los dos extremos deja de representar al tramo cuando éste supera la " +
+        "resolución de la red climatológica. Hasta 8 km el grado entregado cubre al del interior en el " +
+        "<b>100 %</b> de los casos medidos y entre 8 y 10 km en <b>99,6 %</b>; entre 10 y 12 km la " +
+        "cobertura baja de 99 % y a 20-30 km llega a " +
+        "94 %, es decir, <b>6 de cada 100 segmentos quedarían con un grado inferior al que exige " +
+        "algún punto interior</b>. <b>Captura coordenadas más cercanas</b>, o —si el tramo " +
+        "es largo de verdad— elige la vía en el modo <b>Carretera (Anexo A)</b> y usa el criterio " +
+        "<b>«Segmentos homogéneos»</b>, que divide el trazo justo donde cambia el Grado PG.",
+        { titulo: "No se calculó el Grado PG",
+          texto: "Reduce la distancia entre las coordenadas de inicio y de fin a " + SEG_TOPE_KM + " km o menos." });
+      toast("Segmento de " + segKm.toFixed(1) + " km: excede el máximo de " + SEG_TOPE_KM + " km.", "warn");
+      return;
+    }
     tramoActual = null; segSel = null; capaSel = quitar(capaSel);
     const cb = $("cad-bloque"); if (cb) cb.classList.add("oculto");
     const d = await apiPOST("/api/evaluar", { modo: "segmento", lat: la1, lon: lo1, lat2: la2, lon2: lo2, aforo: cuerpoAforo() });
@@ -1268,20 +1375,31 @@ footer.sitio strong{color:#777}
     const u = d.ubicacion || {};
     aplicarEvaluacion(d, { lat: (la1 + la2) / 2, lon: (lo1 + lo2) / 2,
                            estudio: { segmento: { coords: true, p1: [la1, lo1], p2: [la2, lo2],
+                             km: segKm,
                              e1: (u.extremos && u.extremos.inicio) || null,
                              e2: (u.extremos && u.extremos.fin) || null } } });
     const g = [[la1, lo1], [la2, lo2]];
     segSel = g; capaPunto = quitar(capaPunto); capaSeg = quitar(capaSeg); capaSel = quitar(capaSel);
     try { volarA(L.latLngBounds(g), 14); } catch (e) {}
     etiquetasTrazo(g, "inicio", "fin", "Segmento (coordenadas)");
+    const segLargo = segKm > SEG_AVISO_KM;
     $("res-ubicacion").innerHTML = tarjeta(PG.pgNorma(d.pg_base, d.grado_bajo), "Segmento por coordenadas · rige el extremo más desfavorable", `
+      <tr><td>Longitud del segmento</td><td><b>${segKm.toFixed(1)} km</b></td></tr>
+      <tr><td>Nivel de confianza del segmento</td><td>${confTexto(segKm)}</td></tr>
       <tr><td><b>Inicio (${la1.toFixed(4)}, ${lo1.toFixed(4)})</b></td><td><b>${u.pg_inicio || "—"}</b></td></tr>
       <tr class="sep"><td><b>Fin (${la2.toFixed(4)}, ${lo2.toFixed(4)})</b></td><td><b>${u.pg_fin || "—"}</b></td></tr>
       <tr class="sep"><td>Rige (más desfavorable)</td><td>T. máx ${d.t_max_pavimento} °C · T. mín ${d.t_min_pavimento} °C</td></tr>
-      <tr><td>T. mín requerida por el sitio</td><td>${PG.exigeTexto(d.t_min_pavimento, d.grado_bajo)}</td></tr>
-      <tr><td>Grado por temperatura (cálculo, informativo)</td><td>${d.pg_base}</td></tr>
+      <tr><td><b>Umbral a considerar</b> (M·MMP·4·05·064/22)</td><td><b>${PG.exigeTexto(d.t_min_pavimento, d.grado_bajo, true)}</b></td></tr>
+      <tr><td>PG por temperatura, con el umbral a considerar</td><td>${d.pg_base}</td></tr>
       <tr><td>Estación clima (extremo que rige)</td><td>${(d.estacion_clima || {}).nombre} (${(d.estacion_clima || {}).dist_km} km)</td></tr>`,
-      "PG del segmento por los dos extremos (M·MMP·4·05·064/22). El aforo se propone del punto medio; edítalo en el paso ③ si tienes uno propio. " + PG.NOTA_NORMA);
+      "PG del segmento por los dos extremos (M·MMP·4·05·064/22). El aforo se propone del punto medio; edítalo en el paso ③ si tienes uno propio. " + PG.NOTA_NORMA,
+      segLargo ? { titulo: "Segmento de " + segKm.toFixed(1) + " km: confianza espacial \u2265 " +
+               (confSegmento(segKm).esp * 100).toFixed(1).replace(".", ",") + " %",
+        texto: "Hasta 8 km, el grado que resulta de los dos extremos cubre al del interior del tramo en " +
+               "el 100 % de los casos medidos (4 500 segmentos). Entre 8 y 10 km aparece la primera " +
+               "subestimación: en 0,4 % de los casos algún punto interior exige un grado más alto que " +
+               "los extremos. Si el tramo es crítico, divide el recorrido en segmentos de 8 km o menos, " +
+               "o usa «Segmentos homogéneos» en el modo Carretera." } : null);
   }
   /* =============== Aforo: origen y captura manual =============== */
   function bannerFuente() {
@@ -1458,8 +1576,21 @@ footer.sitio strong{color:#777}
     if (d.requisitos_emulsion) extra += filasHTML("Requisitos de calidad de la emulsión " + d.emulsion + " (N·CMT·4·05·005)", d.requisitos_emulsion);
     if (d.requisitos_petreo) extra += filasHTML("Requisitos del material pétreo (N·CMT·4·04)", d.requisitos_petreo);
     if (d.criterios_nit) extra += filasHTML("Criterios de aceptación NIT-SICT · " + labelTrat(d.tratamiento) + " (N·CTR·CAR·1·04·008/23)", d.criterios_nit);
-    const filas = t.filas.map(([k, v]) => `<tr><td>${k}</td><td>${v}</td></tr>`).join("") + extra;
-    $("res-diseno").innerHTML = tarjeta(t.titulo, t.subtitulo, filas, t.nota, t.alerta || null);
+    // La API rotula todavia "Ejes equivalentes calculados a N cm". Es el SL de FATIGA a la
+    // profundidad de la capa, no el superficial que gobierna la letra: se renombra aqui mientras
+    // se despliega el cambio en el servidor.
+    const filas = t.filas.map(([k, v]) => {
+      const k2 = String(k).replace(/^Ejes equivalentes calculados a\s*/, "∑L de fatiga a z = ");
+      return `<tr><td>${k2}</td><td>${v}</td></tr>`;
+    }).join("") + extra;
+    // Nota tecnica obligatoria: los tratamientos superficiales son conservacion, no estructura.
+    const notaTrat = (d.clase === "tratamiento")
+      ? " Nota técnica de aplicación: los tratamientos superficiales y microaglomerados son "
+        + "soluciones de preservación funcional y NO aportan capacidad estructural "
+        + "(N·CTR·CAR·1·04·008). Especificarlos exige verificar antes que el pavimento esté "
+        + "estructuralmente sano: deflexiones admisibles (FWD / curviámetro) y sin fatiga generalizada."
+      : "";
+    $("res-diseno").innerHTML = tarjeta(t.titulo, t.subtitulo, filas, (t.nota || "") + notaTrat, t.alerta || null);
     (d.avisos || []).forEach((a) => toast(a, "warn"));
   }
 
@@ -1773,10 +1904,10 @@ footer.sitio strong{color:#777}
     ry = campo(rX, ry, rW, "Estación clima (más cercana)", estudio.estNom + " (" + estudio.estDist.toFixed(0) + " km)");
     doc.setFillColor(244, 238, 241); doc.roundedRect(rX, ry, rW, 14, 1.5, 1.5, "F");
     setC(G); doc.setFont(undefined, "bold"); doc.setFontSize(9.5);
-    doc.text(asc("Grado a especificar (norma):  " + PG.pgNorma(PG.pgTexto(estudio.ga, estudio.gb), estudio.gb)), rX + 3, ry + 5.4);
+    doc.text(asc("Grado a especificar (N-CMT-4-05-004/25):  " + PG.pgNorma(PG.pgTexto(estudio.ga, estudio.gb), estudio.gb)), rX + 3, ry + 5.4);
     doc.setFont(undefined, "normal"); doc.setFontSize(6.9); setC(GR);
-    doc.text(asc("T. min requerida por el sitio: " + PG.exigeTexto(estudio.tn, estudio.gb)), rX + 3, ry + 9.4);
-    doc.text(asc("(informativo, calculo M-MMP-4-05-064/22)"), rX + 3, ry + 12.2);
+    doc.text(asc("Umbral a considerar: " + PG.exigeTexto(estudio.tn, estudio.gb, true)), rX + 3, ry + 9.4);
+    doc.text(asc("(M-MMP-4-05-064/22, metodo que ordena la clausula D de la Norma)"), rX + 3, ry + 12.2);
     ry += 17.5;
 
     let y = Math.max(mapBot, ry) + 5;
@@ -1794,12 +1925,32 @@ footer.sitio strong{color:#777}
       const g = estudio.segmento;
       if (g.coords) {
         head(xL, y, Wd - 2 * mx, "Segmento por coordenadas (dos extremos)"); y += 6;
+        if (g.km != null) {
+          kv(xL, y, cw, "Longitud del segmento", g.km.toFixed(1) + " km");
+          kv(xR, y, cw, "Maximo admitido / aviso", SEG_TOPE_KM + " km / " + SEG_AVISO_KM + " km"); y += 5;
+          // Las dos fuentes de incertidumbre, declaradas por separado y compuestas.
+          const cf = confSegmento(g.km);
+          kv(xL, y, cw, "Confianza espacial del segmento", ">= " + (cf.esp * 100).toFixed(1) + " % (IC 95 %)");
+          kv(xR, y, cw, "Climatica x espacial", (CONF_CLIMA * 100).toFixed(0) + " % x " +
+             (cf.esp * 100).toFixed(1) + " % = " + (cf.conj * 100).toFixed(1) + " %"); y += 5;
+        }
         kv(xL, y, cw, "Inicio (lat, lon)", g.p1[0].toFixed(4) + ", " + g.p1[1].toFixed(4));
         kv(xR, y, cw, "PG que rige", PG.pgTexto(estudio.ga, estudio.gb)); y += 5;
         if (g.e1) kv(xL, y, cw, "Inicio: PG · T", PG.pgTexto(g.e1.ga, g.e1.gb) + " · " + fx(g.e1.tx, 1) + "/" + fx(g.e1.tn, 1) + " C");
         kv(xR, y, cw, "Fin (lat, lon)", g.p2[0].toFixed(4) + ", " + g.p2[1].toFixed(4)); y += 5;
         if (g.e2) kv(xL, y, cw, "Fin: PG · T", PG.pgTexto(g.e2.ga, g.e2.gb) + " · " + fx(g.e2.tx, 1) + "/" + fx(g.e2.tn, 1) + " C");
         y += 6.5;
+        if (g.km != null && g.km > SEG_AVISO_KM) {
+          const av = doc.splitTextToSize(asc("AVISO: el segmento mide " + g.km.toFixed(1) + " km. Hasta 8 km el "
+            + "grado que resulta de los dos extremos cubre al del interior del tramo en el 100 % de los casos "
+            + "medidos (4 500 segmentos, interior interpolado cada 400 m). Entre 8 y 10 km aparece la primera "
+            + "subestimacion: en 0,4 % de los casos algun punto interior exige un grado mas alto que los "
+            + "extremos. Si el tramo es critico, dividir el recorrido en segmentos de 8 km o menos, o emplear "
+            + "el criterio de segmentos homogeneos."), Wd - 2 * mx);
+          setC(G); doc.setFontSize(7.2); doc.setFont(undefined, "bold");
+          doc.text(av, mx, y); doc.setFont(undefined, "normal"); setC(TN); doc.setFontSize(8);
+          y += av.length * 3.1 + 3;
+        }
       } else {
         head(xL, y, Wd - 2 * mx, "Segmento en estudio (cadenamiento, dos extremos)"); y += 6;
         kv(xL, y, cw, "Cadenamiento", fmtCad(g.ci) + " a " + fmtCad(g.cf) + " (" + (g.cf - g.ci).toFixed(1) + " km)");
@@ -1819,7 +1970,7 @@ footer.sitio strong{color:#777}
       kv(xL, y, cw, "TDPA (SC " + a.sc + ")", a.tdpa.toLocaleString("es-MX"));
       kv(xR, y, cw, "Carriles · vel* · crec", a.carriles + " · " + a.vel + " km/h · " + a.tasa.toFixed(1) + " %"); y += 5;
       kv(xL, y, cw, "Comp. C2/C3/T3S2/T3S3/T3S2R4", a.mezcla.c2 + "/" + a.mezcla.c3 + "/" + a.mezcla.t3s2 + "/" + a.mezcla.t3s3 + "/" + a.mezcla.t3s2r4 + " %");
-      kv(xR, y, cw, "∑L UNAM (Inst. Ing.)", (a.Lu / 1e6).toFixed(2) + " x10^6 -> " + a.pgU); y += 5;
+      kv(xR, y, cw, "SL superficial (z = 0, p = 6.0)", (a.Lu / 1e6).toFixed(2) + " x10^6 -> " + a.pgU); y += 5;
       kv(xL, y, cw, "Nivel de ajuste", PG.NIVELES[a.gob]); y += 7;
       doc.setFillColor(245, 240, 235); doc.roundedRect(mx, y - 3, Wd - 2 * mx, 15, 2, 2, "F");
       setC(G); doc.setFontSize(16); doc.setFont(undefined, "bold");
@@ -1828,10 +1979,15 @@ footer.sitio strong{color:#777}
       // Las dos lineas que sostienen ese numero: lo que exige el sitio y lo que admite la norma.
       doc.setFontSize(7.2); setC(GR); doc.setFont(undefined, "normal");
       const nNorma = doc.splitTextToSize(asc(
-        "Temperatura minima requerida por el sitio: " + PG.exigeTexto(estudio.tn, estudio.gb)
-        + " (informativo, calculo M-MMP-4-05-064/22).  Grado bajo a especificar -16: unico que admite la "
-        + "N-CMT-4-05-004/25, que lista PG 64-16, 70-16 y 76-16; cubre con holgura la exigencia del sitio. "
-        + "El grado alto y la letra del nivel de ajuste no cambian."), Wd - 2 * mx);
+        "UMBRAL A CONSIDERAR: " + PG.exigeTexto(estudio.tn, estudio.gb, true) + ". Es el resultado del "
+        + "M-MMP-4-05-064/22, el metodo que la clausula D de la N-CMT-4-05-004/25 ordena aplicar; su "
+        + "clausula B reconoce ademas que la escala se extiende en incrementos de seis grados, y -10 es "
+        + "el escalon contiguo al -16.   GRADO A ESPECIFICAR: -16. Lo acota la misma clausula B (\u00abpara "
+        + "esta Norma ... solo se considerara la temperatura minima de -16 grados Celsius\u00bb) y, sobre todo, "
+        + "es el unico grado bajo para el que la clausula E fija requisitos de calidad: fuera de el no hay "
+        + "criterios de aceptacion contra los cuales verificar el cemento asfaltico en obra. Un ligante -16 "
+        + "cubre por exceso una exigencia de -10. El grado alto y la letra del nivel de ajuste no cambian."),
+        Wd - 2 * mx);
       doc.text(nNorma, mx, y); y += nNorma.length * 3.2 + 3;
     } else {
       doc.setFillColor(245, 240, 235); doc.roundedRect(mx, y - 3, Wd - 2 * mx, 12, 2, 2, "F");
@@ -1889,7 +2045,7 @@ footer.sitio strong{color:#777}
         kv(xa, p, cw2, "Carriles · velocidad · periodo", a.carriles + " · " + a.vel + " km/h · " + a.anios + " años");
         kv(xb, p, cw2, "Tasa de crecimiento", a.tasa.toFixed(1) + " %"); p += 4.6;
         kv(mx, p, cwd, "Composición M/A/B/C2/C3/T3S2/T3S3/T3S2R4/Otros, %", [m.m, m.a, m.b, m.c2, m.c3, m.t3s2, m.t3s3, m.t3s2r4, m.otros].join(" / ")); p += 4.6;
-        kv(xa, p, cw2, "∑L (Inst. Ing. UNAM)", (a.Lu / 1e6).toFixed(2) + " x10^6");
+        kv(xa, p, cw2, "SL superficial (z = 0)", (a.Lu / 1e6).toFixed(2) + " x10^6");
         kv(xb, p, cw2, "Nivel de ajuste (letra)", PG.NIVELES[a.gob] + " -> " + a.pgGob); p += 4.6;
       }
       if (diseno) {
@@ -2061,7 +2217,17 @@ footer.sitio strong{color:#777}
         kv(mx, p, cwd, "Cemento asfáltico (" + d.ca + " %)", d.tonCA.toFixed(1) + " t"); p += 4.5;
         kv(mx, p, cwd, "Material pétreo (masa · vol. acopio, m.v. " + d.densPet + ")", d.tonPetreo.toFixed(1) + " t · " + d.volPetreo.toFixed(1) + " m3"); p += 4.5;
         kv(mx, p, cwd, "Espesor suelto estimado (tramo de prueba)", d.espSuelto.toFixed(1) + " cm"); p += 4.5;
-        if (d.Lestr != null) { kv(mx, p, cwd, "Ejes equivalentes calculados a " + d.esp + " cm (II-UNAM, " + aforoRes.anios + " años)", (d.Lestr / 1e6).toFixed(2) + " x10^6"); p += 4.5; }
+        if (d.Lestr != null) {
+          // Este NO es el mismo SL que gobierna la letra del PG. Aquel se evalua en la superficie
+          // (z = 0) y este a la profundidad de la capa, que es el que pide el diseno estructural
+          // por II-UNAM / DISPAV. Se rotulan distinto para que nadie los confunda.
+          kv(mx, p, cwd, "SL de fatiga a z = " + d.esp + " cm (II-UNAM, " + aforoRes.anios + " anios)", (d.Lestr / 1e6).toFixed(2) + " x10^6"); p += 4.5;
+          const nsl = doc.splitTextToSize(asc("El SL superficial (z = 0) que aparece en el bloque de transito es el que "
+            + "determina la LETRA del grado PG (Tabla 1 de la N-CMT-4-05-004/25). El SL de fatiga a la profundidad de la "
+            + "capa es el que se emplea en el DISENO ESTRUCTURAL por II-UNAM / DISPAV. Son dos evaluaciones distintas del "
+            + "mismo transito y no deben intercambiarse."), cwd);
+          setC(GR); doc.setFontSize(7.2); doc.text(nsl, mx, p); setC(TN); doc.setFontSize(8); p += nsl.length * 3.1 + 2;
+        }
         }
         if (d.rap) {
           const r = d.rap;
@@ -2116,33 +2282,35 @@ footer.sitio strong{color:#777}
         doc.setFillColor(...G); doc.rect(0, 0, Wd * 0.6, 3.5, "F"); doc.setFillColor(...V); doc.rect(Wd * 0.6, 0, Wd * 0.4, 3.5, "F");
         setC(G); doc.setFontSize(12); doc.setFont(undefined, "bold"); doc.text(asc("Análisis por segmentos homogéneos"), mx, 14); doc.setFont(undefined, "normal");
         head(mx, p, cwd, "Segmentos homogéneos a lo largo del trazo"); p += 5;
-        let kmB = 0; for (const s of R.segs) { if (sevSeg(s) < sevSeg(R.gov)) kmB += Math.abs(s.cadFin - s.cadIni); }
+        let kmB = 0; for (const s of R.segs) { if (segMenor(s)) kmB += Math.abs(s.cadFin - s.cadIni); }
+        if (!kmB && typeof R.kmMenor === "number") kmB = R.kmMenor;
         doc.setFontSize(7.6); setC(GR);
-        doc.text(asc(R.segs.length + " segmento(s) en " + (R.totalKm || 0).toFixed(1) + " km · gobernante (peor caso): " + R.gov.pg + (kmB > 0 ? " · " + kmB.toFixed(1) + " km (" + Math.round(kmB / (R.totalKm || 1) * 100) + "%) admiten un PG menor" : " · sin variación (PG uniforme)")), mx, p); p += 5.5;
-        const cS = [mx, mx + 7, mx + 52, mx + 66, mx + 116, mx + 138, mx + 158];
-        const thS = ["#", "Cadenamiento", "Long", "Estación de aforo", "TDPA", "∑L", "PG"];
-        const filaS = (v, b) => { doc.setFontSize(7.1); doc.setFont(undefined, b ? "bold" : "normal"); setC(b ? G : TN); for (let i = 0; i < v.length; i++) doc.text(clip(v[i], [3, 22, 7, 26, 11, 10, 16][i]), cS[i], p); doc.setFont(undefined, "normal"); };
+        doc.text(asc(R.segs.length + " segmento(s) en " + (R.totalKm || 0).toFixed(1) + " km · gobernante (peor caso): " + PG.pgNormaTxt(R.gov.pg) + (kmB > 0 ? " · " + kmB.toFixed(1) + " km (" + Math.round(kmB / (R.totalKm || 1) * 100) + "%) admiten un PG menor" : " · sin variación (PG uniforme)")), mx, p); p += 5.5;
+        const cS = [mx, mx + 7, mx + 52, mx + 66, mx + 112, mx + 132, mx + 150, mx + 162];
+        const thS = ["#", "Cadenamiento", "Long", "Estación de aforo", "TDPA", "∑L", "Umbral", "PG (norma)"];
+        const filaS = (v, b) => { doc.setFontSize(7.1); doc.setFont(undefined, b ? "bold" : "normal"); setC(b ? G : TN); for (let i = 0; i < v.length; i++) doc.text(clip(v[i], [3, 22, 7, 24, 10, 9, 6, 15][i]), cS[i], p); doc.setFont(undefined, "normal"); };
         filaS(thS, true); p += 1.6; doc.setDrawColor(...GR); doc.setLineWidth(0.2); doc.line(mx, p, mx + cwd, p); p += 3;
         for (let i = 0; i < R.segs.length; i++) { const s = R.segs[i]; if (p > 250) { doc.addPage(); p = 20; filaS(thS, true); p += 4.6; }
-          filaS([String(i + 1), fmtCad(s.cadIni) + " – " + fmtCad(s.cadFin), Math.abs(s.cadFin - s.cadIni).toFixed(1), (s.estAf || "—"), (s.tdpaMax ? s.tdpaMax.toLocaleString("es-MX") : "—"), (s.sumaLMax ? (s.sumaLMax / 1e6).toFixed(1) + "M" : "—"), s.pg]); p += 4.2;
+          filaS([String(i + 1), fmtCad(s.cadIni) + " – " + fmtCad(s.cadFin), Math.abs(s.cadFin - s.cadIni).toFixed(1), (s.estAf || "—"), (s.tdpaMax ? s.tdpaMax.toLocaleString("es-MX") : "—"), (s.sumaLMax ? (s.sumaLMax / 1e6).toFixed(1) + "M" : "—"), PG.umbralTxt(s.pg), PG.pgNormaTxt(s.pg)]); p += 4.2;
         }
         p += 5;
         if (ests.length) {
           nlp(22); head(mx, p, cwd, "Estaciones consideradas — cálculo de temperatura y aforo (" + ests.length + ")"); p += 5;
-          const cE = [mx, mx + 40, mx + 53, mx + 92, mx + 113, mx + 131, mx + 153, mx + 171];
-          const thE = ["Estación de aforo", "Km", "Estación SMN (dist.)", "T máx/mín pav.", "Grado", "TDPA·SC", "∑L", "PG"];
-          const filaE = (v, b) => { doc.setFontSize(6.6); doc.setFont(undefined, b ? "bold" : "normal"); setC(b ? G : TN); for (let i = 0; i < v.length; i++) doc.text(clip(v[i], [23, 6, 24, 13, 10, 11, 9, 13][i]), cE[i], p); doc.setFont(undefined, "normal"); };
+          // Se ensancha «Estación de aforo» con lo que libera la columna del umbral, que ahora
+          // sólo necesita imprimir un número como "-10" en lugar de un grado completo.
+          const cE = [mx, mx + 52, mx + 60, mx + 97, mx + 118, mx + 131, mx + 152, mx + 169];
+          const thE = ["Estación de aforo", "Km", "Estación SMN (dist.)", "T máx/mín pav.", "Umbral", "TDPA·SC", "∑L", "PG (norma)"];
+          const filaE = (v, b) => { doc.setFontSize(6.6); doc.setFont(undefined, b ? "bold" : "normal"); setC(b ? G : TN); for (let i = 0; i < v.length; i++) doc.text(clip(v[i], [30, 5, 23, 13, 7, 12, 10, 14][i]), cE[i], p); doc.setFont(undefined, "normal"); };
           filaE(thE, true); p += 1.6; doc.setDrawColor(...GR); doc.line(mx, p, mx + cwd, p); p += 3;
           for (const e of ests) { if (p > 252) { doc.addPage(); p = 20; filaE(thE, true); p += 4.6; }
-            const gr = e.ga === "ESP" ? "ESP" : (e.ga + " / " + e.gb);
-            filaE([e.nom, (e.km != null ? String(e.km) : "—"), (e.estNom || "—") + " (" + (e.dist != null ? e.dist.toFixed(0) : "?") + " km)", (isFinite(e.tx) ? e.tx.toFixed(1) : "—") + " / " + (isFinite(e.tn) ? e.tn.toFixed(1) : "—"), gr, (e.tdpa ? e.tdpa.toLocaleString("es-MX") : "—") + "·" + e.sc, (e.sumaL ? (e.sumaL / 1e6).toFixed(1) + "M" : "—"), e.pg]); p += 3.8;
+            filaE([e.nom, (e.km != null ? String(e.km) : "—"), (e.estNom || "—") + " (" + (e.dist != null ? e.dist.toFixed(0) : "?") + " km)", (isFinite(e.tx) ? e.tx.toFixed(1) : "—") + " / " + (isFinite(e.tn) ? e.tn.toFixed(1) : "—"), PG.umbralTxt(e.pg), (e.tdpa ? e.tdpa.toLocaleString("es-MX") : "—") + "·" + e.sc, (e.sumaL ? (e.sumaL / 1e6).toFixed(1) + "M" : "—"), PG.pgNormaTxt(e.pg)]); p += 3.8;
           }
-          nlp(8); doc.setFontSize(6.6); setC(GR); doc.text(asc("∑L por II-UNAM con la composición del aforo y la tasa de su región; T del pavimento por la estación SMN más cercana (M·MMP·4·05·064/22). Corte de segmento donde cambia el PG (letra por ∑L o grado por temperatura); longitud mínima 1 km."), mx, p, { maxWidth: cwd }); p += 6;
+          nlp(8); doc.setFontSize(6.6); setC(GR); doc.text(asc("«PG (norma)» es el grado a especificar conforme a la N-CMT-4-05-004/25, el mismo que encabeza este reporte. «Umbral» es el grado bajo que arroja el M-MMP-4-05-064/22 para ese punto: es informativo, sirve para leer por que se corto el segmento, y NO es una designacion de compra. SL por II-UNAM con la composicion del aforo y la tasa de su region; T del pavimento por la estacion SMN mas cercana (M-MMP-4-05-064/22). Corte de segmento donde cambia el PG (letra por SL o grado por temperatura); longitud minima 1 km."), mx, p, { maxWidth: cwd }); p += 6;
         }
       }
     }
     // Pie de página + numeración en todas las hojas (anclado al fondo, sin encimarse)
-    const pie = asc("Norma N·CMT·4·05·004/25 y Manual M·MMP·4·05·064/22. Grado alto {64,70,76} (>76 °C = diseño especial); grado bajo con piso en -10. El grado bajo indicado es el mínimo requerido: puede emplearse un grado más frío (-16 o -22) siempre que cumpla todos los requisitos de calidad a temperaturas alta y baja, en los ensayes de la Norma N·CMT·4·05·004. ESAL por el método del Inst. Ing. UNAM (II·UNAM, factores de daño superficial a 6.0 kg/cm²; camión, eje estándar 5.8). Clima: estaciones del SMN con >=20 años. Datos Viales / Anexo A PARCF 2026. *Velocidad de operación (camiones): DGST Velocidades de Punto 2025. Herramienta de referencia; el criterio del proyectista prevalece.");
+    const pie = asc("Norma N·CMT·4·05·004/25 y Manual M·MMP·4·05·064/22. Grado alto {64,70,76} (>76 °C = diseño especial). Se informan dos grados bajos y los dos son normativos: el UMBRAL A CONSIDERAR (del orden de -10) es el resultado del M·MMP·4·05·064/22, metodo que ordena la clausula D de la Norma; el GRADO A ESPECIFICAR es -16 porque la clausula B lo acota para esta Norma y la clausula E solo fija requisitos de calidad para PG 64-16, 70-16 y 76-16. SL superficial (z = 0) por el metodo del Inst. Ing. UNAM (factores de dano superficial a 6.0 kg/cm²; camion, eje estandar 5.8): es el que gobierna la letra del PG. El SL de fatiga a la profundidad de la capa, que aparece en el bloque de cantidades, es el del diseno estructural. Clima: estaciones del SMN con >=20 años. Datos Viales / Anexo A PARCF 2026. *Velocidad de operación (camiones): DGST Velocidades de Punto 2025. Herramienta de referencia; el criterio del proyectista prevalece.");
     const lineasPie = doc.splitTextToSize(pie, Wd - 2 * mx);
     const yPie = 279.4 - 10 - lineasPie.length * 3.1;
     const total = doc.getNumberOfPages();
@@ -2231,5 +2399,5 @@ footer.sitio strong{color:#777}
 })();
 </script>
 </body>
-<!-- HGA build v26 -->
+<!-- HGA build v31b -->
 </html>
