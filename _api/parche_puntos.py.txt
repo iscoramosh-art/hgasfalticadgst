@@ -1,0 +1,50 @@
+# -*- coding: utf-8 -*-
+"""
+Agrega el PUNTO GENERADOR de cada estación de aforo (Datos Viales 2026) a la respuesta de
+/api/segmentos: campo `punto` en `estaciones` y `estacion_aforo` = punto generador en la
+tabla de segmentos. Sin esto, el apéndice del reporte repetía el nombre de la carretera en
+todas las filas y no había forma de distinguir una estación de otra.
+
+Datos: puntos_generadores.json (clave "lat,lon" con 4 decimales -> punto generador), junto a
+main.py. Idempotente; deja respaldos main.py.bak_puntos y segmentos.py.bak_puntos.
+"""
+import io, os, sys
+
+d = os.path.dirname(os.path.abspath(sys.argv[1] if len(sys.argv) > 1 else "main.py"))
+pm, ps = os.path.join(d, "main.py"), os.path.join(d, "segmentos.py")
+m = io.open(pm, encoding="utf-8").read(); s = io.open(ps, encoding="utf-8").read()
+if "puntos_generadores" in m and "PUNTOS" in s:
+    print("YA_APLICADO"); raise SystemExit(0)
+assert os.path.exists(os.path.join(d, "puntos_generadores.json")), "falta puntos_generadores.json junto a main.py"
+
+# --- main.py: carga del JSON y campo `punto` en las estaciones del apendice -------------------
+A1 = '    DATOS["tokAfo"] = {}          # nombre normalizado -> tokens, calculado una vez\n'
+B1 = A1 + '''    # Punto generador de cada estacion de aforo (Datos Viales 2026), clave "lat,lon" a 4 decimales.
+    try:
+        with io.open(os.path.join(os.path.dirname(os.path.abspath(__file__)), "puntos_generadores.json"),
+                     encoding="utf-8") as _f:
+            DATOS["puntos"] = json.load(_f)
+    except Exception:
+        DATOS["puntos"] = {}
+    SEG.PUNTOS = DATOS["puntos"]
+'''
+A2 = '                ests.append({"nombre": rr[4], "km": rr[15], "lat": la, "lon": lo,\n'
+B2 = '                ests.append({"nombre": rr[4], "punto": DATOS.get("puntos", {}).get(clave), "km": rr[15], "lat": la, "lon": lo,\n'
+assert m.count(A1) == 1 and m.count(A2) == 1, "main.py no tiene la forma esperada"
+if "import io" not in m.split("\n", 30)[13] and not m.startswith("import io"):
+    m = m.replace("import hashlib, hmac, json, math, os, sqlite3, time, unicodedata", "import hashlib, hmac, io, json, math, os, sqlite3, time, unicodedata", 1)
+m = m.replace(A1, B1).replace(A2, B2)
+
+# --- segmentos.py: la tabla de segmentos muestra el punto generador --------------------------
+A3 = 'import pg_engine as PG\n'
+B3 = 'import pg_engine as PG\n\nPUNTOS = {}   # "lat,lon" -> punto generador; lo llena main.cargar()\n'
+A4 = '                est_af = rr[4]\n'
+B4 = '                est_af = PUNTOS.get("%.4f,%.4f" % (rr[0], rr[1])) or rr[4]\n'
+assert s.count(A3) == 1 and s.count(A4) == 1, "segmentos.py no tiene la forma esperada"
+s = s.replace(A3, B3).replace(A4, B4)
+
+io.open(pm + ".bak_puntos", "w", encoding="utf-8").write(io.open(pm, encoding="utf-8").read())
+io.open(ps + ".bak_puntos", "w", encoding="utf-8").write(io.open(ps, encoding="utf-8").read())
+io.open(pm, "w", encoding="utf-8", newline="").write(m)
+io.open(ps, "w", encoding="utf-8", newline="").write(s)
+print("PARCHE_PUNTOS_OK")
