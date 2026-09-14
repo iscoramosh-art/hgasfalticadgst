@@ -1,0 +1,62 @@
+# -*- coding: utf-8 -*-
+"""
+Parche idempotente: el servicio emite SIEMPRE el grado bajo de la norma (-16), criterio FR 14-sep-2026.
+
+  pg_engine.grado_bajo(t): si la temperatura minima del pavimento admite -16 o un grado mas calido
+  (-10, -4 ...), devuelve -16 (el unico que lista la N-CMT-4-05-004/25, clausula E). Si el sitio exige
+  algo mas frio que -16 (-22, -28), devuelve "ESP": estudio particular, igual que el caso PG 82.
+  Con esto todo lo que sale del servicio (pg_base, pg_seleccionado, pg_inicio/fin, segmentos, validar)
+  ya trae -16 y no depende de la normalizacion del cliente.
+  main.py: el aviso de "Diseño especial" distingue el caso de temperatura maxima (> 76 C) del de
+  temperatura minima (mas fria que el alcance del -16).
+Uso: python3 parche_gb16.py main.py   (deja pg_engine.py.bak_gb16 y main.py.bak_gb16)
+"""
+import io, os, sys
+
+
+def leer(p):
+    return io.open(p, encoding="utf-8").read()
+
+
+def escribir(p, s):
+    io.open(p, "w", encoding="utf-8", newline="\n").write(s)
+
+
+main_p = sys.argv[1] if len(sys.argv) > 1 else "main.py"
+pg_p = os.path.join(os.path.dirname(os.path.abspath(main_p)), "pg_engine.py")
+
+# ---- pg_engine.py
+s = leer(pg_p)
+if "GB_NORMA" in s:
+    print("pg_engine.py: ya tenia el parche -16")
+else:
+    old = '''def grado_bajo(t):
+    aptos = [g for g in GRADOS_BAJOS if g <= t]
+    return max(aptos) if aptos else "ESP"
+'''
+    assert s.count(old) == 1, "ancla grado_bajo no encontrada en pg_engine.py"
+    new = '''GB_NORMA = -16   # unico grado bajo de la N-CMT-4-05-004/25 (clausula E): PG 64-16, 70-16, 76-16
+
+
+def grado_bajo(t):
+    """Grado bajo que se ESPECIFICA (FR, 14-sep-2026): siempre -16 si la temperatura minima del
+    pavimento lo admite; si el sitio exigiera algo mas frio que -16 (-22...), estudio particular."""
+    if t is None:
+        return "ESP"
+    return GB_NORMA if GB_NORMA <= t else "ESP"
+'''
+    escribir(pg_p + ".bak_gb16", s)
+    escribir(pg_p, s.replace(old, new))
+    print("pg_engine.py: parche -16 aplicado")
+
+# ---- main.py (aviso de diseño especial)
+m = leer(main_p)
+old_m = '        resp["aviso"] = "T. máx del pavimento > 76 °C: requiere aprobación de la Secretaría."\n'
+new_m = ('        resp["aviso"] = ("T. máx del pavimento > 76 °C: requiere aprobación de la Secretaría." if ga == "ESP"\n'
+         '                         else "T. mín del pavimento por debajo del alcance del PG -16 de la norma: estudio particular.")\n')
+if old_m in m:
+    escribir(main_p + ".bak_gb16", m)
+    escribir(main_p, m.replace(old_m, new_m))
+    print("main.py: aviso de diseño especial actualizado")
+else:
+    print("main.py: aviso ya actualizado (sin cambios)")
