@@ -67,6 +67,8 @@
     $("vmsg").textContent = msg;
   }
 
+  // Grado bajo de la norma: cualquier PG con grado bajo se muestra con −16 (PG 64-16, 70-16, 76-16).
+  function pgNorma(t) { t = (t == null) ? "" : String(t); return /-\s*\d+\s*$/.test(t) ? t.replace(/-\s*\d+\s*$/, "-16") : t; }
   function fila(k, v) {
     if (v === null || v === undefined || v === "") return "";
     return "<tr><td>" + k + "</td><td>" + String(v) + "</td></tr>";
@@ -103,13 +105,13 @@
     + fila("Red", pl.red)
     + fila("Estados", pl.edo)
     + fila("Coordenadas", (pl.lat != null && pl.lon != null) ? (pl.lat + ", " + pl.lon) : "")
-    // pgn y tn sólo vienen en reportes emitidos desde la versión que separa el grado que el sitio
-    // EXIGE (cálculo M·MMP·4·05·064/22) del grado que se ESPECIFICA (norma N·CMT·4·05·004/25, que
-    // sólo admite −16). En reportes anteriores no existen y fila() los omite sin ruido.
+    // El grado bajo que se especifica es siempre el de la norma N·CMT·4·05·004/25 (−16); los PG
+    // del reporte se muestran ya con ese grado bajo. pgn y tn no existen en reportes antiguos y
+    // fila() los omite sin ruido.
     + fila("Grado a especificar (norma)", pl.pgn)
-    + fila("Umbral a considerar (M·MMP·4·05·064/22)", (pl.tn != null && pl.tn !== "") ? (pl.tn + " °C") : "")
-    + fila("PG por temperatura (cálculo, informativo)", pl.pg)
-    + fila("PG con tránsito (cálculo, informativo)", pl.pgg)
+    + fila("T. mín pavimento (M·MMP·4·05·064/22)", (pl.tn != null && pl.tn !== "") ? (pl.tn + " °C") : "")
+    + fila("PG por temperatura", pgNorma(pl.pg))
+    + fila("PG con tránsito", pgNorma(pl.pgg))
     + fila("Nivel de ajuste", pl.niv)
     + fila("∑L (×10⁶)", pl.L)
     + fila("TDPA · velocidad", (pl.tdpa !== "" && pl.tdpa != null) ? (pl.tdpa + (pl.vel ? " · " + pl.vel + " km/h" : "")) : "")
