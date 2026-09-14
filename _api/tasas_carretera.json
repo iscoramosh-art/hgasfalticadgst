@@ -1,0 +1,4772 @@
+{
+ "acambaro celaya": {
+  "tasa": 0.00381,
+  "n_series": 9,
+  "anios": 12
+ },
+ "acambaro zinapecuaro": {
+  "tasa": 0.0121,
+  "n_series": 2,
+  "anios": 13
+ },
+ "acambay san jose ixtapa": {
+  "tasa": 0.02018,
+  "n_series": 2,
+  "anios": 13
+ },
+ "acanceh estacion polaban": {
+  "tasa": 0.04155,
+  "n_series": 3,
+  "anios": 12
+ },
+ "acapulco aeropuerto acapulco": {
+  "tasa": 0.01188,
+  "n_series": 6,
+  "anios": 13
+ },
+ "acapulco zihuatanejo": {
+  "tasa": 0.01195,
+  "n_series": 13,
+  "anios": 13
+ },
+ "acatlan de juarez cd guzman": {
+  "tasa": 0.03917,
+  "n_series": 4,
+  "anios": 11
+ },
+ "acatzingo cd mendoza cuota": {
+  "tasa": 0.02505,
+  "n_series": 10,
+  "anios": 13
+ },
+ "acceso a pabellon de arteaga": {
+  "tasa": 0.00427,
+  "n_series": 6,
+  "anios": 12
+ },
+ "acocotla vicente guerrero": {
+  "tasa": 0.00644,
+  "n_series": 2,
+  "anios": 10
+ },
+ "actopan progreso": {
+  "tasa": 0.02882,
+  "n_series": 4,
+  "anios": 13
+ },
+ "aguascalientes ent cd de los ninos": {
+  "tasa": 0.08657,
+  "n_series": 3,
+  "anios": 13
+ },
+ "aguascalientes jalpa": {
+  "tasa": 0.01642,
+  "n_series": 18,
+  "anios": 13
+ },
+ "aguascalientes jesus maria": {
+  "tasa": 0.02,
+  "n_series": 6,
+  "anios": 13
+ },
+ "aguascalientes jose maria morelos": {
+  "tasa": 0.02053,
+  "n_series": 2,
+  "anios": 13
+ },
+ "aguascalientes zacatecas": {
+  "tasa": 0.02308,
+  "n_series": 31,
+  "anios": 13
+ },
+ "ahumada ricardo flores magon": {
+  "tasa": 0.00621,
+  "n_series": 2,
+  "anios": 12
+ },
+ "ajuchitlan colon": {
+  "tasa": 0.03626,
+  "n_series": 4,
+  "anios": 8
+ },
+ "ajuchitlan ezequiel montes": {
+  "tasa": 0.0387,
+  "n_series": 3,
+  "anios": 12
+ },
+ "alamo huejutla de reyes": {
+  "tasa": 0.0171,
+  "n_series": 3,
+  "anios": 13
+ },
+ "alazan canoas": {
+  "tasa": 0.01962,
+  "n_series": 11,
+  "anios": 13
+ },
+ "algodones ent islas agrarias grupo b": {
+  "tasa": 0.01764,
+  "n_series": 5,
+  "anios": 12
+ },
+ "alpuyeca jojutla": {
+  "tasa": -0.00538,
+  "n_series": 7,
+  "anios": 12
+ },
+ "altar saric": {
+  "tasa": 0.01796,
+  "n_series": 2,
+  "anios": 13
+ },
+ "altotonga tlapacoyan": {
+  "tasa": 0.00816,
+  "n_series": 2,
+  "anios": 13
+ },
+ "amado nervo la ochoa": {
+  "tasa": 0.03086,
+  "n_series": 3,
+  "anios": 11
+ },
+ "amayuca izucar de matamoros": {
+  "tasa": 0.00728,
+  "n_series": 12,
+  "anios": 13
+ },
+ "amayuca tlacotepec": {
+  "tasa": 0.03482,
+  "n_series": 4,
+  "anios": 12
+ },
+ "ameca mascota": {
+  "tasa": 0.03769,
+  "n_series": 3,
+  "anios": 13
+ },
+ "amomolulco t c toluca palmillas": {
+  "tasa": 0.01654,
+  "n_series": 17,
+  "anios": 13
+ },
+ "amomolulco texcalyacac": {
+  "tasa": 0.00308,
+  "n_series": 8,
+  "anios": 13
+ },
+ "amozoc perote cuota": {
+  "tasa": 0.05754,
+  "n_series": 5,
+  "anios": 13
+ },
+ "amozoc teziutlan": {
+  "tasa": 0.03182,
+  "n_series": 14,
+  "anios": 13
+ },
+ "anillo periferico de monterrey cuota": {
+  "tasa": 0.09963,
+  "n_series": 6,
+  "anios": 12
+ },
+ "apizaco emiliano zapata": {
+  "tasa": 0.02778,
+  "n_series": 3,
+  "anios": 12
+ },
+ "apizaco tejocotal": {
+  "tasa": 0.01742,
+  "n_series": 2,
+  "anios": 13
+ },
+ "apodaca villa juarez": {
+  "tasa": 0.02295,
+  "n_series": 10,
+  "anios": 12
+ },
+ "armeria manzanillo cuota": {
+  "tasa": 0.07076,
+  "n_series": 6,
+  "anios": 13
+ },
+ "armeria playa el paraiso": {
+  "tasa": 0.00264,
+  "n_series": 2,
+  "anios": 13
+ },
+ "arriaga ocozocoautla cuota": {
+  "tasa": 0.02826,
+  "n_series": 3,
+  "anios": 13
+ },
+ "atenquique san pedro": {
+  "tasa": 0.05184,
+  "n_series": 2,
+  "anios": 13
+ },
+ "atlacomulco maravatio cuota": {
+  "tasa": 0.03767,
+  "n_series": 4,
+  "anios": 13
+ },
+ "atlacomulco morelia": {
+  "tasa": 0.0288,
+  "n_series": 14,
+  "anios": 13
+ },
+ "atlatlahucan tlayacapan": {
+  "tasa": 0.04155,
+  "n_series": 4,
+  "anios": 12
+ },
+ "atlixco jantetelco cuota": {
+  "tasa": 0.03279,
+  "n_series": 2,
+  "anios": 13
+ },
+ "autlan de navarro t c colima cd guzman": {
+  "tasa": 0.03685,
+  "n_series": 7,
+  "anios": 11
+ },
+ "baca dzidzantun": {
+  "tasa": 0.02218,
+  "n_series": 5,
+  "anios": 12
+ },
+ "bacalar miguel aleman": {
+  "tasa": 0.03025,
+  "n_series": 3,
+  "anios": 12
+ },
+ "banderilla martinez de la torre": {
+  "tasa": 0.00908,
+  "n_series": 5,
+  "anios": 13
+ },
+ "barretal nueva villa de padilla": {
+  "tasa": -0.00298,
+  "n_series": 2,
+  "anios": 12
+ },
+ "benemerito de las americas palenque": {
+  "tasa": 0.04146,
+  "n_series": 4,
+  "anios": 13
+ },
+ "benito juarez agua dulce": {
+  "tasa": -0.01571,
+  "n_series": 2,
+  "anios": 13
+ },
+ "benito juarez tepetitan": {
+  "tasa": -0.00895,
+  "n_series": 4,
+  "anios": 13
+ },
+ "bermejillo el palmito": {
+  "tasa": -0.00409,
+  "n_series": 6,
+  "anios": 13
+ },
+ "blvd guadalupe zacatecas la escondida": {
+  "tasa": 0.03232,
+  "n_series": 8,
+  "anios": 11
+ },
+ "buenavista tuxtepec": {
+  "tasa": 0.01856,
+  "n_series": 13,
+  "anios": 13
+ },
+ "cabo san lucas la paz": {
+  "tasa": 0.03432,
+  "n_series": 31,
+  "anios": 13
+ },
+ "caborca el desemboque": {
+  "tasa": -0.01397,
+  "n_series": 3,
+  "anios": 13
+ },
+ "cacaos la granja": {
+  "tasa": -0.01246,
+  "n_series": 3,
+  "anios": 13
+ },
+ "cadereyta de jimenez allende": {
+  "tasa": 0.04764,
+  "n_series": 6,
+  "anios": 13
+ },
+ "cadereyta de jimenez doctor gonzalez": {
+  "tasa": 0.02776,
+  "n_series": 3,
+  "anios": 12
+ },
+ "calle 36 norte puerto de la libertad": {
+  "tasa": -0.0251,
+  "n_series": 2,
+  "anios": 13
+ },
+ "calotmul sucila": {
+  "tasa": 0.02806,
+  "n_series": 2,
+  "anios": 11
+ },
+ "calpulalpan el ocote": {
+  "tasa": 0.003,
+  "n_series": 9,
+  "anios": 13
+ },
+ "camargo delicias cuota": {
+  "tasa": 0.03168,
+  "n_series": 2,
+  "anios": 12
+ },
+ "camargo jimenez": {
+  "tasa": -0.02178,
+  "n_series": 3,
+  "anios": 12
+ },
+ "campeche merida": {
+  "tasa": 0.04033,
+  "n_series": 8,
+  "anios": 13
+ },
+ "campeche tixmucuy": {
+  "tasa": 0.03681,
+  "n_series": 6,
+  "anios": 13
+ },
+ "campeche uman": {
+  "tasa": 0.02699,
+  "n_series": 15,
+  "anios": 13
+ },
+ "cancun punta cancun": {
+  "tasa": 0.01126,
+  "n_series": 6,
+  "anios": 12
+ },
+ "cansahcab tizimin": {
+  "tasa": 0.03087,
+  "n_series": 4,
+  "anios": 13
+ },
+ "carapan playa azul": {
+  "tasa": -0.00185,
+  "n_series": 23,
+  "anios": 13
+ },
+ "carbonera t c ent morelos saltillo": {
+  "tasa": 0.02692,
+  "n_series": 4,
+  "anios": 13
+ },
+ "carboneras villa juarez": {
+  "tasa": 0.02984,
+  "n_series": 3,
+  "anios": 13
+ },
+ "cardenas paraiso": {
+  "tasa": -0.00359,
+  "n_series": 5,
+  "anios": 13
+ },
+ "carrizal campo anibal": {
+  "tasa": -0.01429,
+  "n_series": 4,
+  "anios": 13
+ },
+ "catazaja t c tuxtla gtz cd cuauhtemoc": {
+  "tasa": 0.01601,
+  "n_series": 15,
+  "anios": 13
+ },
+ "cd acuna presa de la amistad": {
+  "tasa": 0.03093,
+  "n_series": 5,
+  "anios": 13
+ },
+ "cd aleman sayula": {
+  "tasa": -0.01205,
+  "n_series": 8,
+  "anios": 13
+ },
+ "cd altamirano t c zihuatanejo la mira": {
+  "tasa": -0.0172,
+  "n_series": 4,
+  "anios": 13
+ },
+ "cd benito juarez villa de santiago": {
+  "tasa": 0.07165,
+  "n_series": 3,
+  "anios": 12
+ },
+ "cd constitucion puerto san carlos": {
+  "tasa": -0.0031,
+  "n_series": 3,
+  "anios": 13
+ },
+ "cd del carmen campeche": {
+  "tasa": 0.00918,
+  "n_series": 14,
+  "anios": 13
+ },
+ "cd insurgentes la purisima": {
+  "tasa": -0.00376,
+  "n_series": 7,
+  "anios": 13
+ },
+ "cd insurgentes loreto": {
+  "tasa": 0.02182,
+  "n_series": 11,
+  "anios": 13
+ },
+ "cd insurgentes pto adolfo lopez mateos": {
+  "tasa": -0.02858,
+  "n_series": 2,
+  "anios": 13
+ },
+ "cd ixtepec guevea de humboldt": {
+  "tasa": 0.01722,
+  "n_series": 3,
+  "anios": 13
+ },
+ "cd juarez janos": {
+  "tasa": 0.03797,
+  "n_series": 5,
+  "anios": 13
+ },
+ "cd mendoza cordoba cuota": {
+  "tasa": 0.00438,
+  "n_series": 6,
+  "anios": 13
+ },
+ "cd obregon guaymas cuota": {
+  "tasa": 0.02044,
+  "n_series": 24,
+  "anios": 13
+ },
+ "cd sahagun ent emiliano zapata": {
+  "tasa": 0.00522,
+  "n_series": 2,
+  "anios": 13
+ },
+ "cd valles cd victoria": {
+  "tasa": 0.0263,
+  "n_series": 9,
+  "anios": 13
+ },
+ "cd valles san luis potosi": {
+  "tasa": 0.01874,
+  "n_series": 16,
+  "anios": 13
+ },
+ "cd valles tampico": {
+  "tasa": 0.02566,
+  "n_series": 11,
+  "anios": 13
+ },
+ "cd victoria matamoros": {
+  "tasa": 0.03045,
+  "n_series": 17,
+  "anios": 13
+ },
+ "cd victoria soto la marina": {
+  "tasa": -0.01122,
+  "n_series": 3,
+  "anios": 13
+ },
+ "ceballos el mirador": {
+  "tasa": -0.03022,
+  "n_series": 2,
+  "anios": 12
+ },
+ "celaya dolores hidalgo": {
+  "tasa": 0.02187,
+  "n_series": 15,
+  "anios": 13
+ },
+ "chalco mixquic": {
+  "tasa": 0.02696,
+  "n_series": 3,
+  "anios": 13
+ },
+ "chalco san mateo tezoquiapan": {
+  "tasa": 0.02306,
+  "n_series": 8,
+  "anios": 13
+ },
+ "chalco tlahuac": {
+  "tasa": 0.00765,
+  "n_series": 4,
+  "anios": 12
+ },
+ "chamapa lecheria cuota": {
+  "tasa": -0.01148,
+  "n_series": 5,
+  "anios": 13
+ },
+ "champoton campeche cuota": {
+  "tasa": 0.02996,
+  "n_series": 4,
+  "anios": 12
+ },
+ "chapalilla compostela cuota": {
+  "tasa": 0.02925,
+  "n_series": 3,
+  "anios": 12
+ },
+ "chetumal calderitas": {
+  "tasa": 0.00036,
+  "n_series": 4,
+  "anios": 12
+ },
+ "chiapa de corzo amatenango del valle": {
+  "tasa": 0.025,
+  "n_series": 9,
+  "anios": 12
+ },
+ "chichicapa ent la libertad": {
+  "tasa": 0.04133,
+  "n_series": 3,
+  "anios": 13
+ },
+ "chihuahua el sueco": {
+  "tasa": 0.02021,
+  "n_series": 6,
+  "anios": 13
+ },
+ "chihuahua madera": {
+  "tasa": 0.02009,
+  "n_series": 18,
+  "anios": 12
+ },
+ "chihuahua ojinaga": {
+  "tasa": 0.02117,
+  "n_series": 10,
+  "anios": 13
+ },
+ "chihuahua sacramento cuota": {
+  "tasa": 0.08339,
+  "n_series": 4,
+  "anios": 12
+ },
+ "chilpancingo acapulco": {
+  "tasa": 0.01161,
+  "n_series": 17,
+  "anios": 13
+ },
+ "chilpancingo chichihualco": {
+  "tasa": 0.02685,
+  "n_series": 3,
+  "anios": 13
+ },
+ "chilpancingo jilotepec": {
+  "tasa": 0.01276,
+  "n_series": 8,
+  "anios": 13
+ },
+ "cholula puebla via quetzalcoatl": {
+  "tasa": 0.04642,
+  "n_series": 4,
+  "anios": 13
+ },
+ "cieneguillas zacatecas": {
+  "tasa": 0.02607,
+  "n_series": 3,
+  "anios": 13
+ },
+ "citilcum tixkochoh": {
+  "tasa": 0.04511,
+  "n_series": 3,
+  "anios": 12
+ },
+ "ciudad victoria monterrey": {
+  "tasa": 0.03034,
+  "n_series": 30,
+  "anios": 13
+ },
+ "coatzacoalcos salina cruz": {
+  "tasa": 0.00734,
+  "n_series": 32,
+  "anios": 13
+ },
+ "coatzacoalcos villahermosa": {
+  "tasa": -0.00477,
+  "n_series": 32,
+  "anios": 13
+ },
+ "cocoyoc oaxtepec": {
+  "tasa": -0.00203,
+  "n_series": 5,
+  "anios": 12
+ },
+ "colima cd guzman": {
+  "tasa": 0.01243,
+  "n_series": 5,
+  "anios": 13
+ },
+ "colima comala": {
+  "tasa": 0.05271,
+  "n_series": 2,
+  "anios": 13
+ },
+ "colima coquimatlan": {
+  "tasa": -0.0031,
+  "n_series": 4,
+  "anios": 13
+ },
+ "colima ent tecoman": {
+  "tasa": 0.01791,
+  "n_series": 8,
+  "anios": 13
+ },
+ "comala san antonio": {
+  "tasa": -0.02819,
+  "n_series": 3,
+  "anios": 12
+ },
+ "comalcalco el golpe": {
+  "tasa": 0.02244,
+  "n_series": 9,
+  "anios": 13
+ },
+ "comanja huaniqueo": {
+  "tasa": 0.03199,
+  "n_series": 2,
+  "anios": 13
+ },
+ "conkal puerto chicxulub": {
+  "tasa": 0.05069,
+  "n_series": 2,
+  "anios": 13
+ },
+ "cordoba ent boticaria": {
+  "tasa": 0.01061,
+  "n_series": 12,
+  "anios": 13
+ },
+ "cordoba veracruz cuota": {
+  "tasa": 0.02794,
+  "n_series": 8,
+  "anios": 13
+ },
+ "corredor libramiento de san pedro": {
+  "tasa": 0.05621,
+  "n_series": 2,
+  "anios": 13
+ },
+ "corredor tijuana 2000": {
+  "tasa": 0.07287,
+  "n_series": 6,
+  "anios": 13
+ },
+ "cortazar valle de santiago": {
+  "tasa": 0.02438,
+  "n_series": 2,
+  "anios": 13
+ },
+ "cosoleacaque soteapan": {
+  "tasa": 0.02624,
+  "n_series": 4,
+  "anios": 13
+ },
+ "costera laguna de cuyutlan": {
+  "tasa": -0.05246,
+  "n_series": 2,
+  "anios": 13
+ },
+ "cotija emiliano zapata": {
+  "tasa": 0.0297,
+  "n_series": 2,
+  "anios": 13
+ },
+ "crucero de san blas san blas": {
+  "tasa": -0.01361,
+  "n_series": 3,
+  "anios": 13
+ },
+ "crucero de santa maria ameca": {
+  "tasa": 0.00285,
+  "n_series": 3,
+  "anios": 11
+ },
+ "cuacnopalan oaxaca cuota": {
+  "tasa": 0.01524,
+  "n_series": 7,
+  "anios": 13
+ },
+ "cuacnopalan santa catarina los reyes": {
+  "tasa": 0.01636,
+  "n_series": 2,
+  "anios": 13
+ },
+ "cuapiaxtla acatlan de osorio": {
+  "tasa": 0.01998,
+  "n_series": 6,
+  "anios": 13
+ },
+ "cuauhtemoc buenaventura": {
+  "tasa": 0.00269,
+  "n_series": 8,
+  "anios": 12
+ },
+ "cuauhtemoc colima": {
+  "tasa": -0.01233,
+  "n_series": 3,
+  "anios": 13
+ },
+ "cuautitlan zumpango de ocampo": {
+  "tasa": 0.00903,
+  "n_series": 5,
+  "anios": 13
+ },
+ "cuernavaca acapulco cuota": {
+  "tasa": 0.02668,
+  "n_series": 18,
+  "anios": 13
+ },
+ "cuernavaca chilpancingo": {
+  "tasa": 0.02258,
+  "n_series": 37,
+  "anios": 13
+ },
+ "cuernavaca cuautlixco": {
+  "tasa": 0.00873,
+  "n_series": 24,
+  "anios": 13
+ },
+ "cuernavaca tepoztlan": {
+  "tasa": 0.00767,
+  "n_series": 5,
+  "anios": 12
+ },
+ "cuitzeo zinaparo": {
+  "tasa": -0.00063,
+  "n_series": 6,
+  "anios": 13
+ },
+ "culiacan altata": {
+  "tasa": 0.02118,
+  "n_series": 14,
+  "anios": 13
+ },
+ "culiacan el dorado": {
+  "tasa": 0.0113,
+  "n_series": 9,
+  "anios": 13
+ },
+ "culiacan las brisas cuota": {
+  "tasa": 0.0268,
+  "n_series": 6,
+  "anios": 13
+ },
+ "culiacan los mochis": {
+  "tasa": 0.01037,
+  "n_series": 18,
+  "anios": 13
+ },
+ "delicias chihuahua libre": {
+  "tasa": 0.01902,
+  "n_series": 6,
+  "anios": 13
+ },
+ "delicias saucillo": {
+  "tasa": 0.00083,
+  "n_series": 3,
+  "anios": 12
+ },
+ "dolores hidalgo ojuelos de jalisco": {
+  "tasa": 0.01879,
+  "n_series": 5,
+  "anios": 13
+ },
+ "dos casas ixtapan del oro": {
+  "tasa": 0.01698,
+  "n_series": 2,
+  "anios": 13
+ },
+ "durango aserradero la flor": {
+  "tasa": 0.02913,
+  "n_series": 6,
+  "anios": 11
+ },
+ "durango ent la zarca": {
+  "tasa": 0.01695,
+  "n_series": 16,
+  "anios": 12
+ },
+ "durango mazatlan cuota": {
+  "tasa": 0.06177,
+  "n_series": 4,
+  "anios": 13
+ },
+ "durango mezquital": {
+  "tasa": 0.04168,
+  "n_series": 8,
+  "anios": 12
+ },
+ "durango torreon": {
+  "tasa": 0.00613,
+  "n_series": 31,
+  "anios": 13
+ },
+ "durango villa union": {
+  "tasa": 0.01511,
+  "n_series": 8,
+  "anios": 13
+ },
+ "dzemul xtampu": {
+  "tasa": 0.05229,
+  "n_series": 2,
+  "anios": 12
+ },
+ "dzidzantun santa clara": {
+  "tasa": 0.05369,
+  "n_series": 2,
+  "anios": 12
+ },
+ "dzitbalche ent san bernardo": {
+  "tasa": 0.02093,
+  "n_series": 5,
+  "anios": 13
+ },
+ "ecatepec piramides cuota": {
+  "tasa": 0.01136,
+  "n_series": 6,
+  "anios": 13
+ },
+ "ejido benito juarez ejido chiapas": {
+  "tasa": 0.02338,
+  "n_series": 3,
+  "anios": 13
+ },
+ "ejido monterrey mazon": {
+  "tasa": 0.02703,
+  "n_series": 5,
+  "anios": 13
+ },
+ "el bellote santa cruz": {
+  "tasa": 0.02675,
+  "n_series": 5,
+  "anios": 13
+ },
+ "el carrizo la batanga": {
+  "tasa": 0.04078,
+  "n_series": 3,
+  "anios": 12
+ },
+ "el centinela la rumorosa cuota": {
+  "tasa": 0.05523,
+  "n_series": 4,
+  "anios": 13
+ },
+ "el clarin agua buena": {
+  "tasa": 0.03277,
+  "n_series": 2,
+  "anios": 13
+ },
+ "el colorado higuerillas": {
+  "tasa": 0.05451,
+  "n_series": 12,
+  "anios": 12
+ },
+ "el correo lagunillas": {
+  "tasa": 0.04125,
+  "n_series": 2,
+  "anios": 13
+ },
+ "el faro estacion coahuila": {
+  "tasa": 0.01602,
+  "n_series": 6,
+  "anios": 13
+ },
+ "el ideal chiquila": {
+  "tasa": 0.06835,
+  "n_series": 4,
+  "anios": 12
+ },
+ "el limon ocampo": {
+  "tasa": 0.0469,
+  "n_series": 2,
+  "anios": 12
+ },
+ "el limoncito cinco hermanos": {
+  "tasa": 0.03651,
+  "n_series": 2,
+  "anios": 13
+ },
+ "el monumento tingambato": {
+  "tasa": 0.00647,
+  "n_series": 6,
+  "anios": 13
+ },
+ "el refugio san marcos": {
+  "tasa": 0.03025,
+  "n_series": 4,
+  "anios": 11
+ },
+ "el retono ent asturias": {
+  "tasa": 0.04315,
+  "n_series": 2,
+  "anios": 13
+ },
+ "el salado el dorado": {
+  "tasa": 0.03318,
+  "n_series": 2,
+  "anios": 13
+ },
+ "el saucillo amealco": {
+  "tasa": 0.00705,
+  "n_series": 5,
+  "anios": 13
+ },
+ "el sauz palau": {
+  "tasa": -0.00048,
+  "n_series": 6,
+  "anios": 13
+ },
+ "el sueco janos": {
+  "tasa": 0.00659,
+  "n_series": 6,
+  "anios": 13
+ },
+ "el sueco villa ahumada cuota": {
+  "tasa": 0.05801,
+  "n_series": 2,
+  "anios": 12
+ },
+ "el suspiro tenosique": {
+  "tasa": 0.01698,
+  "n_series": 7,
+  "anios": 13
+ },
+ "el taray t c ramal aeropuerto de aguascalientes": {
+  "tasa": -0.0194,
+  "n_series": 3,
+  "anios": 13
+ },
+ "el temascal el limon": {
+  "tasa": 0.03085,
+  "n_series": 2,
+  "anios": 13
+ },
+ "el zapote copalita": {
+  "tasa": 0.03575,
+  "n_series": 2,
+  "anios": 10
+ },
+ "ensenada el chinero": {
+  "tasa": 0.01879,
+  "n_series": 10,
+  "anios": 13
+ },
+ "ensenada lazaro cardenas": {
+  "tasa": 0.01409,
+  "n_series": 18,
+  "anios": 13
+ },
+ "ent acaponeta el novillero": {
+  "tasa": 0.01273,
+  "n_series": 4,
+  "anios": 13
+ },
+ "ent agua caliente el terrero": {
+  "tasa": 0.0419,
+  "n_series": 3,
+  "anios": 12
+ },
+ "ent ahualulco ent la bonita": {
+  "tasa": 0.03498,
+  "n_series": 6,
+  "anios": 12
+ },
+ "ent alpuyeca grutas de cacahuamilpa": {
+  "tasa": 0.00052,
+  "n_series": 9,
+  "anios": 13
+ },
+ "ent arellano el retono": {
+  "tasa": 0.06112,
+  "n_series": 4,
+  "anios": 13
+ },
+ "ent begona ent presa de manantiales": {
+  "tasa": 0.02626,
+  "n_series": 2,
+  "anios": 13
+ },
+ "ent bella union saltillo": {
+  "tasa": 0.05173,
+  "n_series": 4,
+  "anios": 13
+ },
+ "ent buenavista san miguel de allende": {
+  "tasa": 0.05847,
+  "n_series": 3,
+  "anios": 13
+ },
+ "ent c cuernavaca acapulco cuota tepetzingo": {
+  "tasa": 0.0193,
+  "n_series": 2,
+  "anios": 12
+ },
+ "ent c cuernavaca cuautlixco oacalco": {
+  "tasa": 0.00589,
+  "n_series": 2,
+  "anios": 12
+ },
+ "ent chiverias ent el abanico": {
+  "tasa": -0.01053,
+  "n_series": 3,
+  "anios": 12
+ },
+ "ent ciudad camargo saucillo": {
+  "tasa": -0.01149,
+  "n_series": 3,
+  "anios": 13
+ },
+ "ent colonia portezuelo": {
+  "tasa": 0.01389,
+  "n_series": 14,
+  "anios": 13
+ },
+ "ent cruz de la mision san nicolas coatepec": {
+  "tasa": -0.01982,
+  "n_series": 2,
+  "anios": 13
+ },
+ "ent cuauhtemoc ent osiris cuota": {
+  "tasa": 0.02647,
+  "n_series": 2,
+  "anios": 10
+ },
+ "ent de zaragoza san felipe": {
+  "tasa": 0.04453,
+  "n_series": 2,
+  "anios": 13
+ },
+ "ent el huizache antiguo morelos": {
+  "tasa": 0.02299,
+  "n_series": 2,
+  "anios": 13
+ },
+ "ent emiliano zapata la libertad": {
+  "tasa": -0.00036,
+  "n_series": 2,
+  "anios": 13
+ },
+ "ent huisachito nuevo laredo": {
+  "tasa": 0.03702,
+  "n_series": 3,
+  "anios": 12
+ },
+ "ent jalostotitlan villa hidalgo": {
+  "tasa": 0.0068,
+  "n_series": 3,
+  "anios": 11
+ },
+ "ent jaritas ciudad hidalgo": {
+  "tasa": 0.0521,
+  "n_series": 2,
+  "anios": 13
+ },
+ "ent jorobas tula": {
+  "tasa": 0.02702,
+  "n_series": 6,
+  "anios": 13
+ },
+ "ent la calavera ent san pedro": {
+  "tasa": 0.02829,
+  "n_series": 7,
+  "anios": 13
+ },
+ "ent la chicharrona cuencame": {
+  "tasa": 0.01675,
+  "n_series": 12,
+  "anios": 13
+ },
+ "ent la cuchilla san pedro de las colonias": {
+  "tasa": 0.02882,
+  "n_series": 5,
+  "anios": 13
+ },
+ "ent la fortaleza cortazar": {
+  "tasa": 0.01323,
+  "n_series": 2,
+  "anios": 13
+ },
+ "ent la laguna ent el callejon": {
+  "tasa": -0.00207,
+  "n_series": 2,
+  "anios": 13
+ },
+ "ent la puerta san miguel totolmaloya": {
+  "tasa": 0.01927,
+  "n_series": 5,
+  "anios": 13
+ },
+ "ent la rosa general cepeda": {
+  "tasa": 0.00706,
+  "n_series": 2,
+  "anios": 13
+ },
+ "ent la ventosa san pedro tapanatepec": {
+  "tasa": -0.00511,
+  "n_series": 5,
+  "anios": 13
+ },
+ "ent la zarca hidalgo del parral": {
+  "tasa": 0.03168,
+  "n_series": 8,
+  "anios": 13
+ },
+ "ent las blancas rio bravo": {
+  "tasa": 0.00907,
+  "n_series": 4,
+  "anios": 12
+ },
+ "ent morelos ent noria de gringos": {
+  "tasa": 0.03768,
+  "n_series": 3,
+  "anios": 13
+ },
+ "ent morelos saltillo": {
+  "tasa": 0.03493,
+  "n_series": 27,
+  "anios": 13
+ },
+ "ent ojo caliente ent ojuelos de jalisco": {
+  "tasa": 0.02236,
+  "n_series": 2,
+  "anios": 13
+ },
+ "ent pabellon de arteaga california": {
+  "tasa": 0.03309,
+  "n_series": 6,
+  "anios": 13
+ },
+ "ent pabellon de arteaga san jose de gracia": {
+  "tasa": 0.02861,
+  "n_series": 6,
+  "anios": 13
+ },
+ "ent paila parras de la fuente": {
+  "tasa": 0.03617,
+  "n_series": 3,
+  "anios": 13
+ },
+ "ent patti sahuayo": {
+  "tasa": 0.0214,
+  "n_series": 6,
+  "anios": 13
+ },
+ "ent pena blanca ent la concha": {
+  "tasa": -0.038,
+  "n_series": 2,
+  "anios": 12
+ },
+ "ent penitenciaria villa hidalgo": {
+  "tasa": 0.01725,
+  "n_series": 5,
+  "anios": 13
+ },
+ "ent playa azul manzanillo": {
+  "tasa": 0.01175,
+  "n_series": 21,
+  "anios": 13
+ },
+ "ent potrero lomas de chapultepec": {
+  "tasa": 0.01345,
+  "n_series": 2,
+  "anios": 13
+ },
+ "ent poxila merida": {
+  "tasa": 0.03175,
+  "n_series": 5,
+  "anios": 13
+ },
+ "ent punta prieta bahia de los angeles": {
+  "tasa": 0.02709,
+  "n_series": 2,
+  "anios": 12
+ },
+ "ent punta prieta guerrero negro": {
+  "tasa": -0.00051,
+  "n_series": 4,
+  "anios": 13
+ },
+ "ent rivier san marcos": {
+  "tasa": 0.03205,
+  "n_series": 8,
+  "anios": 13
+ },
+ "ent san carlos ent el milagro": {
+  "tasa": 0.02728,
+  "n_series": 2,
+  "anios": 13
+ },
+ "ent san felipe jesus maria": {
+  "tasa": -0.01765,
+  "n_series": 2,
+  "anios": 13
+ },
+ "ent san isidro ent el salitre": {
+  "tasa": 0.01821,
+  "n_series": 2,
+  "anios": 13
+ },
+ "ent san miguel de allende dr mora": {
+  "tasa": 0.02265,
+  "n_series": 4,
+  "anios": 13
+ },
+ "ent santa cruz melaque": {
+  "tasa": 0.02202,
+  "n_series": 14,
+  "anios": 13
+ },
+ "ent santa rosa ent pachuca": {
+  "tasa": 0.00269,
+  "n_series": 3,
+  "anios": 13
+ },
+ "ent santa teresa silao": {
+  "tasa": 0.00786,
+  "n_series": 5,
+  "anios": 13
+ },
+ "ent santiago ixcuintla playa los corchos": {
+  "tasa": 0.01235,
+  "n_series": 8,
+  "anios": 13
+ },
+ "ent suschila comitan": {
+  "tasa": 0.04411,
+  "n_series": 10,
+  "anios": 13
+ },
+ "ent tepeji del rio tlahuelilpan": {
+  "tasa": 0.03103,
+  "n_series": 7,
+  "anios": 13
+ },
+ "ent tesistan ent malpaso": {
+  "tasa": 0.04088,
+  "n_series": 11,
+  "anios": 13
+ },
+ "ent tolman cd sahagun": {
+  "tasa": 0.01056,
+  "n_series": 4,
+  "anios": 13
+ },
+ "ent tula cd victoria": {
+  "tasa": 0.03053,
+  "n_series": 7,
+  "anios": 13
+ },
+ "ent tulancingo venta grande cuota": {
+  "tasa": 0.07266,
+  "n_series": 3,
+  "anios": 13
+ },
+ "escuinapa de hidalgo teacapan": {
+  "tasa": 0.00238,
+  "n_series": 2,
+  "anios": 13
+ },
+ "esperanza presa alvaro obregon": {
+  "tasa": 0.00965,
+  "n_series": 2,
+  "anios": 13
+ },
+ "estacion dimas san ignacio": {
+  "tasa": 0.00997,
+  "n_series": 3,
+  "anios": 13
+ },
+ "estacion macuspana vernet": {
+  "tasa": 0.00936,
+  "n_series": 7,
+  "anios": 13
+ },
+ "estacion manuel t c cd victoria soto la marina": {
+  "tasa": 0.03695,
+  "n_series": 5,
+  "anios": 12
+ },
+ "estacion palenque la libertad": {
+  "tasa": 0.03437,
+  "n_series": 2,
+  "anios": 13
+ },
+ "fortin conejos": {
+  "tasa": 0.01313,
+  "n_series": 7,
+  "anios": 13
+ },
+ "fracc ojo caliente el conejal": {
+  "tasa": 0.03929,
+  "n_series": 3,
+  "anios": 13
+ },
+ "francisco escarcega champoton": {
+  "tasa": 0.02331,
+  "n_series": 4,
+  "anios": 13
+ },
+ "francisco escarcega chetumal": {
+  "tasa": 0.03489,
+  "n_series": 21,
+  "anios": 13
+ },
+ "francisco i madero tula de allende": {
+  "tasa": 0.02722,
+  "n_series": 3,
+  "anios": 13
+ },
+ "fresnillo ent banon": {
+  "tasa": 0.02838,
+  "n_series": 6,
+  "anios": 13
+ },
+ "fresnillo plateros": {
+  "tasa": 0.01205,
+  "n_series": 3,
+  "anios": 11
+ },
+ "fresnillo valparaiso": {
+  "tasa": 0.02312,
+  "n_series": 6,
+  "anios": 13
+ },
+ "frontera t c jalapa jonuta": {
+  "tasa": 0.01506,
+  "n_series": 2,
+  "anios": 13
+ },
+ "gabriel zamora dr miguel silva": {
+  "tasa": 0.04603,
+  "n_series": 2,
+  "anios": 13
+ },
+ "galeana cuautla": {
+  "tasa": 0.00083,
+  "n_series": 11,
+  "anios": 12
+ },
+ "gomez palacio corralitos cuota": {
+  "tasa": 0.05285,
+  "n_series": 6,
+  "anios": 12
+ },
+ "gomez palacio jimenez": {
+  "tasa": 0.01686,
+  "n_series": 14,
+  "anios": 13
+ },
+ "gomez palacio la union": {
+  "tasa": 0.01776,
+  "n_series": 5,
+  "anios": 11
+ },
+ "gomez palacio tlahualillo de zaragoza": {
+  "tasa": 0.01177,
+  "n_series": 2,
+  "anios": 11
+ },
+ "gonzalez llera de canales": {
+  "tasa": 0.02665,
+  "n_series": 3,
+  "anios": 12
+ },
+ "gral trevino villaldama": {
+  "tasa": 0.01858,
+  "n_series": 5,
+  "anios": 11
+ },
+ "gregorio mendez magana reforma de ocampo": {
+  "tasa": 0.01556,
+  "n_series": 2,
+  "anios": 13
+ },
+ "guadalajara colima cuota": {
+  "tasa": 0.03724,
+  "n_series": 6,
+  "anios": 13
+ },
+ "guadalajara ent jocotepec": {
+  "tasa": 0.02563,
+  "n_series": 13,
+  "anios": 13
+ },
+ "guadalajara tepic": {
+  "tasa": 0.01796,
+  "n_series": 28,
+  "anios": 13
+ },
+ "guadalajara tepic cuota": {
+  "tasa": 0.03553,
+  "n_series": 6,
+  "anios": 12
+ },
+ "guadalajara tesistan": {
+  "tasa": 0.05638,
+  "n_series": 11,
+  "anios": 12
+ },
+ "guadalajara zacatecas": {
+  "tasa": 0.01588,
+  "n_series": 15,
+  "anios": 13
+ },
+ "guadalupe aguilera guanacevi": {
+  "tasa": 0.02208,
+  "n_series": 7,
+  "anios": 11
+ },
+ "guadalupe ent cuauhtemoc": {
+  "tasa": 0.03527,
+  "n_series": 5,
+  "anios": 8
+ },
+ "guanajuato los infantes": {
+  "tasa": 0.02741,
+  "n_series": 6,
+  "anios": 13
+ },
+ "guanajuato santa rita": {
+  "tasa": 0.00875,
+  "n_series": 13,
+  "anios": 13
+ },
+ "guanajuato silao cuota": {
+  "tasa": 0.03479,
+  "n_series": 2,
+  "anios": 13
+ },
+ "guasave sinaloa de leyva": {
+  "tasa": 0.02197,
+  "n_series": 4,
+  "anios": 13
+ },
+ "guaymas hermosillo": {
+  "tasa": 0.02584,
+  "n_series": 10,
+  "anios": 13
+ },
+ "gutierrez zamora tihuatlan cuota": {
+  "tasa": 0.03,
+  "n_series": 5,
+  "anios": 12
+ },
+ "hacienda guadalupe higueras": {
+  "tasa": 0.04625,
+  "n_series": 2,
+  "anios": 11
+ },
+ "hacienda paraiso chichimequillas": {
+  "tasa": 0.05862,
+  "n_series": 5,
+  "anios": 12
+ },
+ "haltunchen san antonio cayal": {
+  "tasa": 0.03239,
+  "n_series": 6,
+  "anios": 13
+ },
+ "hermosillo bahia kino": {
+  "tasa": 0.04134,
+  "n_series": 10,
+  "anios": 13
+ },
+ "hermosillo lim edos term son ppia chih yecora": {
+  "tasa": -0.06536,
+  "n_series": 4,
+  "anios": 13
+ },
+ "hermosillo magdalena de kino cuota": {
+  "tasa": 0.01647,
+  "n_series": 22,
+  "anios": 13
+ },
+ "hermosillo sahuaripa": {
+  "tasa": -0.01274,
+  "n_series": 2,
+  "anios": 13
+ },
+ "hidalgo del parral guadalupe y calvo": {
+  "tasa": 0.00956,
+  "n_series": 5,
+  "anios": 13
+ },
+ "hidalgo del parral jimenez": {
+  "tasa": 0.00258,
+  "n_series": 4,
+  "anios": 13
+ },
+ "hoctun cenotillo": {
+  "tasa": 0.03645,
+  "n_series": 5,
+  "anios": 12
+ },
+ "holca sotuta": {
+  "tasa": 0.03931,
+  "n_series": 3,
+  "anios": 12
+ },
+ "hornos san nicolas": {
+  "tasa": -0.01065,
+  "n_series": 2,
+  "anios": 13
+ },
+ "huajuapan de leon el carrizal": {
+  "tasa": -0.0054,
+  "n_series": 4,
+  "anios": 13
+ },
+ "huajuapan de leon oaxaca": {
+  "tasa": 0.01543,
+  "n_series": 15,
+  "anios": 13
+ },
+ "huajumbaro san jose": {
+  "tasa": 0.00699,
+  "n_series": 5,
+  "anios": 13
+ },
+ "huamantla la venta": {
+  "tasa": 0.01231,
+  "n_series": 9,
+  "anios": 13
+ },
+ "huamantla terrenate": {
+  "tasa": 0.02777,
+  "n_series": 3,
+  "anios": 13
+ },
+ "huatabampo bacabachi": {
+  "tasa": -0.00552,
+  "n_series": 2,
+  "anios": 13
+ },
+ "huixtla el jocote": {
+  "tasa": 0.02384,
+  "n_series": 8,
+  "anios": 13
+ },
+ "hunucma sisal": {
+  "tasa": 0.06323,
+  "n_series": 2,
+  "anios": 13
+ },
+ "hunucma uman": {
+  "tasa": 0.06276,
+  "n_series": 6,
+  "anios": 12
+ },
+ "ignacio zaragoza t c ciudad victoria monterrey": {
+  "tasa": 0.09628,
+  "n_series": 2,
+  "anios": 12
+ },
+ "iguala cd altamirano": {
+  "tasa": 0.00676,
+  "n_series": 7,
+  "anios": 13
+ },
+ "independencia buenos aires": {
+  "tasa": 0.04644,
+  "n_series": 2,
+  "anios": 13
+ },
+ "irapuato leon": {
+  "tasa": 0.02432,
+  "n_series": 14,
+  "anios": 13
+ },
+ "irapuato zapotlanejo": {
+  "tasa": 0.00992,
+  "n_series": 27,
+  "anios": 13
+ },
+ "ixtlahuaca de rayon naucalpan": {
+  "tasa": 0.01699,
+  "n_series": 12,
+  "anios": 13
+ },
+ "ixtlahuaca de rayon san felipe del progreso": {
+  "tasa": 0.02957,
+  "n_series": 3,
+  "anios": 13
+ },
+ "ixtlahuacan del rio t c tepatitlan yahualica": {
+  "tasa": 0.01962,
+  "n_series": 3,
+  "anios": 11
+ },
+ "izamal dzilam gonzalez": {
+  "tasa": 0.04083,
+  "n_series": 3,
+  "anios": 12
+ },
+ "izucar de matamoros tepexi de rodriguez": {
+  "tasa": 0.03504,
+  "n_series": 3,
+  "anios": 13
+ },
+ "jabonoso esmeralda": {
+  "tasa": -0.0104,
+  "n_series": 3,
+  "anios": 11
+ },
+ "jacona buenavista tomatlan": {
+  "tasa": 0.0025,
+  "n_series": 7,
+  "anios": 13
+ },
+ "jalapa jonuta": {
+  "tasa": 0.00524,
+  "n_series": 9,
+  "anios": 13
+ },
+ "jalostotitlan purisima de bustos": {
+  "tasa": 0.01262,
+  "n_series": 4,
+  "anios": 13
+ },
+ "jalpan de serra rioverde": {
+  "tasa": 0.0264,
+  "n_series": 6,
+  "anios": 13
+ },
+ "janos agua prieta": {
+  "tasa": 0.01945,
+  "n_series": 3,
+  "anios": 13
+ },
+ "jerez fresnillo": {
+  "tasa": 0.01143,
+  "n_series": 2,
+  "anios": 13
+ },
+ "jesus maria palomas": {
+  "tasa": 0.03805,
+  "n_series": 4,
+  "anios": 12
+ },
+ "jilotepec maravillas": {
+  "tasa": 0.01847,
+  "n_series": 6,
+  "anios": 13
+ },
+ "jilotepec san agustin": {
+  "tasa": 0.04313,
+  "n_series": 3,
+  "anios": 9
+ },
+ "jimenez camargo cuota": {
+  "tasa": 0.02129,
+  "n_series": 4,
+  "anios": 12
+ },
+ "jiquilpan colima": {
+  "tasa": 0.02355,
+  "n_series": 14,
+  "anios": 13
+ },
+ "jiquilpan guadalajara": {
+  "tasa": 0.0341,
+  "n_series": 14,
+  "anios": 13
+ },
+ "jojutla chinameca": {
+  "tasa": 0.00837,
+  "n_series": 2,
+  "anios": 12
+ },
+ "jojutla el higueron": {
+  "tasa": -0.00231,
+  "n_series": 2,
+  "anios": 12
+ },
+ "jose cardel playa chachalacas": {
+  "tasa": 0.01742,
+  "n_series": 2,
+  "anios": 13
+ },
+ "juchitan ixtepec": {
+  "tasa": -0.00071,
+  "n_series": 8,
+  "anios": 13
+ },
+ "kantunil izamal": {
+  "tasa": 0.03048,
+  "n_series": 2,
+  "anios": 12
+ },
+ "la alameda el sahuaro": {
+  "tasa": 0.00449,
+  "n_series": 2,
+  "anios": 13
+ },
+ "la barca san miguel el alto": {
+  "tasa": 0.03064,
+  "n_series": 6,
+  "anios": 11
+ },
+ "la culata san joaquin": {
+  "tasa": 0.00362,
+  "n_series": 2,
+  "anios": 12
+ },
+ "la granja temascal": {
+  "tasa": 0.02876,
+  "n_series": 2,
+  "anios": 13
+ },
+ "la junta lim edos term chih ppia son yecora": {
+  "tasa": 0.00841,
+  "n_series": 2,
+  "anios": 12
+ },
+ "la marquesa rio hondo": {
+  "tasa": 0.03221,
+  "n_series": 3,
+  "anios": 13
+ },
+ "la marquesa tenango de arista": {
+  "tasa": 0.01357,
+  "n_series": 6,
+  "anios": 13
+ },
+ "la noria acambaro": {
+  "tasa": 0.01548,
+  "n_series": 6,
+  "anios": 13
+ },
+ "la orilla las truchas": {
+  "tasa": -0.01536,
+  "n_series": 5,
+  "anios": 12
+ },
+ "la panadera palo alto": {
+  "tasa": 0.00525,
+  "n_series": 4,
+  "anios": 13
+ },
+ "la paz cd insurgentes": {
+  "tasa": 0.01177,
+  "n_series": 22,
+  "anios": 12
+ },
+ "la paz ensenada de muertos": {
+  "tasa": 0.04945,
+  "n_series": 4,
+  "anios": 13
+ },
+ "la paz pichilingue": {
+  "tasa": 0.04804,
+  "n_series": 4,
+  "anios": 13
+ },
+ "la paz tepetongo": {
+  "tasa": 0.02389,
+  "n_series": 3,
+  "anios": 13
+ },
+ "la pera cuautla cuota": {
+  "tasa": 0.01303,
+  "n_series": 8,
+  "anios": 8
+ },
+ "la piedad carapan": {
+  "tasa": 0.00665,
+  "n_series": 5,
+  "anios": 13
+ },
+ "la puerta t c mexicali estacion coahuila": {
+  "tasa": 0.0406,
+  "n_series": 2,
+  "anios": 13
+ },
+ "la punta mesillas": {
+  "tasa": 0.04563,
+  "n_series": 3,
+  "anios": 13
+ },
+ "la rumorosa tecate cuota": {
+  "tasa": 0.04286,
+  "n_series": 2,
+  "anios": 13
+ },
+ "la sabana puerto marques": {
+  "tasa": 0.01837,
+  "n_series": 4,
+  "anios": 13
+ },
+ "la tinaja acayucan cuota": {
+  "tasa": 0.03637,
+  "n_series": 8,
+  "anios": 13
+ },
+ "la tinaja santa cruz": {
+  "tasa": -0.00043,
+  "n_series": 9,
+  "anios": 13
+ },
+ "la torrena brittingham": {
+  "tasa": 0.00104,
+  "n_series": 6,
+  "anios": 11
+ },
+ "la trinitaria benemerito de las americas": {
+  "tasa": 0.0402,
+  "n_series": 7,
+  "anios": 13
+ },
+ "la venta chamapa cuota": {
+  "tasa": 0.01573,
+  "n_series": 2,
+  "anios": 13
+ },
+ "lagos de moreno guadalajara": {
+  "tasa": 0.01699,
+  "n_series": 16,
+  "anios": 12
+ },
+ "lagos de moreno union de san antonio": {
+  "tasa": 0.01077,
+  "n_series": 2,
+  "anios": 11
+ },
+ "las choapas ocozocoautla cuota": {
+  "tasa": 0.03095,
+  "n_series": 3,
+  "anios": 13
+ },
+ "las cruces arriaga": {
+  "tasa": -0.01345,
+  "n_series": 3,
+  "anios": 13
+ },
+ "las cruces pinotepa nacional": {
+  "tasa": 0.00638,
+  "n_series": 18,
+  "anios": 13
+ },
+ "las juntas ixtapan de la sal": {
+  "tasa": 0.02471,
+  "n_series": 3,
+  "anios": 13
+ },
+ "las limas la concordia": {
+  "tasa": 0.02722,
+  "n_series": 2,
+  "anios": 13
+ },
+ "las norias de ojo caliente la luz": {
+  "tasa": 0.0357,
+  "n_series": 3,
+  "anios": 13
+ },
+ "las trancas coatepec": {
+  "tasa": 0.02672,
+  "n_series": 3,
+  "anios": 13
+ },
+ "las urracas t c matamoros reynosa": {
+  "tasa": 0.03614,
+  "n_series": 5,
+  "anios": 12
+ },
+ "lazaro cardenas ent colonia san jose": {
+  "tasa": 0.00873,
+  "n_series": 3,
+  "anios": 11
+ },
+ "lazaro cardenas ent punta prieta": {
+  "tasa": -0.02973,
+  "n_series": 9,
+  "anios": 13
+ },
+ "lecheria apaxco": {
+  "tasa": 0.01739,
+  "n_series": 9,
+  "anios": 13
+ },
+ "leon aguascalientes": {
+  "tasa": 0.03068,
+  "n_series": 29,
+  "anios": 13
+ },
+ "leon aguascalientes cuota": {
+  "tasa": 0.04048,
+  "n_series": 12,
+  "anios": 13
+ },
+ "leon manuel doblado": {
+  "tasa": 0.01657,
+  "n_series": 12,
+  "anios": 13
+ },
+ "leon san felipe torres mochas": {
+  "tasa": 0.02024,
+  "n_series": 4,
+  "anios": 13
+ },
+ "libramiento allende nava": {
+  "tasa": 0.02609,
+  "n_series": 6,
+  "anios": 13
+ },
+ "libramiento cuencame": {
+  "tasa": 0.00376,
+  "n_series": 4,
+  "anios": 11
+ },
+ "libramiento de abasolo": {
+  "tasa": 0.02134,
+  "n_series": 2,
+  "anios": 13
+ },
+ "libramiento de apizaco": {
+  "tasa": 0.04825,
+  "n_series": 6,
+  "anios": 13
+ },
+ "libramiento de atotonilco el grande": {
+  "tasa": 0.03737,
+  "n_series": 4,
+  "anios": 8
+ },
+ "libramiento de cabo san lucas": {
+  "tasa": 0.02824,
+  "n_series": 4,
+  "anios": 13
+ },
+ "libramiento de cd valles": {
+  "tasa": -0.01582,
+  "n_series": 2,
+  "anios": 13
+ },
+ "libramiento de cd victoria": {
+  "tasa": 0.02423,
+  "n_series": 10,
+  "anios": 12
+ },
+ "libramiento de celaya cuota": {
+  "tasa": -0.01719,
+  "n_series": 4,
+  "anios": 8
+ },
+ "libramiento de chetumal": {
+  "tasa": 0.03119,
+  "n_series": 2,
+  "anios": 12
+ },
+ "libramiento de colima": {
+  "tasa": 0.0395,
+  "n_series": 2,
+  "anios": 13
+ },
+ "libramiento de cordoba cuota": {
+  "tasa": 0.01283,
+  "n_series": 2,
+  "anios": 13
+ },
+ "libramiento de cuautla": {
+  "tasa": 0.02085,
+  "n_series": 2,
+  "anios": 8
+ },
+ "libramiento de cuernavaca": {
+  "tasa": 0.05778,
+  "n_series": 14,
+  "anios": 8
+ },
+ "libramiento de cuitlahuac": {
+  "tasa": -0.03084,
+  "n_series": 2,
+  "anios": 13
+ },
+ "libramiento de dr gonzalez": {
+  "tasa": 0.15389,
+  "n_series": 2,
+  "anios": 13
+ },
+ "libramiento de durango cuota": {
+  "tasa": 0.08149,
+  "n_series": 2,
+  "anios": 11
+ },
+ "libramiento de empalme guaymas cuota": {
+  "tasa": 0.02932,
+  "n_series": 4,
+  "anios": 8
+ },
+ "libramiento de fresnillo cuota": {
+  "tasa": 0.04882,
+  "n_series": 8,
+  "anios": 13
+ },
+ "libramiento de guadalupe zacatecas": {
+  "tasa": 0.05075,
+  "n_series": 8,
+  "anios": 13
+ },
+ "libramiento de hidalgo del parral": {
+  "tasa": 0.00032,
+  "n_series": 2,
+  "anios": 12
+ },
+ "libramiento de jimenez": {
+  "tasa": 0.01971,
+  "n_series": 4,
+  "anios": 12
+ },
+ "libramiento de la piedad": {
+  "tasa": 0.02746,
+  "n_series": 3,
+  "anios": 13
+ },
+ "libramiento de linares": {
+  "tasa": 0.03635,
+  "n_series": 2,
+  "anios": 12
+ },
+ "libramiento de manzanillo libre": {
+  "tasa": 0.01588,
+  "n_series": 3,
+  "anios": 13
+ },
+ "libramiento de manzanillo norte": {
+  "tasa": 0.05177,
+  "n_series": 2,
+  "anios": 13
+ },
+ "libramiento de matamoros": {
+  "tasa": 0.03294,
+  "n_series": 5,
+  "anios": 13
+ },
+ "libramiento de matehuala cuota": {
+  "tasa": 0.04933,
+  "n_series": 4,
+  "anios": 13
+ },
+ "libramiento de mazatlan": {
+  "tasa": 0.03012,
+  "n_series": 4,
+  "anios": 13
+ },
+ "libramiento de mexicali cuota": {
+  "tasa": 0.05949,
+  "n_series": 2,
+  "anios": 13
+ },
+ "libramiento de montemorelos": {
+  "tasa": 0.02433,
+  "n_series": 2,
+  "anios": 12
+ },
+ "libramiento de nogales cuota": {
+  "tasa": 0.0032,
+  "n_series": 4,
+  "anios": 13
+ },
+ "libramiento de nuevo laredo": {
+  "tasa": -0.00403,
+  "n_series": 4,
+  "anios": 12
+ },
+ "libramiento de nuevo laredo ii": {
+  "tasa": 0.04203,
+  "n_series": 3,
+  "anios": 11
+ },
+ "libramiento de ocozocoautla": {
+  "tasa": 0.05072,
+  "n_series": 3,
+  "anios": 13
+ },
+ "libramiento de perote cuota": {
+  "tasa": -0.02623,
+  "n_series": 2,
+  "anios": 13
+ },
+ "libramiento de plan del rio cuota": {
+  "tasa": 0.03746,
+  "n_series": 2,
+  "anios": 8
+ },
+ "libramiento de pomuch": {
+  "tasa": 0.02198,
+  "n_series": 2,
+  "anios": 13
+ },
+ "libramiento de progreso": {
+  "tasa": 0.03224,
+  "n_series": 2,
+  "anios": 12
+ },
+ "libramiento de reynosa": {
+  "tasa": 0.0462,
+  "n_series": 4,
+  "anios": 12
+ },
+ "libramiento de rio bravo": {
+  "tasa": -0.0062,
+  "n_series": 4,
+  "anios": 12
+ },
+ "libramiento de salamanca": {
+  "tasa": 0.02136,
+  "n_series": 4,
+  "anios": 8
+ },
+ "libramiento de saltillo j l p": {
+  "tasa": 0.08264,
+  "n_series": 4,
+  "anios": 13
+ },
+ "libramiento de salvatierra": {
+  "tasa": 0.01821,
+  "n_series": 4,
+  "anios": 13
+ },
+ "libramiento de san felipe torres mochas": {
+  "tasa": 0.03647,
+  "n_series": 2,
+  "anios": 13
+ },
+ "libramiento de san juan del rio": {
+  "tasa": 0.04833,
+  "n_series": 4,
+  "anios": 12
+ },
+ "libramiento de san luis de la paz": {
+  "tasa": 0.05332,
+  "n_series": 4,
+  "anios": 13
+ },
+ "libramiento de tecoman": {
+  "tasa": 0.03014,
+  "n_series": 4,
+  "anios": 8
+ },
+ "libramiento de tepic": {
+  "tasa": 0.01133,
+  "n_series": 4,
+  "anios": 13
+ },
+ "libramiento de torreon gomez palacio lerdo": {
+  "tasa": 0.03964,
+  "n_series": 2,
+  "anios": 13
+ },
+ "libramiento de tuxpam": {
+  "tasa": 0.05565,
+  "n_series": 2,
+  "anios": 8
+ },
+ "libramiento de uruapan": {
+  "tasa": 0.00486,
+  "n_series": 4,
+  "anios": 12
+ },
+ "libramiento de victor rosales cuota": {
+  "tasa": 0.03987,
+  "n_series": 6,
+  "anios": 13
+ },
+ "libramiento huamantla": {
+  "tasa": 0.06362,
+  "n_series": 2,
+  "anios": 8
+ },
+ "libramiento hueyotlipan": {
+  "tasa": 0.0632,
+  "n_series": 2,
+  "anios": 8
+ },
+ "libramiento noreste de zacatecas cuota": {
+  "tasa": 0.04124,
+  "n_series": 2,
+  "anios": 13
+ },
+ "libramiento noroeste de monterrey": {
+  "tasa": 0.04362,
+  "n_series": 8,
+  "anios": 13
+ },
+ "libramiento nororiente de queretaro cuota": {
+  "tasa": 0.03676,
+  "n_series": 4,
+  "anios": 12
+ },
+ "libramiento norponiente de saltillo cuota": {
+  "tasa": 0.05858,
+  "n_series": 6,
+  "anios": 13
+ },
+ "libramiento norte de acapulco": {
+  "tasa": 0.0261,
+  "n_series": 3,
+  "anios": 13
+ },
+ "libramiento norte de la ciudad de mexico cuota": {
+  "tasa": 0.04953,
+  "n_series": 48,
+  "anios": 11
+ },
+ "libramiento norte de la paz": {
+  "tasa": 0.05256,
+  "n_series": 4,
+  "anios": 13
+ },
+ "libramiento norte de motul": {
+  "tasa": 0.04534,
+  "n_series": 5,
+  "anios": 12
+ },
+ "libramiento norte de queretaro": {
+  "tasa": 0.05022,
+  "n_series": 5,
+  "anios": 12
+ },
+ "libramiento oriente de san luis potosi cuota": {
+  "tasa": 0.05357,
+  "n_series": 4,
+  "anios": 13
+ },
+ "libramiento rincon de romos": {
+  "tasa": 0.0267,
+  "n_series": 2,
+  "anios": 8
+ },
+ "libramiento rinconada": {
+  "tasa": 0.02568,
+  "n_series": 2,
+  "anios": 10
+ },
+ "libramiento san francisco de los romo": {
+  "tasa": 0.02492,
+  "n_series": 4,
+  "anios": 8
+ },
+ "libramiento sur de culiacan": {
+  "tasa": 0.04913,
+  "n_series": 4,
+  "anios": 13
+ },
+ "libramiento sur de tuxtla gutierrez": {
+  "tasa": 0.04031,
+  "n_series": 4,
+  "anios": 13
+ },
+ "libramiento surponiente de aguascalientes": {
+  "tasa": 0.09038,
+  "n_series": 2,
+  "anios": 13
+ },
+ "libramiento surponiente de queretaro": {
+  "tasa": 0.11574,
+  "n_series": 27,
+  "anios": 12
+ },
+ "linares ent san roberto": {
+  "tasa": 0.03058,
+  "n_series": 4,
+  "anios": 13
+ },
+ "lolotla atlapexco": {
+  "tasa": 0.02958,
+  "n_series": 2,
+  "anios": 13
+ },
+ "loma bonita mixtan": {
+  "tasa": 0.0015,
+  "n_series": 4,
+  "anios": 13
+ },
+ "loreto santa rosalia": {
+  "tasa": -0.0008,
+  "n_series": 8,
+  "anios": 13
+ },
+ "los mochis cd obregon cuota": {
+  "tasa": 0.00957,
+  "n_series": 26,
+  "anios": 13
+ },
+ "los reyes el tephe": {
+  "tasa": 0.01485,
+  "n_series": 16,
+  "anios": 13
+ },
+ "los reyes zacatepec": {
+  "tasa": 0.02311,
+  "n_series": 37,
+  "anios": 13
+ },
+ "magdalena de kino nogales": {
+  "tasa": 0.02216,
+  "n_series": 16,
+  "anios": 13
+ },
+ "malpaso el bellote": {
+  "tasa": 0.01926,
+  "n_series": 22,
+  "anios": 13
+ },
+ "manuel doblado la piedad": {
+  "tasa": 0.01611,
+  "n_series": 4,
+  "anios": 13
+ },
+ "manuel doblado plan de ayala": {
+  "tasa": 0.00527,
+  "n_series": 3,
+  "anios": 13
+ },
+ "manzanillo puerto vallarta": {
+  "tasa": 0.02183,
+  "n_series": 20,
+  "anios": 13
+ },
+ "maravatio acambaro": {
+  "tasa": -0.01537,
+  "n_series": 3,
+  "anios": 13
+ },
+ "maravatio zapotlanejo cuota": {
+  "tasa": 0.05097,
+  "n_series": 16,
+  "anios": 13
+ },
+ "mascota puerto vallarta": {
+  "tasa": 0.07134,
+  "n_series": 3,
+  "anios": 9
+ },
+ "mata de espino ignacio de la llave": {
+  "tasa": -0.00292,
+  "n_series": 3,
+  "anios": 13
+ },
+ "matamoros el fresno": {
+  "tasa": 0.01916,
+  "n_series": 2,
+  "anios": 12
+ },
+ "matamoros la union": {
+  "tasa": 0.05861,
+  "n_series": 6,
+  "anios": 12
+ },
+ "matamoros playa lauro villar": {
+  "tasa": 0.04909,
+  "n_series": 2,
+  "anios": 12
+ },
+ "matamoros reynosa": {
+  "tasa": 0.01489,
+  "n_series": 8,
+  "anios": 12
+ },
+ "matamoros reynosa cuota": {
+  "tasa": 0.05594,
+  "n_series": 4,
+  "anios": 12
+ },
+ "matehuala ent puerto mexico": {
+  "tasa": 0.02133,
+  "n_series": 12,
+  "anios": 13
+ },
+ "matehuala la paz": {
+  "tasa": 0.03135,
+  "n_series": 4,
+  "anios": 13
+ },
+ "matehuala la poza": {
+  "tasa": 0.01868,
+  "n_series": 3,
+  "anios": 13
+ },
+ "mazamitla tuxcueca": {
+  "tasa": 0.06012,
+  "n_series": 2,
+  "anios": 11
+ },
+ "mazatlan culiacan": {
+  "tasa": 0.01132,
+  "n_series": 14,
+  "anios": 13
+ },
+ "mazatlan culiacan cuota": {
+  "tasa": 0.06209,
+  "n_series": 2,
+  "anios": 13
+ },
+ "mazocahui cananea": {
+  "tasa": 0.01747,
+  "n_series": 3,
+  "anios": 13
+ },
+ "meoqui julimes": {
+  "tasa": 0.02126,
+  "n_series": 4,
+  "anios": 12
+ },
+ "merida acanceh": {
+  "tasa": 0.03178,
+  "n_series": 5,
+  "anios": 12
+ },
+ "merida cancun cuota": {
+  "tasa": 0.07812,
+  "n_series": 3,
+  "anios": 12
+ },
+ "merida celestun": {
+  "tasa": 0.03041,
+  "n_series": 12,
+  "anios": 12
+ },
+ "merida dzilam de bravo": {
+  "tasa": 0.05796,
+  "n_series": 13,
+  "anios": 12
+ },
+ "merida oxkutzcab": {
+  "tasa": 0.02537,
+  "n_series": 11,
+  "anios": 12
+ },
+ "merida progreso": {
+  "tasa": 0.05678,
+  "n_series": 8,
+  "anios": 12
+ },
+ "merida puerto juarez": {
+  "tasa": 0.04142,
+  "n_series": 37,
+  "anios": 13
+ },
+ "merida tekanto": {
+  "tasa": 0.03954,
+  "n_series": 6,
+  "anios": 12
+ },
+ "merida tetiz": {
+  "tasa": 0.05649,
+  "n_series": 4,
+  "anios": 12
+ },
+ "merida timucuy": {
+  "tasa": 0.04867,
+  "n_series": 4,
+  "anios": 12
+ },
+ "mexicalcingo xalatlaco": {
+  "tasa": 0.01242,
+  "n_series": 6,
+  "anios": 13
+ },
+ "mexicali algodones": {
+  "tasa": 0.01794,
+  "n_series": 11,
+  "anios": 13
+ },
+ "mexicali estacion coahuila": {
+  "tasa": 0.00923,
+  "n_series": 13,
+  "anios": 13
+ },
+ "mexicali san felipe": {
+  "tasa": 0.02964,
+  "n_series": 11,
+  "anios": 13
+ },
+ "mexicali tijuana": {
+  "tasa": 0.01973,
+  "n_series": 10,
+  "anios": 13
+ },
+ "mexico cuernavaca cuota": {
+  "tasa": 0.01769,
+  "n_series": 11,
+  "anios": 12
+ },
+ "mexico cuernavaca libre": {
+  "tasa": -0.00578,
+  "n_series": 13,
+  "anios": 13
+ },
+ "mexico pachuca cuota": {
+  "tasa": 0.04922,
+  "n_series": 6,
+  "anios": 13
+ },
+ "mexico pachuca libre": {
+  "tasa": 0.02183,
+  "n_series": 22,
+  "anios": 13
+ },
+ "mexico puebla cuota": {
+  "tasa": 0.03053,
+  "n_series": 46,
+  "anios": 9
+ },
+ "mexico puebla libre": {
+  "tasa": 0.01567,
+  "n_series": 23,
+  "anios": 13
+ },
+ "mexico queretaro cuota": {
+  "tasa": 0.03076,
+  "n_series": 29,
+  "anios": 13
+ },
+ "mexico toluca": {
+  "tasa": 0.01616,
+  "n_series": 20,
+  "anios": 13
+ },
+ "mexico toluca cuota": {
+  "tasa": -0.00921,
+  "n_series": 4,
+  "anios": 13
+ },
+ "mezquital san miguel de temoaya": {
+  "tasa": 0.00137,
+  "n_series": 2,
+  "anios": 12
+ },
+ "michapa t c cuernavaca chilpancingo": {
+  "tasa": -0.00611,
+  "n_series": 2,
+  "anios": 12
+ },
+ "milpillas t c acapulco zihuatanejo": {
+  "tasa": 0.01602,
+  "n_series": 5,
+  "anios": 13
+ },
+ "minatitlan coatzacoalcos via cantica": {
+  "tasa": -0.00713,
+  "n_series": 2,
+  "anios": 13
+ },
+ "minatitlan ent pez vela": {
+  "tasa": 0.03113,
+  "n_series": 5,
+  "anios": 13
+ },
+ "moctezuma agua prieta": {
+  "tasa": -0.00961,
+  "n_series": 3,
+  "anios": 13
+ },
+ "monclova estacion candela": {
+  "tasa": 0.07149,
+  "n_series": 3,
+  "anios": 13
+ },
+ "monclova piedras negras": {
+  "tasa": 0.02537,
+  "n_series": 23,
+  "anios": 13
+ },
+ "monclova san pedro de las colonias": {
+  "tasa": 0.01793,
+  "n_series": 13,
+  "anios": 12
+ },
+ "montemorelos china": {
+  "tasa": 0.0399,
+  "n_series": 3,
+  "anios": 13
+ },
+ "monterrey cadereyta cuota": {
+  "tasa": 0.06488,
+  "n_series": 2,
+  "anios": 12
+ },
+ "monterrey castanos": {
+  "tasa": 0.01638,
+  "n_series": 12,
+  "anios": 13
+ },
+ "monterrey colombia": {
+  "tasa": 0.02935,
+  "n_series": 13,
+  "anios": 12
+ },
+ "monterrey mier": {
+  "tasa": 0.03419,
+  "n_series": 14,
+  "anios": 12
+ },
+ "monterrey nuevo laredo cuota": {
+  "tasa": 0.0308,
+  "n_series": 4,
+  "anios": 12
+ },
+ "monterrey nuevo laredo libre": {
+  "tasa": 0.0297,
+  "n_series": 19,
+  "anios": 12
+ },
+ "monterrey reynosa libre": {
+  "tasa": 0.03105,
+  "n_series": 13,
+  "anios": 12
+ },
+ "morelia jiquilpan": {
+  "tasa": 0.01042,
+  "n_series": 29,
+  "anios": 13
+ },
+ "morelia patzcuaro": {
+  "tasa": -0.0065,
+  "n_series": 8,
+  "anios": 13
+ },
+ "morelia salamanca": {
+  "tasa": 0.01298,
+  "n_series": 21,
+  "anios": 13
+ },
+ "morelia salamanca cuota": {
+  "tasa": 0.03696,
+  "n_series": 10,
+  "anios": 13
+ },
+ "morelos cd acuna": {
+  "tasa": 0.03398,
+  "n_series": 9,
+  "anios": 13
+ },
+ "morelos ent las corrientes": {
+  "tasa": 0.00973,
+  "n_series": 2,
+  "anios": 13
+ },
+ "motul puerto telchac": {
+  "tasa": 0.04553,
+  "n_series": 2,
+  "anios": 12
+ },
+ "moyotepec san rafael": {
+  "tasa": 0.00584,
+  "n_series": 2,
+  "anios": 12
+ },
+ "muna felipe carrillo puerto": {
+  "tasa": 0.01654,
+  "n_series": 16,
+  "anios": 13
+ },
+ "muna maxcanu": {
+  "tasa": 0.03853,
+  "n_series": 3,
+  "anios": 12
+ },
+ "munguia las adjuntas": {
+  "tasa": 0.01456,
+  "n_series": 6,
+  "anios": 13
+ },
+ "naucalpan toluca": {
+  "tasa": 0.02855,
+  "n_series": 16,
+  "anios": 11
+ },
+ "navarrete sauta": {
+  "tasa": 0.00684,
+  "n_series": 2,
+  "anios": 12
+ },
+ "navojoa yavaros": {
+  "tasa": -0.00464,
+  "n_series": 3,
+  "anios": 13
+ },
+ "navolato el castillo": {
+  "tasa": 0.01603,
+  "n_series": 2,
+  "anios": 13
+ },
+ "nicolas bravo t c el bellote santa cruz": {
+  "tasa": 0.02282,
+  "n_series": 2,
+  "anios": 13
+ },
+ "nicolas romero t c ixtlahuaca de r naucalpan": {
+  "tasa": 0.02383,
+  "n_series": 3,
+  "anios": 13
+ },
+ "nueva rosita boquillas del carmen": {
+  "tasa": -0.00209,
+  "n_series": 9,
+  "anios": 13
+ },
+ "nuevo libramiento de irapuato": {
+  "tasa": 0.01546,
+  "n_series": 4,
+  "anios": 13
+ },
+ "nuevo libramiento de leon": {
+  "tasa": 0.05827,
+  "n_series": 6,
+  "anios": 9
+ },
+ "nuevo teapa cosoleacaque cuota": {
+  "tasa": 0.00062,
+  "n_series": 2,
+  "anios": 13
+ },
+ "oaxaca puerto angel": {
+  "tasa": 0.01682,
+  "n_series": 11,
+  "anios": 13
+ },
+ "oaxaca tehuantepec": {
+  "tasa": 0.01691,
+  "n_series": 25,
+  "anios": 13
+ },
+ "ocosingo comitan": {
+  "tasa": 0.05028,
+  "n_series": 5,
+  "anios": 13
+ },
+ "ocoyoacac santiago tianguistenco": {
+  "tasa": 0.00508,
+  "n_series": 8,
+  "anios": 11
+ },
+ "ocozocoautla ent el sabino": {
+  "tasa": 0.03744,
+  "n_series": 2,
+  "anios": 13
+ },
+ "ocozocoautla revolucion mexicana": {
+  "tasa": 0.03085,
+  "n_series": 8,
+  "anios": 13
+ },
+ "ojo caliente malpaso": {
+  "tasa": 0.0257,
+  "n_series": 2,
+  "anios": 13
+ },
+ "ojo caliente santa cruz": {
+  "tasa": 0.04224,
+  "n_series": 2,
+  "anios": 13
+ },
+ "ojuelos aguascalientes": {
+  "tasa": 0.02985,
+  "n_series": 14,
+  "anios": 13
+ },
+ "orizaba zongolica": {
+  "tasa": 0.00017,
+  "n_series": 2,
+  "anios": 12
+ },
+ "otumba tizayuca": {
+  "tasa": -0.00093,
+  "n_series": 7,
+  "anios": 9
+ },
+ "oxkutzcab xul": {
+  "tasa": 0.04256,
+  "n_series": 3,
+  "anios": 12
+ },
+ "pachuca cd sahagun": {
+  "tasa": 0.03589,
+  "n_series": 8,
+  "anios": 13
+ },
+ "pachuca tempoal": {
+  "tasa": 0.00467,
+  "n_series": 13,
+  "anios": 13
+ },
+ "pachuca tuxpam": {
+  "tasa": 0.01991,
+  "n_series": 26,
+  "anios": 13
+ },
+ "pailebot cuauhtemotzin": {
+  "tasa": 0.0256,
+  "n_series": 2,
+  "anios": 13
+ },
+ "palo alto vallecillos": {
+  "tasa": 0.00523,
+  "n_series": 2,
+  "anios": 12
+ },
+ "paraiso el limon": {
+  "tasa": 0.02846,
+  "n_series": 2,
+  "anios": 13
+ },
+ "paras nueva ciudad guerrero": {
+  "tasa": 0.05349,
+  "n_series": 2,
+  "anios": 12
+ },
+ "paso de cunduacan estacion juarez": {
+  "tasa": -0.01281,
+  "n_series": 3,
+  "anios": 13
+ },
+ "paso del toro acayucan": {
+  "tasa": 0.01448,
+  "n_series": 12,
+  "anios": 13
+ },
+ "paso del toro laguna de san julian": {
+  "tasa": 0.01342,
+  "n_series": 9,
+  "anios": 13
+ },
+ "patzcuaro chupicuaro": {
+  "tasa": 0.02806,
+  "n_series": 3,
+  "anios": 13
+ },
+ "patzcuaro uruapan": {
+  "tasa": 0.00752,
+  "n_series": 8,
+  "anios": 13
+ },
+ "patzcuaro uruapan cuota": {
+  "tasa": 0.03338,
+  "n_series": 2,
+  "anios": 13
+ },
+ "pedricena ent rodeo": {
+  "tasa": 0.00657,
+  "n_series": 3,
+  "anios": 11
+ },
+ "pena blanca cd camargo": {
+  "tasa": -0.02757,
+  "n_series": 2,
+  "anios": 12
+ },
+ "penitas tuxpan": {
+  "tasa": 0.01292,
+  "n_series": 2,
+  "anios": 13
+ },
+ "penon texcoco cuota": {
+  "tasa": 0.01499,
+  "n_series": 2,
+  "anios": 13
+ },
+ "penuela santa rita": {
+  "tasa": 0.02185,
+  "n_series": 6,
+  "anios": 13
+ },
+ "pericos los naranjos": {
+  "tasa": 0.02009,
+  "n_series": 2,
+  "anios": 13
+ },
+ "periferico de san luis potosi": {
+  "tasa": 0.05367,
+  "n_series": 8,
+  "anios": 12
+ },
+ "periferico pablo garcia y montilla libramiento de campeche": {
+  "tasa": 0.04432,
+  "n_series": 6,
+  "anios": 11
+ },
+ "perimetral cozumel": {
+  "tasa": 0.0566,
+  "n_series": 5,
+  "anios": 12
+ },
+ "piedras negras cd acuna": {
+  "tasa": 0.08455,
+  "n_series": 3,
+  "anios": 13
+ },
+ "piste dzitas": {
+  "tasa": 0.05202,
+  "n_series": 2,
+  "anios": 12
+ },
+ "playas del rosario teapa": {
+  "tasa": 0.01461,
+  "n_series": 11,
+  "anios": 13
+ },
+ "pocitos granja miravalle": {
+  "tasa": 0.05463,
+  "n_series": 3,
+  "anios": 8
+ },
+ "portezuelo cd valles": {
+  "tasa": 0.01601,
+  "n_series": 12,
+  "anios": 13
+ },
+ "portezuelo palmillas": {
+  "tasa": 0.0191,
+  "n_series": 6,
+  "anios": 13
+ },
+ "porvenir cd juarez": {
+  "tasa": 0.03934,
+  "n_series": 5,
+  "anios": 12
+ },
+ "poza rica cazones": {
+  "tasa": 0.01446,
+  "n_series": 2,
+  "anios": 13
+ },
+ "poza rica maria de la torre": {
+  "tasa": 0.00682,
+  "n_series": 9,
+  "anios": 13
+ },
+ "poza rica veracruz": {
+  "tasa": 0.00131,
+  "n_series": 28,
+  "anios": 13
+ },
+ "pozole cofradia": {
+  "tasa": 0.04659,
+  "n_series": 2,
+  "anios": 13
+ },
+ "presidente diaz ordaz sabancuy": {
+  "tasa": 0.00539,
+  "n_series": 3,
+  "anios": 13
+ },
+ "progreso celestun": {
+  "tasa": 0.05822,
+  "n_series": 3,
+  "anios": 12
+ },
+ "progreso telchac puerto": {
+  "tasa": 0.06597,
+  "n_series": 8,
+  "anios": 12
+ },
+ "providencia luis moya": {
+  "tasa": 0.01943,
+  "n_series": 7,
+  "anios": 13
+ },
+ "puebla acatzingo cuota": {
+  "tasa": 0.01156,
+  "n_series": 4,
+  "anios": 12
+ },
+ "puebla atlixco cuota": {
+  "tasa": 0.00779,
+  "n_series": 4,
+  "anios": 13
+ },
+ "puebla belem": {
+  "tasa": -0.00538,
+  "n_series": 4,
+  "anios": 13
+ },
+ "puebla huajuapan de leon": {
+  "tasa": 0.0243,
+  "n_series": 14,
+  "anios": 13
+ },
+ "puebla tehuacan": {
+  "tasa": 0.0217,
+  "n_series": 25,
+  "anios": 13
+ },
+ "puebla tlaxcala": {
+  "tasa": 0.00438,
+  "n_series": 16,
+  "anios": 13
+ },
+ "pueblo viejo t c cd valles tampico": {
+  "tasa": 0.00909,
+  "n_series": 2,
+  "anios": 13
+ },
+ "puente de ixtla iguala cuota": {
+  "tasa": 0.00014,
+  "n_series": 4,
+  "anios": 13
+ },
+ "puente grande san jose del vidrio": {
+  "tasa": 0.03985,
+  "n_series": 3,
+  "anios": 13
+ },
+ "puerto cate san cristobal de las casas": {
+  "tasa": 0.03646,
+  "n_series": 4,
+  "anios": 13
+ },
+ "puerto de flores el hondable": {
+  "tasa": 0.04061,
+  "n_series": 2,
+  "anios": 13
+ },
+ "puerto marques la venta cuota": {
+  "tasa": 0.04268,
+  "n_series": 4,
+  "anios": 13
+ },
+ "puerto mexico la carbonera cuota": {
+  "tasa": 0.03541,
+  "n_series": 6,
+  "anios": 13
+ },
+ "puerto rico totutla": {
+  "tasa": 0.00911,
+  "n_series": 3,
+  "anios": 13
+ },
+ "punta nizuc cancun": {
+  "tasa": 0.03564,
+  "n_series": 2,
+  "anios": 12
+ },
+ "queretaro ent san martin": {
+  "tasa": 0.08087,
+  "n_series": 5,
+  "anios": 12
+ },
+ "queretaro estacion chichimequillas": {
+  "tasa": 0.01828,
+  "n_series": 2,
+  "anios": 12
+ },
+ "queretaro irapuato cuota": {
+  "tasa": -0.00577,
+  "n_series": 12,
+  "anios": 13
+ },
+ "queretaro irapuato libre": {
+  "tasa": 0.01489,
+  "n_series": 18,
+  "anios": 13
+ },
+ "queretaro san luis potosi": {
+  "tasa": 0.03314,
+  "n_series": 26,
+  "anios": 13
+ },
+ "queretaro tequisquiapan": {
+  "tasa": 0.03278,
+  "n_series": 5,
+  "anios": 12
+ },
+ "queretaro tlacote el bajo": {
+  "tasa": 0.01661,
+  "n_series": 2,
+  "anios": 12
+ },
+ "quiroga tepalcatepec": {
+  "tasa": 0.01229,
+  "n_series": 22,
+  "anios": 12
+ },
+ "ramal a acaponeta": {
+  "tasa": 0.04637,
+  "n_series": 2,
+  "anios": 13
+ },
+ "ramal a actopan": {
+  "tasa": 0.01829,
+  "n_series": 2,
+  "anios": 13
+ },
+ "ramal a aeropuerto cancun": {
+  "tasa": 0.06637,
+  "n_series": 4,
+  "anios": 12
+ },
+ "ramal a aeropuerto de aguascalientes": {
+  "tasa": 0.04102,
+  "n_series": 2,
+  "anios": 13
+ },
+ "ramal a aeropuerto de chihuahua": {
+  "tasa": 0.12135,
+  "n_series": 2,
+  "anios": 12
+ },
+ "ramal a aeropuerto de guaymas": {
+  "tasa": 0.04006,
+  "n_series": 3,
+  "anios": 13
+ },
+ "ramal a aeropuerto de la paz": {
+  "tasa": 0.01703,
+  "n_series": 2,
+  "anios": 12
+ },
+ "ramal a aeropuerto de mexicali": {
+  "tasa": 0.04994,
+  "n_series": 2,
+  "anios": 13
+ },
+ "ramal a aeropuerto hnos serdan": {
+  "tasa": 0.09262,
+  "n_series": 2,
+  "anios": 13
+ },
+ "ramal a aeropuerto manzanillo": {
+  "tasa": -0.00127,
+  "n_series": 2,
+  "anios": 13
+ },
+ "ramal a aeropuerto mariano escobedo": {
+  "tasa": 0.03769,
+  "n_series": 2,
+  "anios": 12
+ },
+ "ramal a aeropuerto zacatecas": {
+  "tasa": 0.06678,
+  "n_series": 2,
+  "anios": 13
+ },
+ "ramal a altzayanca de hidalgo": {
+  "tasa": 0.03306,
+  "n_series": 2,
+  "anios": 12
+ },
+ "ramal a ameca": {
+  "tasa": 0.01776,
+  "n_series": 6,
+  "anios": 11
+ },
+ "ramal a anton lizardo": {
+  "tasa": 0.0499,
+  "n_series": 3,
+  "anios": 11
+ },
+ "ramal a asuncion ixtaltepec": {
+  "tasa": 0.00355,
+  "n_series": 2,
+  "anios": 13
+ },
+ "ramal a bahia de tortugas": {
+  "tasa": -0.01351,
+  "n_series": 2,
+  "anios": 13
+ },
+ "ramal a balancan": {
+  "tasa": 0.01901,
+  "n_series": 2,
+  "anios": 13
+ },
+ "ramal a benito juarez": {
+  "tasa": 0.00613,
+  "n_series": 2,
+  "anios": 13
+ },
+ "ramal a cd hidalgo": {
+  "tasa": 0.02894,
+  "n_series": 4,
+  "anios": 13
+ },
+ "ramal a cerralvo": {
+  "tasa": 0.04559,
+  "n_series": 2,
+  "anios": 12
+ },
+ "ramal a chametla": {
+  "tasa": 0.01156,
+  "n_series": 2,
+  "anios": 12
+ },
+ "ramal a chankom": {
+  "tasa": 0.03884,
+  "n_series": 2,
+  "anios": 12
+ },
+ "ramal a cosala": {
+  "tasa": 0.01684,
+  "n_series": 2,
+  "anios": 13
+ },
+ "ramal a cuyutlan": {
+  "tasa": 0.01478,
+  "n_series": 2,
+  "anios": 13
+ },
+ "ramal a el chico": {
+  "tasa": 0.02226,
+  "n_series": 2,
+  "anios": 13
+ },
+ "ramal a el colomo": {
+  "tasa": 0.04412,
+  "n_series": 2,
+  "anios": 12
+ },
+ "ramal a el higo": {
+  "tasa": 8e-05,
+  "n_series": 2,
+  "anios": 13
+ },
+ "ramal a el quelite": {
+  "tasa": 0.02993,
+  "n_series": 2,
+  "anios": 13
+ },
+ "ramal a estacion bamoa": {
+  "tasa": 0.03916,
+  "n_series": 2,
+  "anios": 13
+ },
+ "ramal a estacion ruiz": {
+  "tasa": 0.0064,
+  "n_series": 2,
+  "anios": 13
+ },
+ "ramal a gral panfilo natera": {
+  "tasa": 0.01774,
+  "n_series": 2,
+  "anios": 13
+ },
+ "ramal a huehuetan": {
+  "tasa": 0.04564,
+  "n_series": 2,
+  "anios": 13
+ },
+ "ramal a ixtapa de la concepcion": {
+  "tasa": 0.04706,
+  "n_series": 2,
+  "anios": 12
+ },
+ "ramal a jamapa": {
+  "tasa": 0.01948,
+  "n_series": 4,
+  "anios": 13
+ },
+ "ramal a jesus maria": {
+  "tasa": 0.0306,
+  "n_series": 2,
+  "anios": 11
+ },
+ "ramal a la cruz": {
+  "tasa": 0.01512,
+  "n_series": 2,
+  "anios": 13
+ },
+ "ramal a la laguna de santa maria": {
+  "tasa": 0.01602,
+  "n_series": 4,
+  "anios": 13
+ },
+ "ramal a la noria": {
+  "tasa": 0.06566,
+  "n_series": 2,
+  "anios": 12
+ },
+ "ramal a la reforma": {
+  "tasa": 0.0045,
+  "n_series": 3,
+  "anios": 13
+ },
+ "ramal a las brisas": {
+  "tasa": 0.02148,
+  "n_series": 3,
+  "anios": 11
+ },
+ "ramal a lazaro cardenas": {
+  "tasa": 0.01489,
+  "n_series": 2,
+  "anios": 13
+ },
+ "ramal a ley federal de aguas numero cinco": {
+  "tasa": 0.05417,
+  "n_series": 2,
+  "anios": 13
+ },
+ "ramal a libertad": {
+  "tasa": -0.00567,
+  "n_series": 2,
+  "anios": 13
+ },
+ "ramal a mazatan": {
+  "tasa": 0.00855,
+  "n_series": 2,
+  "anios": 13
+ },
+ "ramal a miraflores": {
+  "tasa": 0.01819,
+  "n_series": 2,
+  "anios": 13
+ },
+ "ramal a nochistlan": {
+  "tasa": 0.00256,
+  "n_series": 2,
+  "anios": 13
+ },
+ "ramal a nuevo coahuila": {
+  "tasa": 0.02326,
+  "n_series": 6,
+  "anios": 13
+ },
+ "ramal a pachuca": {
+  "tasa": 0.0363,
+  "n_series": 2,
+  "anios": 13
+ },
+ "ramal a palomas": {
+  "tasa": 0.03572,
+  "n_series": 2,
+  "anios": 12
+ },
+ "ramal a panaba": {
+  "tasa": 0.02425,
+  "n_series": 2,
+  "anios": 12
+ },
+ "ramal a puente tampico": {
+  "tasa": 0.02491,
+  "n_series": 4,
+  "anios": 13
+ },
+ "ramal a puerto arista": {
+  "tasa": 0.03685,
+  "n_series": 3,
+  "anios": 13
+ },
+ "ramal a punta allen": {
+  "tasa": 0.05521,
+  "n_series": 2,
+  "anios": 12
+ },
+ "ramal a punta mita": {
+  "tasa": 0.07802,
+  "n_series": 2,
+  "anios": 13
+ },
+ "ramal a punta piedra": {
+  "tasa": 0.01891,
+  "n_series": 2,
+  "anios": 12
+ },
+ "ramal a punta sam": {
+  "tasa": 0.03857,
+  "n_series": 2,
+  "anios": 12
+ },
+ "ramal a salto del agua": {
+  "tasa": 0.03834,
+  "n_series": 2,
+  "anios": 13
+ },
+ "ramal a san antonio": {
+  "tasa": 0.03392,
+  "n_series": 3,
+  "anios": 13
+ },
+ "ramal a san felipe": {
+  "tasa": 0.01095,
+  "n_series": 2,
+  "anios": 12
+ },
+ "ramal a san felipe de hidalgo": {
+  "tasa": 0.01033,
+  "n_series": 2,
+  "anios": 12
+ },
+ "ramal a san jose iturbide": {
+  "tasa": 0.03305,
+  "n_series": 4,
+  "anios": 13
+ },
+ "ramal a san juan de la costa": {
+  "tasa": -0.02231,
+  "n_series": 3,
+  "anios": 13
+ },
+ "ramal a san juan del rio": {
+  "tasa": 0.04005,
+  "n_series": 3,
+  "anios": 11
+ },
+ "ramal a san pedro creel": {
+  "tasa": 0.02039,
+  "n_series": 2,
+  "anios": 12
+ },
+ "ramal a san pedro ecatepec": {
+  "tasa": 0.00691,
+  "n_series": 2,
+  "anios": 12
+ },
+ "ramal a san pedro piedra gorda": {
+  "tasa": 0.01025,
+  "n_series": 2,
+  "anios": 13
+ },
+ "ramal a sanchez magallanes": {
+  "tasa": 9e-05,
+  "n_series": 4,
+  "anios": 13
+ },
+ "ramal a santiago": {
+  "tasa": 0.03986,
+  "n_series": 2,
+  "anios": 13
+ },
+ "ramal a subteniente lopez": {
+  "tasa": -0.02051,
+  "n_series": 2,
+  "anios": 12
+ },
+ "ramal a tapalpa": {
+  "tasa": 0.06152,
+  "n_series": 2,
+  "anios": 11
+ },
+ "ramal a tapijulapa": {
+  "tasa": 0.00393,
+  "n_series": 2,
+  "anios": 13
+ },
+ "ramal a tecolutla": {
+  "tasa": 0.01713,
+  "n_series": 2,
+  "anios": 13
+ },
+ "ramal a tequepexpan": {
+  "tasa": -0.01355,
+  "n_series": 2,
+  "anios": 8
+ },
+ "ramal a tetela de ocampo": {
+  "tasa": 0.02353,
+  "n_series": 2,
+  "anios": 13
+ },
+ "ramal a tetela del volcan": {
+  "tasa": 0.0142,
+  "n_series": 5,
+  "anios": 12
+ },
+ "ramal a toliman": {
+  "tasa": 0.02551,
+  "n_series": 2,
+  "anios": 12
+ },
+ "ramal a tomatlan": {
+  "tasa": 0.01369,
+  "n_series": 2,
+  "anios": 11
+ },
+ "ramal a tulcingo del valle": {
+  "tasa": 0.0296,
+  "n_series": 4,
+  "anios": 13
+ },
+ "ramal a union hidalgo": {
+  "tasa": 0.00905,
+  "n_series": 3,
+  "anios": 13
+ },
+ "ramal a union juarez": {
+  "tasa": 0.04048,
+  "n_series": 2,
+  "anios": 13
+ },
+ "ramal a villa de cos": {
+  "tasa": 0.02366,
+  "n_series": 4,
+  "anios": 13
+ },
+ "ramal a villa hidalgo": {
+  "tasa": 0.03594,
+  "n_series": 2,
+  "anios": 12
+ },
+ "ramal a villa juarez": {
+  "tasa": 0.03524,
+  "n_series": 2,
+  "anios": 11
+ },
+ "ramal a xalostoc": {
+  "tasa": 0.01542,
+  "n_series": 2,
+  "anios": 12
+ },
+ "ramal a xicotencatl": {
+  "tasa": 0.04171,
+  "n_series": 2,
+  "anios": 12
+ },
+ "ramal a yaxcaba": {
+  "tasa": 0.03091,
+  "n_series": 2,
+  "anios": 12
+ },
+ "ramal de acceso a puente anzalduas": {
+  "tasa": 0.02921,
+  "n_series": 2,
+  "anios": 12
+ },
+ "ramal zona arqueologica palenque": {
+  "tasa": 0.02672,
+  "n_series": 2,
+  "anios": 13
+ },
+ "rayon arroyo seco": {
+  "tasa": 0.01258,
+  "n_series": 3,
+  "anios": 13
+ },
+ "rayon cd del maiz": {
+  "tasa": -0.00113,
+  "n_series": 2,
+  "anios": 13
+ },
+ "reforma agraria puerto juarez": {
+  "tasa": 0.03815,
+  "n_series": 47,
+  "anios": 12
+ },
+ "reforma dos bocas": {
+  "tasa": -0.01088,
+  "n_series": 4,
+  "anios": 13
+ },
+ "reyes hernandez villa aldama": {
+  "tasa": 0.01064,
+  "n_series": 2,
+  "anios": 13
+ },
+ "reynosa nuevo laredo": {
+  "tasa": 0.01746,
+  "n_series": 8,
+  "anios": 12
+ },
+ "ricardo flores magon galeana cuota": {
+  "tasa": 0.02255,
+  "n_series": 2,
+  "anios": 12
+ },
+ "rincon de romos cienega grande": {
+  "tasa": 0.01892,
+  "n_series": 5,
+  "anios": 13
+ },
+ "rinconada la piedad": {
+  "tasa": -0.00542,
+  "n_series": 12,
+  "anios": 13
+ },
+ "rosario caimanero": {
+  "tasa": 0.03175,
+  "n_series": 2,
+  "anios": 13
+ },
+ "sabinas don martin": {
+  "tasa": -0.00258,
+  "n_series": 4,
+  "anios": 13
+ },
+ "salamanca juventino rosas": {
+  "tasa": -0.00206,
+  "n_series": 2,
+  "anios": 13
+ },
+ "salina cruz la ventosa cuota": {
+  "tasa": 0.02962,
+  "n_series": 3,
+  "anios": 13
+ },
+ "salinas victoria cienega de flores": {
+  "tasa": 0.08763,
+  "n_series": 2,
+  "anios": 12
+ },
+ "saltillo arteaga": {
+  "tasa": 0.04406,
+  "n_series": 8,
+  "anios": 13
+ },
+ "saltillo monclova": {
+  "tasa": 0.01907,
+  "n_series": 17,
+  "anios": 13
+ },
+ "saltillo monterrey": {
+  "tasa": 0.03054,
+  "n_series": 16,
+  "anios": 13
+ },
+ "saltillo monterrey cuota": {
+  "tasa": 0.06673,
+  "n_series": 6,
+  "anios": 13
+ },
+ "saltillo torreon": {
+  "tasa": 0.03165,
+  "n_series": 20,
+  "anios": 13
+ },
+ "salvatierra cortazar": {
+  "tasa": 0.03428,
+  "n_series": 2,
+  "anios": 13
+ },
+ "salvatierra ent yuriria": {
+  "tasa": 0.00018,
+  "n_series": 5,
+  "anios": 13
+ },
+ "samaria amatitan": {
+  "tasa": 0.01099,
+  "n_series": 4,
+  "anios": 13
+ },
+ "san alejo huayacocotla": {
+  "tasa": 0.02044,
+  "n_series": 4,
+  "anios": 13
+ },
+ "san alejo los sabinos": {
+  "tasa": 0.02808,
+  "n_series": 2,
+  "anios": 13
+ },
+ "san bernardino tepexpan": {
+  "tasa": 0.02403,
+  "n_series": 12,
+  "anios": 13
+ },
+ "san buenaventura estacion hermanas": {
+  "tasa": 0.02856,
+  "n_series": 5,
+  "anios": 13
+ },
+ "san felipe alzati angangueo": {
+  "tasa": 0.00222,
+  "n_series": 2,
+  "anios": 13
+ },
+ "san felipe chapala": {
+  "tasa": 0.08223,
+  "n_series": 3,
+  "anios": 13
+ },
+ "san felipe del progreso carmona": {
+  "tasa": 0.02148,
+  "n_series": 2,
+  "anios": 13
+ },
+ "san felipe orizatlan huejutla de reyes": {
+  "tasa": 0.00279,
+  "n_series": 2,
+  "anios": 13
+ },
+ "san francisco pujiltic ent comitan": {
+  "tasa": 0.01271,
+  "n_series": 2,
+  "anios": 13
+ },
+ "san gil jarillas": {
+  "tasa": 0.02876,
+  "n_series": 2,
+  "anios": 13
+ },
+ "san gregorio oaxtepec": {
+  "tasa": 0.0211,
+  "n_series": 8,
+  "anios": 13
+ },
+ "san hipolito xalapa": {
+  "tasa": 0.01267,
+  "n_series": 19,
+  "anios": 13
+ },
+ "san isidro el grande bajio de san jose": {
+  "tasa": 0.01284,
+  "n_series": 2,
+  "anios": 13
+ },
+ "san juan de los llanos ometepec": {
+  "tasa": 0.04212,
+  "n_series": 3,
+  "anios": 13
+ },
+ "san juan del rio amealco": {
+  "tasa": 0.03227,
+  "n_series": 2,
+  "anios": 12
+ },
+ "san juan del rio xilitla": {
+  "tasa": 0.02944,
+  "n_series": 20,
+  "anios": 13
+ },
+ "san juan ixcaquixtla pino suarez": {
+  "tasa": 0.02688,
+  "n_series": 4,
+  "anios": 13
+ },
+ "san juan tumbio cheran": {
+  "tasa": 0.02338,
+  "n_series": 3,
+  "anios": 13
+ },
+ "san juanito ent basaseachi": {
+  "tasa": 0.02613,
+  "n_series": 2,
+  "anios": 12
+ },
+ "san lorenzo moctezuma": {
+  "tasa": 0.03201,
+  "n_series": 2,
+  "anios": 12
+ },
+ "san luis de la paz guanajuato": {
+  "tasa": 0.01525,
+  "n_series": 9,
+  "anios": 13
+ },
+ "san luis de la paz san jose iturbide": {
+  "tasa": 0.0285,
+  "n_series": 4,
+  "anios": 13
+ },
+ "san luis mextepec valle de bravo": {
+  "tasa": 0.02867,
+  "n_series": 4,
+  "anios": 13
+ },
+ "san luis potosi ent arcinas": {
+  "tasa": 0.01924,
+  "n_series": 14,
+  "anios": 13
+ },
+ "san luis potosi lagos de moreno": {
+  "tasa": 0.03362,
+  "n_series": 11,
+  "anios": 13
+ },
+ "san luis potosi matehuala": {
+  "tasa": 0.03272,
+  "n_series": 16,
+  "anios": 13
+ },
+ "san luis potosi villa de arriaga cuota": {
+  "tasa": 0.03134,
+  "n_series": 2,
+  "anios": 13
+ },
+ "san luis rio colorado golfo de santa clara": {
+  "tasa": 0.01303,
+  "n_series": 4,
+  "anios": 13
+ },
+ "san marcos palizada": {
+  "tasa": -0.00175,
+  "n_series": 3,
+  "anios": 13
+ },
+ "san martin de las piramides san miguel atlamajac": {
+  "tasa": 0.02182,
+  "n_series": 3,
+  "anios": 13
+ },
+ "san martin texmelucan tlaxcala": {
+  "tasa": 0.0033,
+  "n_series": 11,
+  "anios": 13
+ },
+ "san martin texmelucan tlaxcala el molinito cuota": {
+  "tasa": 0.0263,
+  "n_series": 10,
+  "anios": 13
+ },
+ "san pablo apetatitlan apizaco": {
+  "tasa": 0.02077,
+  "n_series": 6,
+  "anios": 12
+ },
+ "san pablo villa de mitla t c tuxtepec palomares": {
+  "tasa": 0.00552,
+  "n_series": 4,
+  "anios": 13
+ },
+ "san pedro barrientos ecatepec": {
+  "tasa": 0.01835,
+  "n_series": 8,
+  "anios": 13
+ },
+ "san pedro cabo san lucas": {
+  "tasa": 0.03986,
+  "n_series": 16,
+  "anios": 13
+ },
+ "san pedro campo anibal": {
+  "tasa": -0.02412,
+  "n_series": 2,
+  "anios": 13
+ },
+ "san rafael villa garcia": {
+  "tasa": 0.01794,
+  "n_series": 2,
+  "anios": 13
+ },
+ "san salvador el seco azumbilla": {
+  "tasa": 0.0063,
+  "n_series": 3,
+  "anios": 13
+ },
+ "san sebastian chicontepec": {
+  "tasa": 0.02247,
+  "n_series": 2,
+  "anios": 13
+ },
+ "santa ana sonoita": {
+  "tasa": -0.00383,
+  "n_series": 13,
+  "anios": 12
+ },
+ "santa barbara izucar de matamoros": {
+  "tasa": 0.01201,
+  "n_series": 49,
+  "anios": 13
+ },
+ "santa elena coacalco": {
+  "tasa": 0.01654,
+  "n_series": 4,
+  "anios": 13
+ },
+ "santa monica pozo de gamboa": {
+  "tasa": 0.0207,
+  "n_series": 2,
+  "anios": 13
+ },
+ "santa rosa la barca": {
+  "tasa": 0.02916,
+  "n_series": 8,
+  "anios": 11
+ },
+ "santa rosa mezquital": {
+  "tasa": 0.02204,
+  "n_series": 2,
+  "anios": 12
+ },
+ "santa rosa salinas victoria": {
+  "tasa": 0.05047,
+  "n_series": 2,
+  "anios": 12
+ },
+ "santa rosalia guerrero negro": {
+  "tasa": 0.00537,
+  "n_series": 15,
+  "anios": 13
+ },
+ "santander jimenez abasolo": {
+  "tasa": 0.01444,
+  "n_series": 2,
+  "anios": 12
+ },
+ "santiago pinotepa nacional salina cruz": {
+  "tasa": 0.04152,
+  "n_series": 22,
+  "anios": 13
+ },
+ "santiago tianguistenco chalma": {
+  "tasa": 0.02341,
+  "n_series": 5,
+  "anios": 12
+ },
+ "santiago tuxtla playa vicente": {
+  "tasa": 0.02105,
+  "n_series": 5,
+  "anios": 13
+ },
+ "santo domingo cerro gordo": {
+  "tasa": 0.05217,
+  "n_series": 2,
+  "anios": 13
+ },
+ "santo domingo t c mexico queretaro": {
+  "tasa": 0.01877,
+  "n_series": 6,
+  "anios": 13
+ },
+ "sayula venustiano carranza": {
+  "tasa": 0.05134,
+  "n_series": 2,
+  "anios": 11
+ },
+ "sierra de agua magueyitos": {
+  "tasa": 0.00949,
+  "n_series": 2,
+  "anios": 10
+ },
+ "silao los arrastres": {
+  "tasa": -0.0008,
+  "n_series": 3,
+  "anios": 13
+ },
+ "sinanche xitibcanul": {
+  "tasa": 0.03907,
+  "n_series": 2,
+  "anios": 12
+ },
+ "sombrerete gonzalez ortega": {
+  "tasa": 0.02774,
+  "n_series": 2,
+  "anios": 13
+ },
+ "sonoita mexicali": {
+  "tasa": 0.01711,
+  "n_series": 13,
+  "anios": 13
+ },
+ "sonoita pitiquito": {
+  "tasa": -0.01994,
+  "n_series": 2,
+  "anios": 13
+ },
+ "soto la marina la coma": {
+  "tasa": 0.02605,
+  "n_series": 2,
+  "anios": 12
+ },
+ "suchil villa union": {
+  "tasa": 0.02858,
+  "n_series": 7,
+  "anios": 11
+ },
+ "suma izamal": {
+  "tasa": 0.03287,
+  "n_series": 2,
+  "anios": 12
+ },
+ "t c atlacomulco morelia san felipe del progreso": {
+  "tasa": 0.03294,
+  "n_series": 4,
+  "anios": 13
+ },
+ "t c atlacomulco morelia temascalcingo": {
+  "tasa": 0.01118,
+  "n_series": 4,
+  "anios": 13
+ },
+ "t c camargo jimenez ojinaga": {
+  "tasa": 0.02291,
+  "n_series": 6,
+  "anios": 12
+ },
+ "t c carapan playa azul periban de ramos": {
+  "tasa": 0.03952,
+  "n_series": 2,
+  "anios": 13
+ },
+ "t c cardenas paraiso carlos green": {
+  "tasa": 0.00281,
+  "n_series": 3,
+  "anios": 13
+ },
+ "t c chalco mixquic temamatla": {
+  "tasa": 0.03377,
+  "n_series": 3,
+  "anios": 13
+ },
+ "t c chihuahua ojinaga la mula cuota": {
+  "tasa": 0.04757,
+  "n_series": 2,
+  "anios": 12
+ },
+ "t c dos casas ixtapan del oro donato guerra": {
+  "tasa": 0.02861,
+  "n_series": 2,
+  "anios": 13
+ },
+ "t c el monumento tingambato donato guerra": {
+  "tasa": 0.02681,
+  "n_series": 2,
+  "anios": 13
+ },
+ "t c ent morelos saltillo parras de la fuente": {
+  "tasa": 0.04767,
+  "n_series": 5,
+  "anios": 13
+ },
+ "t c francisco escarcega champoton yohaltun": {
+  "tasa": 0.02563,
+  "n_series": 3,
+  "anios": 13
+ },
+ "t c hermosillo nogales huasabas": {
+  "tasa": 0.01977,
+  "n_series": 7,
+  "anios": 13
+ },
+ "t c iguala chilpancingo atenango del rio": {
+  "tasa": 0.01243,
+  "n_series": 5,
+  "anios": 13
+ },
+ "t c ixtlahuaca de rayon naucalpan mayorazgo": {
+  "tasa": -0.04439,
+  "n_series": 3,
+  "anios": 13
+ },
+ "t c ixtlahuaca de rayon naucalpan temoaya": {
+  "tasa": 0.01961,
+  "n_series": 4,
+  "anios": 13
+ },
+ "t c jiquilpan colima est huescalapa": {
+  "tasa": 0.02923,
+  "n_series": 4,
+  "anios": 11
+ },
+ "t c los reyes el tephe tianguistongo": {
+  "tasa": 0.01848,
+  "n_series": 4,
+  "anios": 13
+ },
+ "t c los reyes el tephe tizayuca": {
+  "tasa": 0.03379,
+  "n_series": 2,
+  "anios": 13
+ },
+ "t c mexico cuernavaca libre huitzilac": {
+  "tasa": -0.00773,
+  "n_series": 2,
+  "anios": 12
+ },
+ "t c mexico puebla libre san vicente": {
+  "tasa": 0.04398,
+  "n_series": 4,
+  "anios": 13
+ },
+ "t c oaxaca puerto angel puerto escondido": {
+  "tasa": 0.00799,
+  "n_series": 11,
+  "anios": 13
+ },
+ "t c puebla tlaxcala villa alta": {
+  "tasa": 0.01512,
+  "n_series": 3,
+  "anios": 12
+ },
+ "t c reforma agraria puerto juarez polyuc": {
+  "tasa": 0.00723,
+  "n_series": 9,
+  "anios": 12
+ },
+ "t c s l p matehuala villa hidalgo": {
+  "tasa": 0.05236,
+  "n_series": 2,
+  "anios": 8
+ },
+ "t c san gregorio oaxtepec jojutla": {
+  "tasa": 0.00321,
+  "n_series": 6,
+  "anios": 12
+ },
+ "t c santa barbara huajuapan tepetlixpa": {
+  "tasa": 0.02237,
+  "n_series": 7,
+  "anios": 13
+ },
+ "t c santa barbara huajuapan tlamacas": {
+  "tasa": 0.04054,
+  "n_series": 3,
+  "anios": 13
+ },
+ "t c toluca cd altamirano valle de bravo": {
+  "tasa": 0.04524,
+  "n_series": 3,
+  "anios": 13
+ },
+ "t c toluca morelia almoloya de juarez": {
+  "tasa": 0.03357,
+  "n_series": 3,
+  "anios": 13
+ },
+ "t c toluca morelia maravatio": {
+  "tasa": 0.02158,
+  "n_series": 5,
+  "anios": 13
+ },
+ "t c toluca palmillas jiquipilco": {
+  "tasa": 0.01819,
+  "n_series": 9,
+  "anios": 13
+ },
+ "t c toluca palmillas jocotitlan": {
+  "tasa": 0.03603,
+  "n_series": 3,
+  "anios": 13
+ },
+ "t c v victoria el oro de hidalgo angangueo": {
+  "tasa": 0.02959,
+  "n_series": 3,
+  "anios": 13
+ },
+ "t c valle hermoso empalme matamoros": {
+  "tasa": 0.01692,
+  "n_series": 4,
+  "anios": 12
+ },
+ "t c zihuatanejo la mira lazaro cardenas": {
+  "tasa": 0.02586,
+  "n_series": 4,
+  "anios": 13
+ },
+ "t caldera ent ojo de agua de los montes": {
+  "tasa": 0.00201,
+  "n_series": 4,
+  "anios": 13
+ },
+ "tamarindo jose cardel": {
+  "tasa": 0.02118,
+  "n_series": 4,
+  "anios": 13
+ },
+ "tamazunchale san felipe orizatlan": {
+  "tasa": 0.05323,
+  "n_series": 2,
+  "anios": 13
+ },
+ "tampico cd mante": {
+  "tasa": 0.02764,
+  "n_series": 15,
+  "anios": 12
+ },
+ "tamuin estacion f f c c tamuin": {
+  "tasa": 9e-05,
+  "n_series": 2,
+  "anios": 13
+ },
+ "tapachula puerto madero": {
+  "tasa": 0.02401,
+  "n_series": 5,
+  "anios": 13
+ },
+ "tapanatepec talisman": {
+  "tasa": 0.02061,
+  "n_series": 54,
+  "anios": 13
+ },
+ "tapanatepec tuxtla gutierrez": {
+  "tasa": 0.01054,
+  "n_series": 17,
+  "anios": 13
+ },
+ "taxco ixcateopan": {
+  "tasa": -0.02809,
+  "n_series": 2,
+  "anios": 13
+ },
+ "tecamac ent atlatongo": {
+  "tasa": 0.01469,
+  "n_series": 2,
+  "anios": 13
+ },
+ "tecamachalco canada morelos": {
+  "tasa": -0.00235,
+  "n_series": 5,
+  "anios": 13
+ },
+ "tecate el sauzal": {
+  "tasa": 0.05138,
+  "n_series": 10,
+  "anios": 12
+ },
+ "tecoman la mascota": {
+  "tasa": 0.02332,
+  "n_series": 2,
+  "anios": 12
+ },
+ "tehuacan cordoba": {
+  "tasa": -2e-05,
+  "n_series": 15,
+  "anios": 13
+ },
+ "tehuacan huajuapan de leon": {
+  "tasa": 0.02125,
+  "n_series": 7,
+  "anios": 13
+ },
+ "tehuacan huitzo": {
+  "tasa": 0.00497,
+  "n_series": 8,
+  "anios": 13
+ },
+ "tejalpa jojutla": {
+  "tasa": 0.00221,
+  "n_series": 7,
+  "anios": 11
+ },
+ "telchac puerto dzilam de bravo": {
+  "tasa": 0.07068,
+  "n_series": 8,
+  "anios": 12
+ },
+ "temilpa tepalcingo": {
+  "tasa": -0.01909,
+  "n_series": 2,
+  "anios": 12
+ },
+ "temo tila": {
+  "tasa": 0.00452,
+  "n_series": 3,
+  "anios": 13
+ },
+ "tenancingo chalma": {
+  "tasa": 0.01577,
+  "n_series": 3,
+  "anios": 13
+ },
+ "tenancingo de degollado san andres nicolas bravo": {
+  "tasa": 0.02615,
+  "n_series": 3,
+  "anios": 13
+ },
+ "tenancingo san simon el alto": {
+  "tasa": 0.02147,
+  "n_series": 3,
+  "anios": 13
+ },
+ "tenango del aire amecameca": {
+  "tasa": 0.03368,
+  "n_series": 2,
+  "anios": 13
+ },
+ "teoloyucan jaltenco": {
+  "tasa": 0.06032,
+  "n_series": 2,
+  "anios": 13
+ },
+ "teotitlan de flores magon tuxtepec": {
+  "tasa": 0.0059,
+  "n_series": 4,
+  "anios": 13
+ },
+ "tepalcatepec aquila": {
+  "tasa": 0.0122,
+  "n_series": 3,
+  "anios": 13
+ },
+ "tepatitlan las adjuntas": {
+  "tasa": 0.0284,
+  "n_series": 6,
+  "anios": 13
+ },
+ "tepeji del rio t c mexico queretaro": {
+  "tasa": 0.01105,
+  "n_series": 2,
+  "anios": 13
+ },
+ "tepexpan san juan teotihuacan": {
+  "tasa": 0.024,
+  "n_series": 3,
+  "anios": 13
+ },
+ "tepic francisco i madero": {
+  "tasa": 0.02967,
+  "n_series": 2,
+  "anios": 12
+ },
+ "tepic ixtapa de la concepcion": {
+  "tasa": 0.02763,
+  "n_series": 6,
+  "anios": 13
+ },
+ "tepic mazatlan": {
+  "tasa": 0.01026,
+  "n_series": 38,
+  "anios": 13
+ },
+ "tepic presa aguamilpa": {
+  "tasa": 0.0387,
+  "n_series": 4,
+  "anios": 12
+ },
+ "tepic puerto vallarta": {
+  "tasa": 0.03095,
+  "n_series": 25,
+  "anios": 12
+ },
+ "tepic villa union cuota": {
+  "tasa": 0.04302,
+  "n_series": 18,
+  "anios": 13
+ },
+ "tepoztlan yautepec": {
+  "tasa": 0.03074,
+  "n_series": 2,
+  "anios": 12
+ },
+ "tequesquitengo jojutla": {
+  "tasa": 0.01885,
+  "n_series": 2,
+  "anios": 12
+ },
+ "teran chicoasen": {
+  "tasa": 0.02621,
+  "n_series": 2,
+  "anios": 13
+ },
+ "tetlatlahuca santa ana chiautempan": {
+  "tasa": 0.00777,
+  "n_series": 7,
+  "anios": 12
+ },
+ "texcaltitlan zacualpan": {
+  "tasa": 0.01559,
+  "n_series": 2,
+  "anios": 13
+ },
+ "texcoco san miguel tlaixpan": {
+  "tasa": 0.00252,
+  "n_series": 4,
+  "anios": 13
+ },
+ "teya peto": {
+  "tasa": 0.03465,
+  "n_series": 11,
+  "anios": 10
+ },
+ "teziutlan nautla": {
+  "tasa": -0.00057,
+  "n_series": 6,
+  "anios": 13
+ },
+ "teziutlan perote": {
+  "tasa": 0.0213,
+  "n_series": 6,
+  "anios": 13
+ },
+ "ticul chapab": {
+  "tasa": 0.03259,
+  "n_series": 2,
+  "anios": 12
+ },
+ "ticul dzan": {
+  "tasa": 0.04622,
+  "n_series": 2,
+  "anios": 12
+ },
+ "tierra colorada cruz grande": {
+  "tasa": 0.0146,
+  "n_series": 5,
+  "anios": 13
+ },
+ "tierra nueva francisco rueda": {
+  "tasa": 0.02674,
+  "n_series": 5,
+  "anios": 13
+ },
+ "tierra y libertad ent dr domingo chanona": {
+  "tasa": 0.00965,
+  "n_series": 2,
+  "anios": 13
+ },
+ "tihosuco dziuche": {
+  "tasa": 0.04648,
+  "n_series": 2,
+  "anios": 12
+ },
+ "tihuatlan potrero del llano": {
+  "tasa": -0.02034,
+  "n_series": 2,
+  "anios": 13
+ },
+ "tihuatlan tuxpam cuota": {
+  "tasa": 0.04811,
+  "n_series": 7,
+  "anios": 13
+ },
+ "tijuana ensenada cuota": {
+  "tasa": 0.05595,
+  "n_series": 8,
+  "anios": 13
+ },
+ "tijuana ensenada libre": {
+  "tasa": 0.03503,
+  "n_series": 14,
+  "anios": 13
+ },
+ "tiripetio erendira": {
+  "tasa": 0.03484,
+  "n_series": 4,
+  "anios": 13
+ },
+ "tixkokob baca": {
+  "tasa": 0.04386,
+  "n_series": 2,
+  "anios": 12
+ },
+ "tixkokob sotuta": {
+  "tasa": 0.04472,
+  "n_series": 5,
+  "anios": 12
+ },
+ "tizimin yucatan": {
+  "tasa": 0.01224,
+  "n_series": 3,
+  "anios": 12
+ },
+ "tlahuelilpan san agustin tlaxiaca": {
+  "tasa": 0.00885,
+  "n_series": 3,
+  "anios": 13
+ },
+ "tlalnepantla san gabriel": {
+  "tasa": 0.02008,
+  "n_series": 12,
+  "anios": 13
+ },
+ "tlaxcala belem": {
+  "tasa": -0.00371,
+  "n_series": 9,
+  "anios": 12
+ },
+ "tlaxco tejocotal cuota": {
+  "tasa": 0.05268,
+  "n_series": 2,
+  "anios": 11
+ },
+ "toluca axixintla": {
+  "tasa": 0.02585,
+  "n_series": 25,
+  "anios": 13
+ },
+ "toluca cd altamirano": {
+  "tasa": 0.01996,
+  "n_series": 15,
+  "anios": 13
+ },
+ "toluca morelia": {
+  "tasa": 0.01068,
+  "n_series": 33,
+  "anios": 13
+ },
+ "toluca palmillas": {
+  "tasa": 0.03682,
+  "n_series": 25,
+  "anios": 13
+ },
+ "topolobampo choix": {
+  "tasa": 0.00436,
+  "n_series": 16,
+  "anios": 13
+ },
+ "torreon escuadron 201": {
+  "tasa": 0.0243,
+  "n_series": 4,
+  "anios": 13
+ },
+ "torreon san pedro de las colonias": {
+  "tasa": 0.01739,
+  "n_series": 10,
+  "anios": 13
+ },
+ "tototlan ocotlan": {
+  "tasa": 0.02426,
+  "n_series": 2,
+  "anios": 11
+ },
+ "transversal de cozumel": {
+  "tasa": 0.0148,
+  "n_series": 2,
+  "anios": 12
+ },
+ "trapichillos estacion alzada": {
+  "tasa": 0.02035,
+  "n_series": 2,
+  "anios": 13
+ },
+ "tres marias santa martha": {
+  "tasa": 0.03719,
+  "n_series": 2,
+  "anios": 13
+ },
+ "tulipan cunduacan": {
+  "tasa": 0.00885,
+  "n_series": 3,
+  "anios": 13
+ },
+ "tulum nuevo x can": {
+  "tasa": 0.07044,
+  "n_series": 5,
+  "anios": 12
+ },
+ "tuxpam barra de tuxpam": {
+  "tasa": 0.03075,
+  "n_series": 2,
+  "anios": 13
+ },
+ "tuxpam tampico": {
+  "tasa": -0.01149,
+  "n_series": 15,
+  "anios": 13
+ },
+ "tuxtepec ent palomares": {
+  "tasa": 0.01099,
+  "n_series": 8,
+  "anios": 13
+ },
+ "tuxtepec t c oaxaca tehuantepec": {
+  "tasa": 0.0144,
+  "n_series": 12,
+  "anios": 13
+ },
+ "tuxtla gutierrez angostura": {
+  "tasa": 0.02251,
+  "n_series": 4,
+  "anios": 13
+ },
+ "tuxtla gutierrez cd cuauhtemoc": {
+  "tasa": 0.01807,
+  "n_series": 20,
+  "anios": 13
+ },
+ "tuxtla gutierrez portillo zaragoza": {
+  "tasa": 0.01181,
+  "n_series": 5,
+  "anios": 13
+ },
+ "tzucacab santa rosa": {
+  "tasa": 0.02445,
+  "n_series": 3,
+  "anios": 12
+ },
+ "ucareo t c toluca morelia": {
+  "tasa": 0.00334,
+  "n_series": 3,
+  "anios": 13
+ },
+ "ucum union": {
+  "tasa": 0.03549,
+  "n_series": 4,
+  "anios": 12
+ },
+ "uruapan el copetiro": {
+  "tasa": 0.03099,
+  "n_series": 3,
+  "anios": 13
+ },
+ "uruapan nueva italia cuota": {
+  "tasa": 0.03627,
+  "n_series": 2,
+  "anios": 13
+ },
+ "valladolid felipe carrillo puerto": {
+  "tasa": 0.03789,
+  "n_series": 12,
+  "anios": 12
+ },
+ "valladolid rio lagartos": {
+  "tasa": 0.03545,
+  "n_series": 6,
+  "anios": 12
+ },
+ "valle hermoso empalme": {
+  "tasa": 0.03796,
+  "n_series": 2,
+  "anios": 12
+ },
+ "venta de carpio t c pachuca tuxpam": {
+  "tasa": 0.02022,
+  "n_series": 24,
+  "anios": 13
+ },
+ "villa ahumada cd juarez libre": {
+  "tasa": 0.03484,
+  "n_series": 8,
+  "anios": 12
+ },
+ "villa del carbon atlacomulco": {
+  "tasa": 0.01838,
+  "n_series": 6,
+  "anios": 13
+ },
+ "villa del pueblito huimilpan": {
+  "tasa": 0.01548,
+  "n_series": 3,
+  "anios": 12
+ },
+ "villa union el walamo": {
+  "tasa": 0.03968,
+  "n_series": 2,
+  "anios": 13
+ },
+ "villa union siqueiros": {
+  "tasa": 0.03073,
+  "n_series": 2,
+  "anios": 13
+ },
+ "villa victoria el oro de hidalgo": {
+  "tasa": 0.01962,
+  "n_series": 3,
+  "anios": 13
+ },
+ "villahermosa cd del carmen": {
+  "tasa": 0.01615,
+  "n_series": 17,
+  "anios": 13
+ },
+ "villahermosa comalcalco": {
+  "tasa": 0.01924,
+  "n_series": 12,
+  "anios": 13
+ },
+ "villahermosa escopetazo": {
+  "tasa": 0.01169,
+  "n_series": 18,
+  "anios": 13
+ },
+ "villahermosa francisco escarcega": {
+  "tasa": 0.01682,
+  "n_series": 39,
+  "anios": 13
+ },
+ "villahermosa luis gil perez": {
+  "tasa": 0.01658,
+  "n_series": 2,
+  "anios": 13
+ },
+ "villahermosa t c p de cunduacan estacion juarez": {
+  "tasa": -0.01773,
+  "n_series": 4,
+  "anios": 13
+ },
+ "virreyes teziutlan cuota": {
+  "tasa": 0.01943,
+  "n_series": 5,
+  "anios": 13
+ },
+ "xalapa coatepec": {
+  "tasa": -0.00563,
+  "n_series": 4,
+  "anios": 13
+ },
+ "xalapa veracruz": {
+  "tasa": 0.01187,
+  "n_series": 23,
+  "anios": 13
+ },
+ "xalatlaco el ajusco": {
+  "tasa": 0.00424,
+  "n_series": 2,
+  "anios": 13
+ },
+ "xalostoc terrenate": {
+  "tasa": 0.02957,
+  "n_series": 3,
+  "anios": 12
+ },
+ "xoxocotla tilzapotla": {
+  "tasa": 0.00967,
+  "n_series": 5,
+  "anios": 12
+ },
+ "yahualica jaralillo": {
+  "tasa": 0.00094,
+  "n_series": 6,
+  "anios": 12
+ },
+ "yaxche sierra papacal": {
+  "tasa": 0.08097,
+  "n_series": 2,
+  "anios": 12
+ },
+ "yerbanis penon blanco": {
+  "tasa": 0.00471,
+  "n_series": 2,
+  "anios": 11
+ },
+ "yobain chabihau": {
+  "tasa": 0.04133,
+  "n_series": 2,
+  "anios": 12
+ },
+ "yucudaa santiago pinotepa nacional": {
+  "tasa": 0.00665,
+  "n_series": 7,
+  "anios": 13
+ },
+ "zacapu villachuato": {
+  "tasa": 0.03041,
+  "n_series": 4,
+  "anios": 13
+ },
+ "zacatecas durango": {
+  "tasa": 0.02246,
+  "n_series": 35,
+  "anios": 13
+ },
+ "zacatepec tlaquiltenango": {
+  "tasa": 0.00998,
+  "n_series": 2,
+  "anios": 12
+ },
+ "zamora vista hermosa": {
+  "tasa": 0.01434,
+  "n_series": 4,
+  "anios": 13
+ },
+ "zapatero t c jalapa jonuta": {
+  "tasa": 0.01406,
+  "n_series": 2,
+  "anios": 13
+ },
+ "zapotlanejo guadalajara cuota": {
+  "tasa": 0.00322,
+  "n_series": 6,
+  "anios": 11
+ },
+ "zapotlanejo lagos de moreno cuota": {
+  "tasa": 0.03422,
+  "n_series": 12,
+  "anios": 11
+ },
+ "zicuiran churumuco": {
+  "tasa": 0.00061,
+  "n_series": 2,
+  "anios": 13
+ },
+ "zihuatanejo la mira": {
+  "tasa": 0.00032,
+  "n_series": 11,
+  "anios": 13
+ },
+ "zitacuaro cd altamirano": {
+  "tasa": -0.01318,
+  "n_series": 7,
+  "anios": 13
+ }
+}

@@ -1,0 +1,93 @@
+# -*- coding: utf-8 -*-
+"""
+Parche idempotente: TASA DE CRECIMIENTO POR CARRETERA con respaldo regional (criterio FR, 14-sep-2026).
+
+  - main.py: carga tasas_carretera.json (nombre_norm DV2026 -> tasa mediana 2013-2026); en /api/evaluar,
+    cuando el aforo viene de una estacion de Datos Viales 2026, usa la tasa de esa carretera si es > 0;
+    si es <= 0 o no existe, la regional. Devuelve "tasa_fuente" con el detalle. La tasa tecleada por el
+    usuario sigue mandando sobre todo.
+  - segmentos.py: misma regla estacion por estacion.
+Uso:  python3 parche_tasas.py main.py   (deja main.py.bak_tasas y segmentos.py.bak_tasas)
+"""
+import io, os, sys
+
+def leer(p):  return io.open(p, encoding="utf-8").read()
+def escribir(p, s): io.open(p, "w", encoding="utf-8", newline="\n").write(s)
+
+main_p = sys.argv[1] if len(sys.argv) > 1 else "main.py"
+seg_p = os.path.join(os.path.dirname(os.path.abspath(main_p)), "segmentos.py")
+m, s = leer(main_p), leer(seg_p)
+
+if "tasas_carretera.json" in m:
+    print("main.py: ya tenia el parche de tasas")
+else:
+    escribir(main_p + ".bak_tasas", m)
+    # 1) carga
+    a1 = '    SEG.PUNTOS = DATOS["puntos"]\n'
+    assert m.count(a1) == 1, "ancla 1 (SEG.PUNTOS) no encontrada: aplica primero parche_puntos.py"
+    m = m.replace(a1, a1 + '''    # Tasa de crecimiento por carretera: mediana de las series Datos Viales 2013-2024 + 2026 de las
+    # estaciones de cada carretera (nombre_norm). Criterio FR 14-sep-2026: si es <= 0 o no hay serie
+    # suficiente, se usa la tasa regional.
+    try:
+        with io.open(os.path.join(os.path.dirname(os.path.abspath(__file__)), "tasas_carretera.json"),
+                     encoding="utf-8") as _f:
+            DATOS["tasasCar"] = json.load(_f)
+    except Exception:
+        DATOS["tasasCar"] = {}
+    SEG.TASAS_CAR = DATOS["tasasCar"]
+''')
+    # 2) helper (antes de aforo_cercano)
+    a2 = 'def aforo_cercano(lat, lon, car_nombre):\n'
+    assert m.count(a2) == 1
+    m = m.replace(a2, '''def tasa_aplicable(region, nombre_norm, tasas_reg, tasas_car):
+    """Tasa de la carretera del aforo si es > 0; si no, la regional. Devuelve (tasa, detalle)."""
+    treg = tasas_reg.get(region, 0.026)
+    tc = (tasas_car or {}).get(nombre_norm) if nombre_norm else None
+    det = {"tasa_region": round(treg * 100, 1), "region": region}
+    if tc is None:
+        det.update({"tipo": "regional", "motivo": "sin serie historica suficiente para la carretera"})
+        return treg, det
+    det.update({"tasa_carretera": round(float(tc["tasa"]) * 100, 1), "n_series": tc.get("n_series"),
+                "anios": tc.get("anios")})
+    if float(tc["tasa"]) > 0:
+        det.update({"tipo": "carretera", "motivo": "mediana de %d series de aforo de la carretera, Datos Viales 2013-2026"
+                    % int(tc.get("n_series") or 0)})
+        return float(tc["tasa"]), det
+    det.update({"tipo": "regional", "motivo": "la tasa de la carretera resulto negativa o nula (%.1f %%); se aplica la regional"
+                % (float(tc["tasa"]) * 100)})
+    return treg, det
+
+
+''' + a2)
+    # 3) aplicar en /api/evaluar, ya con el aforo elegido
+    a3 = '    vel = c.aforo.velocidad\n    if vel is None:\n        v = velocidad_cercana(lat, lon)\n'
+    assert m.count(a3) == 1, "ancla 3 (vel) no encontrada"
+    m = m.replace(a3, '''    # ---- tasa de crecimiento (FR 14-sep-2026): usuario > carretera del aforo (si > 0) > regional
+    if c.aforo.tasa is not None:
+        tasa_det = {"tipo": "usuario", "tasa_region": round(DATOS["tasas"].get(region, 0.026) * 100, 1), "region": region,
+                    "motivo": "tasa capturada por el usuario"}
+    elif fuente.get("tipo") == "DV2026" and rec is not None:
+        tasa, tasa_det = tasa_aplicable(region, rec[16], DATOS["tasas"], DATOS.get("tasasCar"))
+    else:
+        tasa_det = {"tipo": "regional", "tasa_region": round(DATOS["tasas"].get(region, 0.026) * 100, 1), "region": region,
+                    "motivo": "sin estacion de aforo de la via; tasa de la region"}
+    resp["tasa_crecimiento"] = round(tasa * 100, 1)
+    resp["tasa_fuente"] = tasa_det
+''' + a3)
+    escribir(main_p, m); print("main.py: parche de tasas aplicado")
+
+if "TASAS_CAR" in s:
+    print("segmentos.py: ya tenia el parche de tasas")
+else:
+    escribir(seg_p + ".bak_tasas", s)
+    b1 = 'PUNTOS = {}'
+    assert s.count(b1) == 1, "ancla PUNTOS no encontrada en segmentos.py: aplica primero parche_puntos.py"
+    s = s.replace(b1, b1 + '\nTASAS_CAR = {}   # nombre_norm -> {"tasa",...}; lo llena main.cargar()', 1)
+    b2 = '                tasa = tasas.get(te["s"].get("region"), 0.026)\n'
+    assert s.count(b2) == 1, "ancla tasa en segmentos.py no encontrada"
+    s = s.replace(b2, '''                tasa = tasas.get(te["s"].get("region"), 0.026)
+                _tc = TASAS_CAR.get(rr[16]) if len(rr) > 16 else None
+                if _tc and float(_tc.get("tasa", 0)) > 0:
+                    tasa = float(_tc["tasa"])          # tasa de la carretera (FR 14-sep-2026); si <= 0, regional
+''')
+    escribir(seg_p, s); print("segmentos.py: parche de tasas aplicado")
