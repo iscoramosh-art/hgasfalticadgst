@@ -411,7 +411,7 @@ footer.sitio .actualizado{display:block;margin-top:10px;font-size:10.5px;color:#
             <div><label for="vel">Velocidad (km/h) <span class="ayuda" title="Se precarga la velocidad de operación (camiones) de la estación más cercana de Velocidades de Punto DGST 2025. Editable.">ⓘ</span></label><input id="vel" type="number" value="90"></div>
             <div><label for="anios">Periodo (años) <span class="ayuda" title="Periodo de acumulación de ejes equivalentes en el carril de diseño (mínimo 10 años, M·MMP·4·05·064/22).">ⓘ</span></label><select id="anios"><option selected>10</option><option>15</option><option>20</option></select></div>
           </div>
-          <label for="tasa">Tasa de crecimiento anual (%) <span class="ayuda" title="Se autoajusta por región (CAGR Datos Viales 2013-2024). Editable.">ⓘ</span></label>
+          <label for="tasa">Tasa de crecimiento anual (%) <span class="ayuda" title="Se precarga con la tasa de la carretera (mediana de sus series de aforo, Datos Viales 2013-2026); si resulta negativa, nula o sin serie suficiente, con la regional. Editable al capturar datos viales.">ⓘ</span></label>
           <input id="tasa" type="number" step="0.1" value="2.6">
         </section>
 
@@ -494,7 +494,7 @@ footer.sitio .actualizado{display:block;margin-top:10px;font-size:10.5px;color:#
           <h2 class="seccion mapa-titulo"><svg class="sec-ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 3 3 6v15l6-3 6 3 6-3V3l-6 3-6-3z"/><path d="M9 3v15M15 6v15"/></svg>Mapa · Red Carretera Federal</h2>
           <div id="mapa" aria-label="Mapa de la Red Carretera Federal por grado PG"></div>
           <div class="leyenda" id="leyenda"></div>
-          <p class="nota mapa-nota">Cambia el fondo (Claro / Calle / Satélite) arriba a la derecha. Rueda para acercar · arrastra para desplazar · clic para fijar un punto. Escala y norte se muestran en el mapa.</p>
+          <p class="nota mapa-nota">Cambia el fondo (Claro / Calle / Satélite) arriba a la derecha. En este paso el mapa queda fijo, encuadrado a la selección, para que la imagen del reporte coincida con lo que ves; para moverlo regresa a Captura de datos. Escala y norte se muestran en el mapa.</p>
         </section>
       </div>
       <div id="res-segmentos" class="segpanel oculto"></div>
@@ -508,7 +508,7 @@ footer.sitio .actualizado{display:block;margin-top:10px;font-size:10.5px;color:#
     el −16 cubre el desempeño requerido a bajas temperaturas en el sitio en estudio.
     Ejes equivalentes por el método del Instituto de Ingeniería UNAM (factores de daño superficial a 6.0 kg/cm²; camión, eje estándar 5.8). Clima: estaciones del SMN con ≥ 20 años.
     Herramienta de referencia; el criterio del proyectista prevalece.
-    <span class="actualizado" id="hga-actualizado">Última actualización: 14 de septiembre de 2026 · versión 26.42</span>
+    <span class="actualizado" id="hga-actualizado">Última actualización: 14 de septiembre de 2026 · versión 26.43</span>
   </footer>
 
   <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
@@ -1622,7 +1622,7 @@ footer.sitio .actualizado{display:block;margin-top:10px;font-size:10.5px;color:#
     if (f.tipo === "carretera") return "de la carretera (mediana de " + (f.n_series || "-") + " series, Datos Viales 2013-2026)";
     if (f.tipo === "usuario") return "capturada por el usuario";
     if (f.tipo === "regional" && f.tasa_carretera != null) return "regional " + (f.region || region || "-") + "; la de la carretera (" + f.tasa_carretera.toFixed(1) + " %) resulto negativa o nula y no se aplica";
-    if (f.tipo === "regional") return "regional " + (f.region || region || "-") + (f.motivo && /sin serie/.test(f.motivo) ? " (sin serie historica suficiente de la carretera)" : " (sin estacion de aforo de la via)");
+    if (f.tipo === "regional") return "regional " + (f.region || region || "-") + (f.motivo && /sin serie/.test(f.motivo) ? " (sin serie histórica suficiente de la carretera)" : " (sin estación de aforo de la vía)");
     return "regional " + (region || "-");
   }
   function tarjeta(pgTxt, subtitulo, filas, nota, alerta) {
@@ -1886,11 +1886,11 @@ footer.sitio .actualizado{display:block;margin-top:10px;font-size:10.5px;color:#
     const asc = (s) => String(s)
       .replace(/≥/g, ">=").replace(/≤/g, "<=").replace(/∑/g, "S").replace(/×/g, "x")
       .replace(/σ/g, "D.E.").replace(/Σ/g, "Suma")
-      .replace(/→/g, "->").replace(/←/g, "<-").replace(/–/g, "-").replace(/—/g, "-").replace(/−/g, "-").replace(/≈/g, "~")
+      .replace(/→/g, "->").replace(/←/g, "<-").replace(/–/g, "-").replace(/—/g, "-").replace(/−/g, "-").replace(/≈/g, "aprox. ")
       .replace(/[⁰¹²³⁴⁵⁶⁷⁸⁹]/g, (d) => "^" + "⁰¹²³⁴⁵⁶⁷⁸⁹".indexOf(d));
     // El pie de pagina se mide ANTES de acomodar el contenido: v32 lo hizo mas largo (6 lineas) y las
     // reglas fijas de salto (p > 250) dejaban que los ultimos parrafos se encimaran con el.
-    const PIE_TXT = asc("Metodo M-MMP-4-05-064/22 y Norma N-CMT-4-05-004/25. Temperaturas de pavimento a H = 20 mm y 98 % de confiabilidad; grado alto {64, 70, 76} (mayor a 76 °C = diseno especial). Grado bajo -16 conforme a la Norma N-CMT-4-05-004/25 (clausula E: PG 64-16, 70-16 y 76-16); el -16 cubre el desempeno requerido a bajas temperaturas en el sitio en estudio. Ejes equivalentes por el metodo del Instituto de Ingenieria UNAM (factores de dano superficial a 6.0 kg/cm²; camion, eje estandar 5.8): el SL superficial (z = 0) gobierna la letra del PG, mientras que el SL de fatiga a la profundidad de la capa, que aparece en el bloque de cantidades, es el del diseno estructural. Clima: estaciones del SMN con >=20 años. Datos Viales / Anexo A PARCF 2026. *Velocidad de operacion (camiones): DGST Velocidades de Punto 2025. Herramienta de referencia; el criterio del proyectista prevalece.");
+    const PIE_TXT = asc("Método M-MMP-4-05-064/22 y Norma N-CMT-4-05-004/25. Temperaturas de pavimento a H = 20 mm y 98 % de confiabilidad; grado alto {64, 70, 76} (mayor a 76 °C = diseño especial). Grado bajo -16 conforme a la Norma N-CMT-4-05-004/25 (cláusula E: PG 64-16, 70-16 y 76-16); el -16 cubre el desempeño requerido a bajas temperaturas en el sitio en estudio. Ejes equivalentes por el método del Instituto de Ingeniería UNAM (factores de daño superficial a 6.0 kg/cm²; camión, eje estándar 5.8): el SL superficial (z = 0) gobierna la letra del PG, mientras que el SL de fatiga a la profundidad de la capa, que aparece en el bloque de cantidades, es el del diseño estructural. Clima: estaciones del SMN con >=20 años. Datos Viales / Anexo A PARCF 2026. *Velocidad de operación (camiones): DGST Velocidades de Punto 2025. Herramienta de referencia; el criterio del proyectista prevalece.");
     const LINEAS_PIE = (function () { doc.setFontSize(7.5); return doc.splitTextToSize(PIE_TXT, Wd - 2 * mx); })();
     const Y_PIE = 279.4 - 10 - LINEAS_PIE.length * 3.1;
     const LIM_Y = Y_PIE - 5;   // ultimo renglon admisible del contenido (la raya del pie va en Y_PIE - 3)
@@ -1946,7 +1946,7 @@ footer.sitio .actualizado{display:block;margin-top:10px;font-size:10.5px;color:#
     setC(G); doc.setFont(undefined, "bold"); doc.setFontSize(9.5);
     doc.text(asc("Grado a especificar (N-CMT-4-05-004/25):  " + PG.pgNorma(PG.pgTexto(estudio.ga, estudio.gb), estudio.gb)), rX + 3, ry + 5.4);
     doc.setFont(undefined, "normal"); doc.setFontSize(6.9); setC(GR);
-    doc.text(asc("Grado bajo -16: cubre el desempeno requerido a bajas temperaturas."), rX + 3, ry + 9.6);
+    doc.text(asc("Grado bajo -16: cubre el desempeño requerido a bajas temperaturas."), rX + 3, ry + 9.6);
     ry += 15.5;
 
     let y = Math.max(mapBot, ry) + 5;
@@ -1966,11 +1966,11 @@ footer.sitio .actualizado{display:block;margin-top:10px;font-size:10.5px;color:#
         head(xL, y, Wd - 2 * mx, "Segmento por coordenadas (dos extremos)"); y += 6;
         if (g.km != null) {
           kv(xL, y, cw, "Longitud del segmento", g.km.toFixed(1) + " km");
-          kv(xR, y, cw, "Maximo admitido / aviso", SEG_TOPE_KM + " km / " + SEG_AVISO_KM + " km"); y += 5;
+          kv(xR, y, cw, "Máximo admitido / aviso", SEG_TOPE_KM + " km / " + SEG_AVISO_KM + " km"); y += 5;
           // Las dos fuentes de incertidumbre, declaradas por separado y compuestas.
           const cf = confSegmento(g.km);
           kv(xL, y, cw, "Confianza espacial del segmento", ">= " + (cf.esp * 100).toFixed(1) + " % (IC 95 %)");
-          kv(xR, y, cw, "Climatica x espacial", (CONF_CLIMA * 100).toFixed(0) + " % x " +
+          kv(xR, y, cw, "Climática x espacial", (CONF_CLIMA * 100).toFixed(0) + " % x " +
              (cf.esp * 100).toFixed(1) + " % = " + (cf.conj * 100).toFixed(1) + " %"); y += 5;
         }
         kv(xL, y, cw, "Inicio (lat, lon)", g.p1[0].toFixed(4) + ", " + g.p1[1].toFixed(4));
@@ -1983,8 +1983,8 @@ footer.sitio .actualizado{display:block;margin-top:10px;font-size:10.5px;color:#
           const av = doc.splitTextToSize(asc("AVISO: el segmento mide " + g.km.toFixed(1) + " km. Hasta 8 km el "
             + "grado que resulta de los dos extremos cubre al del interior del tramo en el 100 % de los casos "
             + "medidos (4 500 segmentos, interior interpolado cada 400 m). Entre 8 y 10 km aparece la primera "
-            + "subestimacion: en 0,4 % de los casos algun punto interior exige un grado mas alto que los "
-            + "extremos. Si el tramo es critico, dividir el recorrido en segmentos de 8 km o menos, o emplear "
+            + "subestimación: en 0,4 % de los casos algún punto interior exige un grado más alto que los "
+            + "extremos. Si el tramo es crítico, dividir el recorrido en segmentos de 8 km o menos, o emplear "
             + "el criterio de segmentos homogeneos."), Wd - 2 * mx);
           setC(G); doc.setFontSize(7.2); doc.setFont(undefined, "bold");
           doc.text(av, mx, y); doc.setFont(undefined, "normal"); setC(TN); doc.setFontSize(8);
@@ -2012,7 +2012,7 @@ footer.sitio .actualizado{display:block;margin-top:10px;font-size:10.5px;color:#
       kv(xR, y, cw, "SL superficial (z = 0, p = 6.0)", (a.Lu / 1e6).toFixed(2) + " x10^6 -> " + PG.pgNormaTxt(a.pgU)); y += 5;
       kv(xL, y, cw, "Nivel de ajuste", PG.NIVELES[a.gob]); y += 5;
       doc.setFontSize(7.2); setC(GR); doc.setFont(undefined, "normal");
-      const lTasa = doc.splitTextToSize(asc("Tasa de crecimiento aplicada: " + a.tasa.toFixed(1) + " % anual, " + tasaTextoPDF(a.tasaFuente, a.tasa, estudio.rg) + ". Regla: se usa la tasa de la carretera del aforo cuando es positiva; si es negativa, nula o sin serie suficiente, la de la region."), Wd - 2 * mx);
+      const lTasa = doc.splitTextToSize(asc("Tasa de crecimiento aplicada: " + a.tasa.toFixed(1) + " % anual, " + tasaTextoPDF(a.tasaFuente, a.tasa, estudio.rg) + ". Regla: se usa la tasa de la carretera del aforo cuando es positiva; si es negativa, nula o sin serie suficiente, la de la región."), Wd - 2 * mx);
       doc.text(lTasa, xL, y); y += lTasa.length * 3.1 + 3; doc.setFontSize(8); setC(TN);
       doc.setFillColor(245, 240, 235); doc.roundedRect(mx, y - 3, Wd - 2 * mx, 15, 2, 2, "F");
       setC(G); doc.setFontSize(16); doc.setFont(undefined, "bold");
@@ -2021,9 +2021,9 @@ footer.sitio .actualizado{display:block;margin-top:10px;font-size:10.5px;color:#
       // Grado bajo: la norma solo lista -16 y el reporte lo confirma sin mas detalle.
       doc.setFontSize(7.2); setC(GR); doc.setFont(undefined, "normal");
       const nNorma = doc.splitTextToSize(asc(
-        "GRADO BAJO: -16 conforme a la N-CMT-4-05-004/25 (clausula E: PG 64-16, 70-16 y 76-16). "
-        + "El -16 cubre el desempeno requerido a bajas temperaturas en el sitio en estudio. El grado alto "
-        + "resulta de la temperatura maxima del pavimento y la letra del nivel de ajuste, del SL superficial."),
+        "GRADO BAJO: -16 conforme a la N-CMT-4-05-004/25 (cláusula E: PG 64-16, 70-16 y 76-16). "
+        + "El -16 cubre el desempeño requerido a bajas temperaturas en el sitio en estudio. El grado alto "
+        + "resulta de la temperatura máxima del pavimento y la letra del nivel de ajuste, del SL superficial."),
         Wd - 2 * mx);
       doc.text(nNorma, mx, y); y += nNorma.length * 3.2 + 3;
     } else {
@@ -2057,9 +2057,9 @@ footer.sitio .actualizado{display:block;margin-top:10px;font-size:10.5px;color:#
         const nota = (ex.modo === "validador"
           ? "Escanee el QR para ABRIR Y VALIDAR el reporte: la página muestra los datos y confirma que el sello coincide. "
           : ex.modo === "carpeta"
-          ? "Guarde este PDF en la carpeta de reportes (OneDrive/Dropbox/Drive) con el nombre «" + ex.fname + "». El QR abre esa carpeta para localizar y consultar el reporte por su número. "
+          ? "Guarde este PDF en la carpeta de reportes (OneDrive/Dropbox/Drive) con el nombre \"" + ex.fname + "\". El QR abre esa carpeta para localizar y consultar el reporte por su número. "
           : ex.modo === "dropbox"
-          ? "Guarde este PDF en la carpeta Dropbox de reportes con el nombre «" + ex.fname + "». El QR abre ese mismo reporte para corroborar. "
+          ? "Guarde este PDF en la carpeta Dropbox de reportes con el nombre \"" + ex.fname + "\". El QR abre ese mismo reporte para corroborar. "
           : "Escanee el QR para ver y validar el reporte. ")
           + "El sello de integridad permite verificar que el cálculo del PDF no fue alterado: si el contenido cambia, el sello no coincidirá.";
         const ls = doc.splitTextToSize(asc(nota), cwd); doc.text(ls, mx, p); p += ls.length * 3.1 + 3;
@@ -2243,7 +2243,7 @@ footer.sitio .actualizado{display:block;margin-top:10px;font-size:10.5px;color:#
           kv(mx, p, cwd, "Área a tratar", d.area.toLocaleString("es-MX") + " m2"); p += 4.5;
           kv(mx, p, cwd, "Espesor capturado", d.esp + " cm (se desprecia)"); p += 4.5;
           nlp(16); doc.setFontSize(7.4); setC(GR); doc.setFont(undefined, "normal");
-          const nz = doc.splitTextToSize(asc("< 3 cm (transito bajo): tratamiento superficial en frio (riego/sello o microaglomerado) con EMULSION; se cuantifica por m2 (dosis de emulsion y agregado), no por volumen. Transito medio/alto: microcarpeta discontinua en caliente (SMA/CASAA) con Grado PG."), cwd);
+          const nz = doc.splitTextToSize(asc("< 3 cm (tránsito bajo): tratamiento superficial en frío (riego/sello o microaglomerado) con EMULSIÓN; se cuantifica por m2 (dosis de emulsión y agregado), no por volumen. Tránsito medio/alto: microcarpeta discontinua en caliente (SMA/CASAA) con Grado PG."), cwd);
           doc.text(nz, mx, p); p += nz.length * 3.2 + 3;
         } else {
         head(mx, p, cwd, "Cantidades (por volumen compactado)"); p += 5.5;
@@ -2258,11 +2258,11 @@ footer.sitio .actualizado{display:block;margin-top:10px;font-size:10.5px;color:#
           // Este NO es el mismo SL que gobierna la letra del PG. Aquel se evalua en la superficie
           // (z = 0) y este a la profundidad de la capa, que es el que pide el diseno estructural
           // por II-UNAM / DISPAV. Se rotulan distinto para que nadie los confunda.
-          kv(mx, p, cwd, "SL de fatiga a z = " + d.esp + " cm (II-UNAM, " + aforoRes.anios + " anios)", (d.Lestr / 1e6).toFixed(2) + " x10^6"); p += 4.5;
-          const nsl = doc.splitTextToSize(asc("El SL superficial (z = 0) que aparece en el bloque de transito es el que "
+          kv(mx, p, cwd, "SL de fatiga a z = " + d.esp + " cm (II-UNAM, " + aforoRes.anios + " años)", (d.Lestr / 1e6).toFixed(2) + " x10^6"); p += 4.5;
+          const nsl = doc.splitTextToSize(asc("El SL superficial (z = 0) que aparece en el bloque de tránsito es el que "
             + "determina la LETRA del grado PG (Tabla 1 de la N-CMT-4-05-004/25). El SL de fatiga a la profundidad de la "
-            + "capa es el que se emplea en el DISENO ESTRUCTURAL por II-UNAM / DISPAV. Son dos evaluaciones distintas del "
-            + "mismo transito y no deben intercambiarse."), cwd);
+            + "capa es el que se emplea en el DISEÑO ESTRUCTURAL por II-UNAM / DISPAV. Son dos evaluaciones distintas del "
+            + "mismo tránsito y no deben intercambiarse."), cwd);
           setC(GR); doc.setFontSize(7.2); doc.text(nsl, mx, p); setC(TN); doc.setFontSize(8); p += nsl.length * 3.1 + 2;
         }
         }
@@ -2342,7 +2342,7 @@ footer.sitio .actualizado{display:block;margin-top:10px;font-size:10.5px;color:#
           for (const e of ests) { if (p > LIM_Y - 4) { doc.addPage(); p = 20; filaE(thE, true); p += 4.6; }
             filaE([(e.punto || e.nom), (e.km != null ? String(e.km) : "—"), (e.estNom || "—") + " (" + (e.dist != null ? e.dist.toFixed(0) : "?") + " km)", (isFinite(e.tx) ? e.tx.toFixed(1) : "—") + " / " + (isFinite(e.tn) ? e.tn.toFixed(1) : "—"), (e.tdpa ? e.tdpa.toLocaleString("es-MX") : "—") + "·" + e.sc, (e.sumaL ? (e.sumaL / 1e6).toFixed(1) + "M" : "—"), PG.pgNormaTxt(e.pg)]); p += 3.8;
           }
-          nlp(8); doc.setFontSize(6.6); setC(GR); doc.text(asc("«PG (norma)» es el grado a especificar conforme a la N-CMT-4-05-004/25, el mismo que encabeza este reporte. SL por II-UNAM con la composicion del aforo y la tasa de crecimiento aplicable (la de la carretera del aforo si es positiva; si no, la regional); T del pavimento por la estacion SMN mas cercana (M-MMP-4-05-064/22). Corte de segmento donde cambia el PG (letra por SL o grado por temperatura); longitud minima 1 km."), mx, p, { maxWidth: cwd }); p += 6;
+          nlp(8); doc.setFontSize(6.6); setC(GR); doc.text(asc("\"PG (norma)\" es el grado a especificar conforme a la N-CMT-4-05-004/25, el mismo que encabeza este reporte. SL por II-UNAM con la composición del aforo y la tasa de crecimiento aplicable (la de la carretera del aforo si es positiva; si no, la regional); T del pavimento por la estación SMN más cercana (M-MMP-4-05-064/22). Corte de segmento donde cambia el PG (letra por SL o grado por temperatura); longitud mínima 1 km."), mx, p, { maxWidth: cwd }); p += 6;
         }
       }
     }
@@ -2450,5 +2450,5 @@ footer.sitio .actualizado{display:block;margin-top:10px;font-size:10.5px;color:#
     document.body.insertBefore(b, document.body.firstChild);
   })();
 </script>
-<!-- HGA build v42 -->
+<!-- HGA build v43 -->
 </html>
