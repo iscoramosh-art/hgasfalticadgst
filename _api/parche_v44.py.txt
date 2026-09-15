@@ -1,0 +1,61 @@
+# -*- coding: utf-8 -*-
+"""v44 (15-sep-2026): (1) /api/tramo devuelve los carriles por sentido del Anexo A 2025 (tabla `carriles`
+de hga.sqlite, cargada desde carriles.sql); (2) el apéndice de segmentos calcula el ∑L de cada estación con
+la misma tasa que la tabla de segmentos (tasa_aplicable: carretera > regional). Idempotente."""
+import io, sys, sqlite3, os
+p = sys.argv[1] if len(sys.argv) > 1 else os.path.expanduser("~/hga-api/main.py")
+s = io.open(p, encoding="utf-8").read()
+
+A = '''    return {"id": f["id"], "clave": f["cp"], "carretera": f["carretera"], "tramo": f["tramo"],
+            "pg_referencia": f["pg"], "grupo": f["grupo"],
+            "cad_ini": f["cad_ini"], "cad_fin": f["cad_fin"],
+            "estados": json.loads(f["estados"] or "[]"),
+            "geometria": json.loads(f["geom"] or "[]")}'''
+B = '''    return {"id": f["id"], "clave": f["cp"], "carretera": f["carretera"], "tramo": f["tramo"],
+            "pg_referencia": f["pg"], "grupo": f["grupo"],
+            "cad_ini": f["cad_ini"], "cad_fin": f["cad_fin"],
+            "estados": json.loads(f["estados"] or "[]"),
+            "carriles": carriles_de(f["cp"]),
+            "geometria": json.loads(f["geom"] or "[]")}'''
+if B not in s:
+    assert s.count(A) == 1, "ancla /api/tramo"
+    s = s.replace(A, B)
+
+H = '''@app.get("/api/tramo/{tid}")'''
+HELPER = '''def carriles_de(cp):
+    """Carriles por sentido del Anexo A 2025 (tabla `carriles`); None si no hay dato."""
+    try:
+        r = DATOS["db"].execute("SELECT carriles FROM carriles WHERE cp=?", (cp,)).fetchone()
+        return int(r[0]) if r and r[0] else None
+    except Exception:
+        return None
+
+
+@app.get("/api/tramo/{tid}")'''
+if "def carriles_de(" not in s:
+    assert s.count(H) == 1, "ancla helper"
+    s = s.replace(H, HELPER)
+
+C = '''                tasa = DATOS["tasas"].get(te["s"].get("region"), 0.026)
+                sl = PG.esal(PG.tdpa_sentido(tdpa, sc), mez, PG.FD_UNAM, tasa, s.anios, s.carriles)'''
+D = '''                tasa, _td = tasa_aplicable(te["s"].get("region"), rr[16], DATOS["tasas"], DATOS.get("tasasCar"))
+                sl = PG.esal(PG.tdpa_sentido(tdpa, sc), mez, PG.FD_UNAM, tasa, s.anios, s.carriles)'''
+if D not in s:
+    assert s.count(C) == 1, "ancla apendice tasa"
+    s = s.replace(C, D)
+
+io.open(p, "w", encoding="utf-8").write(s)
+
+# tabla carriles en hga.sqlite (misma carpeta que main.py)
+db = os.path.join(os.path.dirname(os.path.abspath(p)), "hga.sqlite")
+sql = os.path.join(os.path.dirname(os.path.abspath(p)), "carriles.sql")
+if os.path.exists(sql):
+    con = sqlite3.connect(db)
+    con.executescript(io.open(sql, encoding="utf-8").read())
+    con.commit()
+    n = con.execute("SELECT COUNT(*) FROM carriles").fetchone()[0]
+    con.close()
+    print("CARRILES_OK", n)
+else:
+    print("AVISO: falta carriles.sql junto a main.py; la tabla no se cargó")
+print("PARCHE_V44_OK", p)
