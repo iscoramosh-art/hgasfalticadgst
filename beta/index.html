@@ -508,7 +508,7 @@ footer.sitio .actualizado{display:block;margin-top:10px;font-size:10.5px;color:#
     el −16 cubre el desempeño requerido a bajas temperaturas en el sitio en estudio.
     Ejes equivalentes por el método del Instituto de Ingeniería UNAM (factores de daño superficial a 6.0 kg/cm²; camión, eje estándar 5.8). Clima: estaciones del SMN con ≥ 20 años.
     Herramienta de referencia; el criterio del proyectista prevalece.
-    <span class="actualizado" id="hga-actualizado">Última actualización: 14 de septiembre de 2026 · versión 26.44</span>
+    <span class="actualizado" id="hga-actualizado">Última actualización: 14 de septiembre de 2026 · versión 26.45</span>
   </footer>
 
   <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
@@ -653,6 +653,7 @@ footer.sitio .actualizado{display:block;margin-top:10px;font-size:10.5px;color:#
   let aforoFuente = null;
   let capturaManual = false;
   let carrilesFuente = null;   // null = por omisión; texto = origen del dato (Anexo A 2025)
+  let velEditada = false;      // la velocidad la cambió el usuario en modo automático
   let ultimaEval = null;    // última respuesta de /api/evaluar
 
   const COLOR_PG = { 64: "#2c7fb8", 70: "#41ab5d", 76: "#f5a623", 82: "#c0392b" };
@@ -869,6 +870,7 @@ footer.sitio .actualizado{display:block;margin-top:10px;font-size:10.5px;color:#
   document.querySelectorAll('input[name="modoUb"]').forEach((r) => r.addEventListener("change", () => {
     const m = modoUbicacion();
     if (m !== "carretera" && !capturaManual && $("carriles")) { $("carriles").value = "2"; carrilesFuente = null; }
+    velEditada = false;
     // La longitud de diseno pertenece al tramo/segmento elegido. Sin esto conservaba la del modo
     // anterior: al pasar de "Carretera" (A-004-01, 63,492 m) a "Punto" el reporte calculaba las
     // cantidades de obra sobre esos 63,492 m heredados. Se limpia y prepararDiseno() la vuelve a
@@ -918,7 +920,8 @@ footer.sitio .actualizado{display:block;margin-top:10px;font-size:10.5px;color:#
       } else fus.push(s);
     }
     const govN = PG.pgNormaTxt(d.gobernante.pg);
-    let gov = fus.find((s) => PG.pgNormaTxt(s.pg) === govN) || fus[0];
+    let gov = fus.find((s) => PG.pgNormaTxt(s.pg) === govN) || { pg: d.gobernante.pg, cadIni: 0, cadFin: 0, compuesto: true };
+    if (d.gobernante && d.gobernante.compuesto) gov.compuesto = true;
     let kmMen = 0;
     for (const s of fus) { s.menor = PG.pgNormaTxt(s.pg) !== govN; if (s.menor) kmMen += Math.abs(s.cadFin - s.cadIni); }
     return { segs: fus, gov, cadA: d.cad_a, cadB: d.cad_b, totalKm: d.total_km,
@@ -970,7 +973,7 @@ footer.sitio .actualizado{display:block;margin-top:10px;font-size:10.5px;color:#
     const heads=["#","Cadenamiento","Long. (km)","Estación aforo","TDPA","∑L (10⁶)","PG"].map(h=>'<th style="text-align:left;padding:6px 7px;background:#f4efe8;color:#611232;font-size:11px;border-bottom:1px solid #e0d8cc">'+h+'</th>').join("");
     return '<div class="segpanel-in" style="margin-top:14px;border:1px solid #e6ddcf;border-radius:10px;padding:14px 16px;background:#fff">'+
       '<h2 style="font-size:16px;color:#611232;margin:0 0 4px">Análisis por segmentos homogéneos</h2>'+
-      '<div style="font-size:12.5px;color:#555;margin-bottom:10px">'+segs.length+' segmento(s) en '+tot.toFixed(1)+' km · gobernante (peor caso): <b style="color:#611232">'+PG.pgNormaTxt(gov.pg)+'</b>'+(kmBelow>0?' · <b style="color:#1E5B4F">'+kmBelow.toFixed(1)+' km ('+pct+'%)</b> admiten un PG menor':' · sin variación (PG uniforme)')+'</div>'+
+      '<div style="font-size:12.5px;color:#555;margin-bottom:10px">'+segs.length+' segmento(s) en '+tot.toFixed(1)+' km · gobernante (peor caso): <b style="color:#611232">'+PG.pgNormaTxt(gov.pg)+'</b>'+(kmBelow>0?' · <b style="color:#1E5B4F">'+kmBelow.toFixed(1)+' km ('+pct+'%)</b> admiten un PG menor':' · sin variación (PG uniforme)')+(gov.compuesto?' · gobernante compuesto: mayor grado alto y mayor letra entre los segmentos':'')+'</div>'+
       '<div style="display:flex;height:40px;border-radius:8px;overflow:hidden;border:1px solid #e0d8cc">'+strip+'</div>'+
       '<div style="display:flex;justify-content:space-between;font-size:11px;color:#777;margin:4px 2px 12px"><span>'+fc(Math.min(R.cadA,R.cadB))+'</span><span>'+fc(Math.max(R.cadA,R.cadB))+'</span></div>'+
       '<table style="width:100%;border-collapse:collapse;font-size:12px"><thead><tr>'+heads+'</tr></thead><tbody>'+rows+'</tbody></table>'+
@@ -1141,7 +1144,7 @@ footer.sitio .actualizado{display:block;margin-top:10px;font-size:10.5px;color:#
         if ($("tdpa")) $("tdpa").value = Math.round(a.tdpa);
         const sc = $("sc"); if (sc && [...sc.options].some((o) => o.value === String(a.sc))) sc.value = String(a.sc);
         ["m", "a", "b", "c2", "c3", "t3s2", "t3s3", "t3s2r4", "otros"].forEach((k) => { if ($("v-" + k) && a.mezcla[k] != null) $("v-" + k).value = a.mezcla[k]; });
-        if ($("vel") && a.velocidad) $("vel").value = a.velocidad;
+        if ($("vel") && a.velocidad && !velEditada) $("vel").value = a.velocidad;
         sumaPct();
       }
       aforoFuente = a.fuente;
@@ -1163,7 +1166,7 @@ footer.sitio .actualizado{display:block;margin-top:10px;font-size:10.5px;color:#
         <tr class="sep"><td><b>∑L superficial · z = 0 (II-UNAM, ${a.anios} años)</b></td><td><b>${d.suma_L_texto}</b></td></tr>
         <tr><td>Nivel de ajuste</td><td>${d.nivel_ajuste_texto}</td></tr>
         <tr class="sep"><td>Tasa de crecimiento</td><td>${tasaTexto(d)}</td></tr>
-        <tr><td>Región · velocidad</td><td>${d.region || "—"} · ${a.velocidad} km/h</td></tr>`,
+        <tr><td>Región · velocidad</td><td>${d.region || "—"} · ${a.velocidad} km/h${(velEditada && !capturaManual) ? " (capturada)" : ""}</td></tr>`,
         (d.metodo ? d.metodo + " " : ""));
       prepararDiseno();
     } else if (d.pg_seleccionado === "Diseño especial") {
@@ -1172,7 +1175,7 @@ footer.sitio .actualizado{display:block;margin-top:10px;font-size:10.5px;color:#
   }
 
   function cuerpoAforo() {
-    if (!capturaManual) return { anios: +$("anios").value || 10, carriles: +$("carriles").value || 2 };
+    if (!capturaManual) { const c = { anios: +$("anios").value || 10, carriles: +$("carriles").value || 2 }; if (velEditada && +$("vel").value) c.velocidad = +$("vel").value; return c; }
     return {
       manual: true, tdpa: +$("tdpa").value || 0, mezcla: mezcla(), sc: +$("sc").value,
       carriles: +$("carriles").value || 2, anios: +$("anios").value || 10,
@@ -1256,6 +1259,7 @@ footer.sitio .actualizado{display:block;margin-top:10px;font-size:10.5px;color:#
                       gr: d.grupo, g: d.geometria || [], cadIni: d.cad_ini, cadFin: d.cad_fin,
                       estados: d.estados || [], carriles: d.carriles || null };
       // Carriles por sentido del Anexo A 2025 (FR, 3-sep-2026); sin dato queda el valor por omisión (2)
+      velEditada = false;
       if (!capturaManual && $("carriles")) {
         const nc = [1, 2, 3, 4].includes(+d.carriles) ? +d.carriles : 2;
         $("carriles").value = String(nc);
@@ -1443,7 +1447,8 @@ footer.sitio .actualizado{display:block;margin-top:10px;font-size:10.5px;color:#
 
   const campos = ["m", "a", "b", "c2", "c3", "t3s2", "t3s3", "t3s2r4", "otros"];
   function habilitarCamposAforo(on) {
-    ["tdpa", "sc", "vel", "tasa", "carriles", "anios"].concat(campos.map((k) => "v-" + k)).forEach((id) => { const e = $(id); if (e) e.disabled = !on; });
+    ["tdpa", "sc", "tasa"].concat(campos.map((k) => "v-" + k)).forEach((id) => { const e = $(id); if (e) e.disabled = !on; });
+    ["vel", "carriles", "anios"].forEach((id) => { const e = $(id); if (e) e.disabled = false; });   // editables siempre (FR, 15-sep-2026)
   }
   function pintarBtnCaptura() {
     const b = $("btn-capturar"), s = $("captura-estado"); if (!b) return;
@@ -1478,6 +1483,13 @@ footer.sitio .actualizado{display:block;margin-top:10px;font-size:10.5px;color:#
   }
   campos.forEach((k) => { const e = $("v-" + k); if (e) e.addEventListener("input", () => { marcarManual(); sumaPct(); }); });
   ["tdpa", "sc", "vel", "tasa", "carriles", "anios"].forEach((id) => { const e = $(id); if (e) e.addEventListener("change", () => { if (capturaManual) marcarManual(); }); });
+  // En modo automatico, periodo, carriles y velocidad se recalculan al cambiar (FR, 15-sep-2026)
+  ["vel", "carriles", "anios"].forEach((id) => { const e = $(id); if (e) e.addEventListener("change", async () => {
+    if (capturaManual) return;
+    if (id === "vel") velEditada = true;
+    if (id === "carriles") carrilesFuente = "capturado por el usuario";
+    try { await calcularAforo(); } catch (err) {}
+  }); });
 
   // Recalcula con lo que haya en pantalla (equivale al viejo calcularAforo)
   async function recalcular() {
@@ -2333,7 +2345,7 @@ footer.sitio .actualizado{display:block;margin-top:10px;font-size:10.5px;color:#
         let kmB = 0; for (const s of R.segs) { if (segMenor(s)) kmB += Math.abs(s.cadFin - s.cadIni); }
         if (!kmB && typeof R.kmMenor === "number") kmB = R.kmMenor;
         doc.setFontSize(7.6); setC(GR);
-        doc.text(asc(R.segs.length + " segmento(s) en " + (R.totalKm || 0).toFixed(1) + " km · gobernante (peor caso): " + PG.pgNormaTxt(R.gov.pg) + (kmB > 0 ? " · " + kmB.toFixed(1) + " km (" + Math.round(kmB / (R.totalKm || 1) * 100) + "%) admiten un PG menor" : " · sin variación (PG uniforme)")), mx, p); p += 5.5;
+        doc.text(asc(R.segs.length + " segmento(s) en " + (R.totalKm || 0).toFixed(1) + " km · gobernante (peor caso): " + PG.pgNormaTxt(R.gov.pg) + (kmB > 0 ? " · " + kmB.toFixed(1) + " km (" + Math.round(kmB / (R.totalKm || 1) * 100) + "%) admiten un PG menor" : " · sin variación (PG uniforme)") + (R.gov.compuesto ? " · gobernante compuesto (mayor grado alto y mayor letra)" : "")), mx, p); p += 5.5;
         const cS = [mx, mx + 7, mx + 52, mx + 66, mx + 118, mx + 140, mx + 160];
         const thS = ["#", "Cadenamiento", "Long", "Estación de aforo", "TDPA", "∑L", "PG (norma)"];
         const filaS = (v, b) => { doc.setFontSize(7.1); doc.setFont(undefined, b ? "bold" : "normal"); setC(b ? G : TN); for (let i = 0; i < v.length; i++) doc.text(clip(v[i], [3, 22, 7, 26, 12, 11, 15][i]), cS[i], p); doc.setFont(undefined, "normal"); };
@@ -2460,5 +2472,5 @@ footer.sitio .actualizado{display:block;margin-top:10px;font-size:10.5px;color:#
     document.body.insertBefore(b, document.body.firstChild);
   })();
 </script>
-<!-- HGA build v44 -->
+<!-- HGA build v45 -->
 </html>
