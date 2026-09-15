@@ -508,7 +508,7 @@ footer.sitio .actualizado{display:block;margin-top:10px;font-size:10.5px;color:#
     el −16 cubre el desempeño requerido a bajas temperaturas en el sitio en estudio.
     Ejes equivalentes por el método del Instituto de Ingeniería UNAM (factores de daño superficial a 6.0 kg/cm²; camión, eje estándar 5.8). Clima: estaciones del SMN con ≥ 20 años.
     Herramienta de referencia; el criterio del proyectista prevalece.
-    <span class="actualizado" id="hga-actualizado">Última actualización: 14 de septiembre de 2026 · versión 26.43</span>
+    <span class="actualizado" id="hga-actualizado">Última actualización: 14 de septiembre de 2026 · versión 26.45</span>
   </footer>
 
   <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
@@ -652,6 +652,8 @@ footer.sitio .actualizado{display:block;margin-top:10px;font-size:10.5px;color:#
   let tramoActual = null;   // { cp, dg?, car, tr, pg, gr, g, cadIni, cadFin, estados }
   let aforoFuente = null;
   let capturaManual = false;
+  let carrilesFuente = null;   // null = por omisión; texto = origen del dato (Anexo A 2025)
+  let velEditada = false;      // la velocidad la cambió el usuario en modo automático
   let ultimaEval = null;    // última respuesta de /api/evaluar
 
   const COLOR_PG = { 64: "#2c7fb8", 70: "#41ab5d", 76: "#f5a623", 82: "#c0392b" };
@@ -867,6 +869,8 @@ footer.sitio .actualizado{display:block;margin-top:10px;font-size:10.5px;color:#
   function modoUbicacion() { const r = document.querySelector('input[name="modoUb"]:checked'); return r ? r.value : "carretera"; }
   document.querySelectorAll('input[name="modoUb"]').forEach((r) => r.addEventListener("change", () => {
     const m = modoUbicacion();
+    if (m !== "carretera" && !capturaManual && $("carriles")) { $("carriles").value = "2"; carrilesFuente = null; }
+    velEditada = false;
     // La longitud de diseno pertenece al tramo/segmento elegido. Sin esto conservaba la del modo
     // anterior: al pasar de "Carretera" (A-004-01, 63,492 m) a "Punto" el reporte calculaba las
     // cantidades de obra sobre esos 63,492 m heredados. Se limpia y prepararDiseno() la vuelve a
@@ -916,7 +920,8 @@ footer.sitio .actualizado{display:block;margin-top:10px;font-size:10.5px;color:#
       } else fus.push(s);
     }
     const govN = PG.pgNormaTxt(d.gobernante.pg);
-    let gov = fus.find((s) => PG.pgNormaTxt(s.pg) === govN) || fus[0];
+    let gov = fus.find((s) => PG.pgNormaTxt(s.pg) === govN) || { pg: d.gobernante.pg, cadIni: 0, cadFin: 0, compuesto: true };
+    if (d.gobernante && d.gobernante.compuesto) gov.compuesto = true;
     let kmMen = 0;
     for (const s of fus) { s.menor = PG.pgNormaTxt(s.pg) !== govN; if (s.menor) kmMen += Math.abs(s.cadFin - s.cadIni); }
     return { segs: fus, gov, cadA: d.cad_a, cadB: d.cad_b, totalKm: d.total_km,
@@ -968,7 +973,7 @@ footer.sitio .actualizado{display:block;margin-top:10px;font-size:10.5px;color:#
     const heads=["#","Cadenamiento","Long. (km)","Estación aforo","TDPA","∑L (10⁶)","PG"].map(h=>'<th style="text-align:left;padding:6px 7px;background:#f4efe8;color:#611232;font-size:11px;border-bottom:1px solid #e0d8cc">'+h+'</th>').join("");
     return '<div class="segpanel-in" style="margin-top:14px;border:1px solid #e6ddcf;border-radius:10px;padding:14px 16px;background:#fff">'+
       '<h2 style="font-size:16px;color:#611232;margin:0 0 4px">Análisis por segmentos homogéneos</h2>'+
-      '<div style="font-size:12.5px;color:#555;margin-bottom:10px">'+segs.length+' segmento(s) en '+tot.toFixed(1)+' km · gobernante (peor caso): <b style="color:#611232">'+PG.pgNormaTxt(gov.pg)+'</b>'+(kmBelow>0?' · <b style="color:#1E5B4F">'+kmBelow.toFixed(1)+' km ('+pct+'%)</b> admiten un PG menor':' · sin variación (PG uniforme)')+'</div>'+
+      '<div style="font-size:12.5px;color:#555;margin-bottom:10px">'+segs.length+' segmento(s) en '+tot.toFixed(1)+' km · gobernante (peor caso): <b style="color:#611232">'+PG.pgNormaTxt(gov.pg)+'</b>'+(kmBelow>0?' · <b style="color:#1E5B4F">'+kmBelow.toFixed(1)+' km ('+pct+'%)</b> admiten un PG menor':' · sin variación (PG uniforme)')+(gov.compuesto?' · gobernante compuesto: mayor grado alto y mayor letra entre los segmentos':'')+'</div>'+
       '<div style="display:flex;height:40px;border-radius:8px;overflow:hidden;border:1px solid #e0d8cc">'+strip+'</div>'+
       '<div style="display:flex;justify-content:space-between;font-size:11px;color:#777;margin:4px 2px 12px"><span>'+fc(Math.min(R.cadA,R.cadB))+'</span><span>'+fc(Math.max(R.cadA,R.cadB))+'</span></div>'+
       '<table style="width:100%;border-collapse:collapse;font-size:12px"><thead><tr>'+heads+'</tr></thead><tbody>'+rows+'</tbody></table>'+
@@ -1139,7 +1144,7 @@ footer.sitio .actualizado{display:block;margin-top:10px;font-size:10.5px;color:#
         if ($("tdpa")) $("tdpa").value = Math.round(a.tdpa);
         const sc = $("sc"); if (sc && [...sc.options].some((o) => o.value === String(a.sc))) sc.value = String(a.sc);
         ["m", "a", "b", "c2", "c3", "t3s2", "t3s3", "t3s2r4", "otros"].forEach((k) => { if ($("v-" + k) && a.mezcla[k] != null) $("v-" + k).value = a.mezcla[k]; });
-        if ($("vel") && a.velocidad) $("vel").value = a.velocidad;
+        if ($("vel") && a.velocidad && !velEditada) $("vel").value = a.velocidad;
         sumaPct();
       }
       aforoFuente = a.fuente;
@@ -1161,7 +1166,7 @@ footer.sitio .actualizado{display:block;margin-top:10px;font-size:10.5px;color:#
         <tr class="sep"><td><b>∑L superficial · z = 0 (II-UNAM, ${a.anios} años)</b></td><td><b>${d.suma_L_texto}</b></td></tr>
         <tr><td>Nivel de ajuste</td><td>${d.nivel_ajuste_texto}</td></tr>
         <tr class="sep"><td>Tasa de crecimiento</td><td>${tasaTexto(d)}</td></tr>
-        <tr><td>Región · velocidad</td><td>${d.region || "—"} · ${a.velocidad} km/h</td></tr>`,
+        <tr><td>Región · velocidad</td><td>${d.region || "—"} · ${a.velocidad} km/h${(velEditada && !capturaManual) ? " (capturada)" : ""}</td></tr>`,
         (d.metodo ? d.metodo + " " : ""));
       prepararDiseno();
     } else if (d.pg_seleccionado === "Diseño especial") {
@@ -1170,7 +1175,7 @@ footer.sitio .actualizado{display:block;margin-top:10px;font-size:10.5px;color:#
   }
 
   function cuerpoAforo() {
-    if (!capturaManual) return { anios: +$("anios").value || 10, carriles: +$("carriles").value || 2 };
+    if (!capturaManual) { const c = { anios: +$("anios").value || 10, carriles: +$("carriles").value || 2 }; if (velEditada && +$("vel").value) c.velocidad = +$("vel").value; return c; }
     return {
       manual: true, tdpa: +$("tdpa").value || 0, mezcla: mezcla(), sc: +$("sc").value,
       carriles: +$("carriles").value || 2, anios: +$("anios").value || 10,
@@ -1252,7 +1257,14 @@ footer.sitio .actualizado{display:block;margin-top:10px;font-size:10.5px;color:#
       if (!d) return;
       tramoActual = { id: d.id, cp: d.clave, car: d.carretera, tr: d.tramo, pg: d.pg_referencia,
                       gr: d.grupo, g: d.geometria || [], cadIni: d.cad_ini, cadFin: d.cad_fin,
-                      estados: d.estados || [] };
+                      estados: d.estados || [], carriles: d.carriles || null };
+      // Carriles por sentido del Anexo A 2025 (FR, 3-sep-2026); sin dato queda el valor por omisión (2)
+      velEditada = false;
+      if (!capturaManual && $("carriles")) {
+        const nc = [1, 2, 3, 4].includes(+d.carriles) ? +d.carriles : 2;
+        $("carriles").value = String(nc);
+        carrilesFuente = [1, 2, 3, 4].includes(+d.carriles) ? "Anexo A 2025" : null;
+      }
       if (q) { q.value = d.carretera || d.clave; ocultarLista(); }
       segSel = null;
       prepararCadenamiento(tramoActual);
@@ -1419,7 +1431,8 @@ footer.sitio .actualizado{display:block;margin-top:10px;font-size:10.5px;color:#
     if (aforoFuente.tipo === "DV2026") {
       b.className = "fuente";
       b.innerHTML = `Aforo de <b>Datos Viales 2026</b> · estación <b>${aforoFuente.estacion}</b> (${aforoFuente.dist_km} km, ${aforoFuente.misma_carretera ? "misma carretera" : "carretera más cercana"}).` +
-        ` Edita cualquier valor si tienes datos más recientes.`;
+        ` Carriles por sentido: <b>${($("carriles") || {}).value || 2}</b> (${carrilesFuente || "por omisión, sin dato en el Anexo A 2025"}).` +
+        ` Para corregir cualquier valor activa "Capturar datos viales".`;
     } else if (aforoFuente.tipo === "regional") {
       b.className = "fuente";
       b.style.cssText = "background:#fff7e6;border:1px solid #8a6d1a;border-radius:8px;padding:10px 12px;color:#5a4a12";
@@ -1434,7 +1447,8 @@ footer.sitio .actualizado{display:block;margin-top:10px;font-size:10.5px;color:#
 
   const campos = ["m", "a", "b", "c2", "c3", "t3s2", "t3s3", "t3s2r4", "otros"];
   function habilitarCamposAforo(on) {
-    ["tdpa", "sc", "vel", "tasa", "carriles", "anios"].concat(campos.map((k) => "v-" + k)).forEach((id) => { const e = $(id); if (e) e.disabled = !on; });
+    ["tdpa", "sc", "tasa"].concat(campos.map((k) => "v-" + k)).forEach((id) => { const e = $(id); if (e) e.disabled = !on; });
+    ["vel", "carriles", "anios"].forEach((id) => { const e = $(id); if (e) e.disabled = false; });   // editables siempre (FR, 15-sep-2026)
   }
   function pintarBtnCaptura() {
     const b = $("btn-capturar"), s = $("captura-estado"); if (!b) return;
@@ -1469,6 +1483,13 @@ footer.sitio .actualizado{display:block;margin-top:10px;font-size:10.5px;color:#
   }
   campos.forEach((k) => { const e = $("v-" + k); if (e) e.addEventListener("input", () => { marcarManual(); sumaPct(); }); });
   ["tdpa", "sc", "vel", "tasa", "carriles", "anios"].forEach((id) => { const e = $(id); if (e) e.addEventListener("change", () => { if (capturaManual) marcarManual(); }); });
+  // En modo automatico, periodo, carriles y velocidad se recalculan al cambiar (FR, 15-sep-2026)
+  ["vel", "carriles", "anios"].forEach((id) => { const e = $(id); if (e) e.addEventListener("change", async () => {
+    if (capturaManual) return;
+    if (id === "vel") velEditada = true;
+    if (id === "carriles") carrilesFuente = "capturado por el usuario";
+    try { await calcularAforo(); } catch (err) {}
+  }); });
 
   // Recalcula con lo que haya en pantalla (equivale al viejo calcularAforo)
   async function recalcular() {
@@ -1570,7 +1591,8 @@ footer.sitio .actualizado{display:block;margin-top:10px;font-size:10.5px;color:#
       // el reporte PDF tambien imprime el volumen compactado, el volumen de acopio del petreo
       // y el espesor suelto: la API ya los manda, faltaba pasarlos
       V: q.volumen, volPetreo: q.petreo_m3, espSuelto: q.espesor_suelto,
-      trat: d.tratamiento, emul: d.emulsion, mat: d.material, nom: d.nominal_mm, rap: d.rap || null,
+      trat: d.tratamiento, emul: d.emulsion, mat: d.material, nom: d.nominal_mm,
+      rap: d.rap ? { pRap: d.rap.pct, rapCA: d.rap.ca_rap, maxNorma: d.rap.max_norma || {}, cumple: d.rap.cumple, brr: d.rap.brr || 0, tier: d.rap.tier || {}, virgenPG: d.rap.virgen_pg, tonVirgAC: d.rap.virgen_t || 0, tonRAPac: d.rap.asfalto_rap_t || 0 } : null,
       // requisitos y dosis que arma el servidor (los usa el reporte PDF)
       reqEmul: d.requisitos_emulsion || [], reqPetreo: d.requisitos_petreo || [], critNIT: d.criterios_nit || [],
       dosis: (q.area && q.emulsion_m3 != null) ? { emul: q.emulsion_m3 * 1000 / q.area, agg: q.agregado_t * 1000 / q.area } : null
@@ -2051,7 +2073,7 @@ footer.sitio .actualizado{display:block;margin-top:10px;font-size:10.5px;color:#
         if (ex.meta.unidad) { kv(mx, p, wt, "Unidad responsable", ex.meta.unidad); p += 4.6; }
         if (ex.meta.dirigido) { kv(mx, p, wt, "Dirigido a", ex.meta.dirigido); p += 4.6; }
         if (ex.meta.resp) { kv(mx, p, wt, "Elaboró / responsable técnico", ex.meta.resp); p += 4.6; }
-        kv(mx, p, wt, "Sello de integridad (SHA-256)", ex.sello); p += 4.6;
+        kv(mx, p, wt, "Sello de integridad (HMAC-SHA-256)", ex.sello); p += 4.6;
         if (p < qy + qs + 2) p = qy + qs + 2;
         doc.setFontSize(7); setC(GR); doc.setFont(undefined, "normal");
         const nota = (ex.modo === "validador"
@@ -2196,7 +2218,7 @@ footer.sitio .actualizado{display:block;margin-top:10px;font-size:10.5px;color:#
         fm = [["Espesor de película efectiva, mín.", "9 um"], ["Escurrimiento, máx.", "0.3 %"], ["Vacíos de aire (VMC) @ 100 giros", "13 - 25 %"], ["Vacíos en el pétreo (VMP), mín.", "20 %"], ["TSR (daño por humedad), mín.", "80 %"]];
       } else if (met === "Desempeño") {
         const tierD = Lm <= 1e7 ? 1 : (Lm <= 3e7 ? 2 : 3);
-        const rango = tierD === 1 ? "10^6 < L <= 10^7" : (tierD === 2 ? "10^7 < L <= 3x10^7" : "L > 3x10^7");
+        const rango = tierD === 1 ? "L <= 10^7" : (tierD === 2 ? "10^7 < L <= 3x10^7" : "L > 3x10^7");
         const nini = tierD === 3 ? "89" : "90.5";
         const vfa = tierD === 1 ? "65 - 78 %" : "65 - 75 %";
         const pas = tierD === 3 ? "20 000" : "15 000";
@@ -2270,8 +2292,8 @@ footer.sitio .actualizado{display:block;margin-top:10px;font-size:10.5px;color:#
           const r = d.rap;
           kv(mx, p, cwd, "RAP " + r.pRap + "% · máx. permitido (N·CMT·4·05·010/26)", r.maxNorma.max + "%" + (r.cumple ? "" : "  EXCEDE")); p += 4.5;
           kv(mx, p, cwd, "Regla aplicable", r.maxNorma.regla); p += 4.5;
-          kv(mx, p, cwd, "Reemplazo de ligante (ref. AASHTO M323)", r.brr.toFixed(0) + " % -> " + r.tier.ajuste); p += 4.5;
-          if (r.virgenPG) { kv(mx, p, cwd, "Ligante virgen sugerido (ref.)", r.virgenPG); p += 4.5; }
+          kv(mx, p, cwd, "Reemplazo de ligante (ref. AASHTO M323)", r.brr.toFixed(0) + " %: " + (r.tier.ajuste || "")); p += 4.5;
+          if (r.virgenPG) { kv(mx, p, cwd, "Ligante virgen (ref.)", "un grado más blando (" + r.virgenPG + "); fuera de la N·CMT·4·05·004/25, requiere estudio particular"); p += 4.5; }
           kv(mx, p, cwd, "CA VIRGEN (a comprar) / CA del RAP", r.tonVirgAC.toFixed(1) + " / " + r.tonRAPac.toFixed(1) + " t"); p += 4.5;
         }
         p += 3;
@@ -2323,7 +2345,7 @@ footer.sitio .actualizado{display:block;margin-top:10px;font-size:10.5px;color:#
         let kmB = 0; for (const s of R.segs) { if (segMenor(s)) kmB += Math.abs(s.cadFin - s.cadIni); }
         if (!kmB && typeof R.kmMenor === "number") kmB = R.kmMenor;
         doc.setFontSize(7.6); setC(GR);
-        doc.text(asc(R.segs.length + " segmento(s) en " + (R.totalKm || 0).toFixed(1) + " km · gobernante (peor caso): " + PG.pgNormaTxt(R.gov.pg) + (kmB > 0 ? " · " + kmB.toFixed(1) + " km (" + Math.round(kmB / (R.totalKm || 1) * 100) + "%) admiten un PG menor" : " · sin variación (PG uniforme)")), mx, p); p += 5.5;
+        doc.text(asc(R.segs.length + " segmento(s) en " + (R.totalKm || 0).toFixed(1) + " km · gobernante (peor caso): " + PG.pgNormaTxt(R.gov.pg) + (kmB > 0 ? " · " + kmB.toFixed(1) + " km (" + Math.round(kmB / (R.totalKm || 1) * 100) + "%) admiten un PG menor" : " · sin variación (PG uniforme)") + (R.gov.compuesto ? " · gobernante compuesto (mayor grado alto y mayor letra)" : "")), mx, p); p += 5.5;
         const cS = [mx, mx + 7, mx + 52, mx + 66, mx + 118, mx + 140, mx + 160];
         const thS = ["#", "Cadenamiento", "Long", "Estación de aforo", "TDPA", "∑L", "PG (norma)"];
         const filaS = (v, b) => { doc.setFontSize(7.1); doc.setFont(undefined, b ? "bold" : "normal"); setC(b ? G : TN); for (let i = 0; i < v.length; i++) doc.text(clip(v[i], [3, 22, 7, 26, 12, 11, 15][i]), cS[i], p); doc.setFont(undefined, "normal"); };
@@ -2450,5 +2472,5 @@ footer.sitio .actualizado{display:block;margin-top:10px;font-size:10.5px;color:#
     document.body.insertBefore(b, document.body.firstChild);
   })();
 </script>
-<!-- HGA build v43 -->
+<!-- HGA build v45 -->
 </html>
