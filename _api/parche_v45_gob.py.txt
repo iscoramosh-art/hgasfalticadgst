@@ -1,0 +1,43 @@
+# -*- coding: utf-8 -*-
+"""v45 (15-sep-2026, decisión de FR): el gobernante de los segmentos homogéneos toma el mayor grado alto Y la
+mayor letra de nivel de ajuste entre todos los segmentos (antes: el segmento de mayor severidad, cuya letra podía
+ser menor que la de otro segmento). Idempotente. Uso: python3 parche_v45_gob.py ~/hga-api/segmentos.py"""
+import io, sys, os
+p = sys.argv[1] if len(sys.argv) > 1 else os.path.expanduser("~/hga-api/segmentos.py")
+s = io.open(p, encoding="utf-8").read()
+A = '''    gov = segs[0]
+    for s in segs:
+        if sev(s) > sev(gov):
+            gov = s
+    return {"segs": segs, "gov": gov, "cadA": cad_a, "cadB": cad_b,'''
+B = '''    gov = segs[0]
+    for s in segs:
+        if sev(s) > sev(gov):
+            gov = s
+    # Gobernante compuesto (FR, 15-sep-2026): mayor grado alto y mayor letra por separado; si ningun segmento
+    # reune ambos, el gobernante es mas exigente que cualquiera de ellos y asi se especifica.
+    if not any(s.get("ga") == "ESP" for s in segs):
+        _rank = {"S": 0, "H": 1, "V": 2, "E": 3}
+        _ga = max(int(s.get("ga") or 0) for s in segs)
+        _le = max([(s.get("letra") or "S") for s in segs], key=lambda l: _rank.get(l, 0))
+        _gb = min(int(s.get("gb") or -16) for s in segs)
+        if _ga != gov.get("ga") or _le != gov.get("letra"):
+            gov = dict(gov)
+            gov.update({"ga": _ga, "letra": _le, "gb": _gb, "pg": "PG %d%s-%d" % (_ga, _le, abs(_gb)),
+                        "compuesto": True})
+    return {"segs": segs, "gov": gov, "cadA": cad_a, "cadB": cad_b,'''
+if B not in s:
+    assert s.count(A) == 1, "ancla gobernante"
+    s = s.replace(A, B)
+io.open(p, "w", encoding="utf-8").write(s)
+print("PARCHE_V45_GOB_OK", p)
+
+# main.py: expone si el gobernante es compuesto (mismo directorio)
+pm = os.path.join(os.path.dirname(os.path.abspath(p)), "main.py")
+m = io.open(pm, encoding="utf-8").read()
+a = '"gobernante": {"pg": R["gov"]["pg"], "color": SEG.color(R["gov"])},'
+b = '"gobernante": {"pg": R["gov"]["pg"], "color": SEG.color(R["gov"]), "compuesto": bool(R["gov"].get("compuesto"))},'
+if b not in m:
+    assert m.count(a) == 1, "ancla gobernante main"
+    io.open(pm, "w", encoding="utf-8").write(m.replace(a, b))
+print("MAIN_GOB_OK", pm)
