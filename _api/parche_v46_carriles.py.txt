@@ -1,12 +1,15 @@
 # -*- coding: utf-8 -*-
 """v46 (17-sep-2026, decisión de FR): en los tramos del Anexo A sin dato de carriles, la red básica y la red
 secundaria (libre) asumen 1 carril por sentido (factor de distribución 1.00) en lugar del 2 por omisión;
-las demás redes siguen con 2. /api/tramo devuelve además `carriles_fuente`. Idempotente.
+las demás redes siguen con 2. /api/tramo devuelve además `carriles_fuente` y `red`. Idempotente.
+Anclas por expresión regular (v46b) para no depender del orden exacto de columnas del SELECT.
 Uso: python3 parche_v46_carriles.py [ruta a main.py]"""
-import io, sys, os
+import io, sys, os, re
 p = sys.argv[1] if len(sys.argv) > 1 else os.path.expanduser("~/hga-api/main.py")
 s = io.open(p, encoding="utf-8").read()
+orig = s
 
+# 1) helper carriles_de(cp) -> carriles_de(cp, red)
 A = '''def carriles_de(cp):
     """Carriles por sentido del Anexo A 2025 (tabla `carriles`); None si no hay dato."""
     try:
@@ -31,25 +34,31 @@ def carriles_de(cp, red=None):
         return 1, "red básica/secundaria sin dato en el Anexo A: 1 por omisión"
     return None, None
 '''
-if B not in s:
-    assert s.count(A) == 1, "ancla carriles_de"
+if "def carriles_de(cp, red=None)" not in s:
+    assert s.count(A) == 1, "ancla carriles_de (helper no encontrado o ya distinto)"
     s = s.replace(A, B)
 
-C = '''        "SELECT id,cp,carretera,tramo,pg,grupo,cad_ini,cad_fin,geom,estados FROM tramos WHERE id=?",'''
-D = '''        "SELECT id,cp,carretera,tramo,pg,grupo,cad_ini,cad_fin,geom,estados,red FROM tramos WHERE id=?",'''
-if D not in s:
-    assert s.count(C) == 1, "ancla select tramo"
-    s = s.replace(C, D)
+# 2) SELECT del tramo: agregar la columna `red` si no está
+def _sel(m):
+    cols = m.group(1)
+    if "estados" not in cols or re.search(r"\bred\b", cols):   # solo el SELECT de /api/tramo (trae `estados`)
+        return m.group(0)
+    return "SELECT " + cols + ",red FROM tramos WHERE id=?"
+s, n_sel = re.subn(r"SELECT ([A-Za-z_,\s]+?) FROM tramos WHERE id=\?", _sel, s)
+assert re.search(r"SELECT [A-Za-z_,\s]*estados[A-Za-z_,\s]*\bred\b[A-Za-z_,\s]* FROM tramos WHERE id=\?", s), \
+    "ancla select tramo (no se encontró el SELECT de /api/tramo con `estados`)"
 
-E = '''            "carriles": carriles_de(f["cp"]),
-            "geometria": json.loads(f["geom"] or "[]")}'''
-F = '''            "carriles": carriles_de(f["cp"], f["red"])[0],
-            "carriles_fuente": carriles_de(f["cp"], f["red"])[1],
-            "red": f["red"],
-            "geometria": json.loads(f["geom"] or "[]")}'''
-if F not in s:
-    assert s.count(E) == 1, "ancla respuesta tramo"
+# 3) respuesta de /api/tramo
+E = '"carriles": carriles_de(f["cp"]),'
+F = ('"carriles": carriles_de(f["cp"], f["red"])[0],\n'
+     '            "carriles_fuente": carriles_de(f["cp"], f["red"])[1],\n'
+     '            "red": f["red"],')
+if "carriles_fuente" not in s:
+    assert s.count(E) == 1, "ancla respuesta tramo ('\"carriles\": carriles_de(f[\"cp\"]),' no encontrada)"
     s = s.replace(E, F)
 
-io.open(p, "w", encoding="utf-8").write(s)
-print("PARCHE_V46_OK", p)
+if s != orig:
+    io.open(p, "w", encoding="utf-8").write(s)
+    print("PARCHE_V46_OK", p)
+else:
+    print("PARCHE_V46_YA_APLICADO", p)
