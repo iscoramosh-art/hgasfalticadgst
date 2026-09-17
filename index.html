@@ -1258,15 +1258,16 @@ footer.sitio .actualizado{display:block;margin-top:10px;font-size:10.5px;color:#
       tramoActual = { id: d.id, cp: d.clave, car: d.carretera, tr: d.tramo, pg: d.pg_referencia,
                       gr: d.grupo, g: d.geometria || [], cadIni: d.cad_ini, cadFin: d.cad_fin,
                       estados: d.estados || [], carriles: d.carriles || null };
-      // Carriles por sentido del Anexo A 2025 (FR, 3-sep-2026). Sin dato, el numero propio de la red
-      // (FR, 17-sep-2026): un carril por sentido en la red libre basica y secundaria; dos en corredores y cuota.
+      // Carriles por sentido del Anexo A 2025 (FR, 3-sep-2026); sin dato: 1 en red básica y secundaria (FR, 17-sep-2026), 2 en las demás
       velEditada = false;
       if (!capturaManual && $("carriles")) {
-        const cA = [1, 2, 3, 4].includes(+d.carriles) ? +d.carriles : null;
-        const libre = /b[áa]sica|secundaria/i.test(String(d.grupo || ""));
-        const nc = cA || (libre ? 1 : 2);
+        // v46 (FR, 17-sep-2026): sin dato en el Anexo A, la red básica y secundaria (no gazas) asume 1 carril por sentido
+        const conDato = [1, 2, 3, 4].includes(+d.carriles);
+        const redLibre = (d.grupo === "Básica + Secundaria") && !/-G\d+$/.test(String(d.clave || ""));
+        const nc = conDato ? +d.carriles : (redLibre ? 1 : 2);
         $("carriles").value = String(nc);
-        carrilesFuente = cA ? "Anexo A 2025" : (libre ? "sin dato en el Anexo A 2025: red libre básica y secundaria, un carril por sentido" : "sin dato en el Anexo A 2025: corredores y cuota, dos carriles por sentido");
+        carrilesFuente = conDato ? (d.carriles_fuente || "Anexo A 2025")
+                       : (redLibre ? "red básica/secundaria sin dato en el Anexo A: 1 por omisión" : null);
       }
       if (q) { q.value = d.carretera || d.clave; ocultarLista(); }
       segSel = null;
@@ -1434,7 +1435,7 @@ footer.sitio .actualizado{display:block;margin-top:10px;font-size:10.5px;color:#
     if (aforoFuente.tipo === "DV2026") {
       b.className = "fuente";
       b.innerHTML = `Aforo de <b>Datos Viales 2026</b> · estación <b>${aforoFuente.estacion}</b> (${aforoFuente.dist_km} km, ${aforoFuente.misma_carretera ? "misma carretera" : "carretera más cercana"}).` +
-        ` Carriles por sentido: <b>${($("carriles") || {}).value || 2}</b> (${carrilesFuente || "por omisión, dos carriles por sentido"}).` +
+        ` Carriles por sentido: <b>${($("carriles") || {}).value || 2}</b> (${carrilesFuente || "por omisión, sin dato en el Anexo A 2025"}).` +
         ` Para corregir cualquier valor activa "Capturar datos viales".`;
     } else if (aforoFuente.tipo === "regional") {
       b.className = "fuente";
@@ -2475,5 +2476,5 @@ footer.sitio .actualizado{display:block;margin-top:10px;font-size:10.5px;color:#
     document.body.insertBefore(b, document.body.firstChild);
   })();
 </script>
-<!-- HGA build v45 -->
+<!-- HGA build v46 -->
 </html>
