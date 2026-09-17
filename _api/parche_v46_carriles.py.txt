@@ -1,0 +1,55 @@
+# -*- coding: utf-8 -*-
+"""v46 (17-sep-2026, decisión de FR): en los tramos del Anexo A sin dato de carriles, la red básica y la red
+secundaria (libre) asumen 1 carril por sentido (factor de distribución 1.00) en lugar del 2 por omisión;
+las demás redes siguen con 2. /api/tramo devuelve además `carriles_fuente`. Idempotente.
+Uso: python3 parche_v46_carriles.py [ruta a main.py]"""
+import io, sys, os
+p = sys.argv[1] if len(sys.argv) > 1 else os.path.expanduser("~/hga-api/main.py")
+s = io.open(p, encoding="utf-8").read()
+
+A = '''def carriles_de(cp):
+    """Carriles por sentido del Anexo A 2025 (tabla `carriles`); None si no hay dato."""
+    try:
+        r = DATOS["db"].execute("SELECT carriles FROM carriles WHERE cp=?", (cp,)).fetchone()
+        return int(r[0]) if r and r[0] else None
+    except Exception:
+        return None
+'''
+B = '''REDES_UN_CARRIL = ("BASICA", "SECUNDARIA")   # red federal libre: 1 carril por sentido cuando el Anexo A no trae dato
+
+
+def carriles_de(cp, red=None):
+    """Carriles por sentido del Anexo A 2025 (tabla `carriles`) y su origen. Sin dato: 1 en red básica y
+    secundaria (FR, 17-sep-2026), None (el cliente aplica 2) en las demás redes."""
+    try:
+        r = DATOS["db"].execute("SELECT carriles FROM carriles WHERE cp=?", (cp,)).fetchone()
+        if r and r[0]:
+            return int(r[0]), "Anexo A 2025"
+    except Exception:
+        pass
+    if (red or "").upper() in REDES_UN_CARRIL:
+        return 1, "red básica/secundaria sin dato en el Anexo A: 1 por omisión"
+    return None, None
+'''
+if B not in s:
+    assert s.count(A) == 1, "ancla carriles_de"
+    s = s.replace(A, B)
+
+C = '''        "SELECT id,cp,carretera,tramo,pg,grupo,cad_ini,cad_fin,geom,estados FROM tramos WHERE id=?",'''
+D = '''        "SELECT id,cp,carretera,tramo,pg,grupo,cad_ini,cad_fin,geom,estados,red FROM tramos WHERE id=?",'''
+if D not in s:
+    assert s.count(C) == 1, "ancla select tramo"
+    s = s.replace(C, D)
+
+E = '''            "carriles": carriles_de(f["cp"]),
+            "geometria": json.loads(f["geom"] or "[]")}'''
+F = '''            "carriles": carriles_de(f["cp"], f["red"])[0],
+            "carriles_fuente": carriles_de(f["cp"], f["red"])[1],
+            "red": f["red"],
+            "geometria": json.loads(f["geom"] or "[]")}'''
+if F not in s:
+    assert s.count(E) == 1, "ancla respuesta tramo"
+    s = s.replace(E, F)
+
+io.open(p, "w", encoding="utf-8").write(s)
+print("PARCHE_V46_OK", p)
