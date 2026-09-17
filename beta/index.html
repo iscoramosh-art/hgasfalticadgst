@@ -1261,9 +1261,13 @@ footer.sitio .actualizado{display:block;margin-top:10px;font-size:10.5px;color:#
       // Carriles por sentido del Anexo A 2025 (FR, 3-sep-2026); sin dato: 1 en red básica y secundaria (FR, 17-sep-2026), 2 en las demás
       velEditada = false;
       if (!capturaManual && $("carriles")) {
-        const nc = [1, 2, 3, 4].includes(+d.carriles) ? +d.carriles : 2;
+        // v46 (FR, 17-sep-2026): sin dato en el Anexo A, la red básica y secundaria (no gazas) asume 1 carril por sentido
+        const conDato = [1, 2, 3, 4].includes(+d.carriles);
+        const redLibre = (d.grupo === "Básica + Secundaria") && !/-G\d+$/.test(String(d.clave || ""));
+        const nc = conDato ? +d.carriles : (redLibre ? 1 : 2);
         $("carriles").value = String(nc);
-        carrilesFuente = [1, 2, 3, 4].includes(+d.carriles) ? (d.carriles_fuente || "Anexo A 2025") : null;   // v46: red básica/secundaria sin dato -> 1
+        carrilesFuente = conDato ? (d.carriles_fuente || "Anexo A 2025")
+                       : (redLibre ? "red básica/secundaria sin dato en el Anexo A: 1 por omisión" : null);
       }
       if (q) { q.value = d.carretera || d.clave; ocultarLista(); }
       segSel = null;
