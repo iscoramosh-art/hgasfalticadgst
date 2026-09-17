@@ -508,7 +508,7 @@ footer.sitio .actualizado{display:block;margin-top:10px;font-size:10.5px;color:#
     el −16 cubre el desempeño requerido a bajas temperaturas en el sitio en estudio.
     Ejes equivalentes por el método del Instituto de Ingeniería UNAM (factores de daño superficial a 6.0 kg/cm²; camión, eje estándar 5.8). Clima: estaciones del SMN con ≥ 20 años.
     Herramienta de referencia; el criterio del proyectista prevalece.
-    <span class="actualizado" id="hga-actualizado">Última actualización: 14 de septiembre de 2026 · versión 26.45</span>
+    <span class="actualizado" id="hga-actualizado">Última actualización: 17 de septiembre de 2026 · versión 26.46</span>
   </footer>
 
   <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
@@ -1258,12 +1258,12 @@ footer.sitio .actualizado{display:block;margin-top:10px;font-size:10.5px;color:#
       tramoActual = { id: d.id, cp: d.clave, car: d.carretera, tr: d.tramo, pg: d.pg_referencia,
                       gr: d.grupo, g: d.geometria || [], cadIni: d.cad_ini, cadFin: d.cad_fin,
                       estados: d.estados || [], carriles: d.carriles || null };
-      // Carriles por sentido del Anexo A 2025 (FR, 3-sep-2026); sin dato queda el valor por omisión (2)
+      // Carriles por sentido del Anexo A 2025 (FR, 3-sep-2026); sin dato: 1 en red básica y secundaria (FR, 17-sep-2026), 2 en las demás
       velEditada = false;
       if (!capturaManual && $("carriles")) {
         const nc = [1, 2, 3, 4].includes(+d.carriles) ? +d.carriles : 2;
         $("carriles").value = String(nc);
-        carrilesFuente = [1, 2, 3, 4].includes(+d.carriles) ? "Anexo A 2025" : null;
+        carrilesFuente = [1, 2, 3, 4].includes(+d.carriles) ? (d.carriles_fuente || "Anexo A 2025") : null;   // v46: red básica/secundaria sin dato -> 1
       }
       if (q) { q.value = d.carretera || d.clave; ocultarLista(); }
       segSel = null;
@@ -2472,5 +2472,5 @@ footer.sitio .actualizado{display:block;margin-top:10px;font-size:10.5px;color:#
     document.body.insertBefore(b, document.body.firstChild);
   })();
 </script>
-<!-- HGA build v45 -->
+<!-- HGA build v46 -->
 </html>
