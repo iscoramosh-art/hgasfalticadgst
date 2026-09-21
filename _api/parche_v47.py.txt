@@ -1,0 +1,256 @@
+# -*- coding: utf-8 -*-
+"""v47 (21-sep-2026, decisiones de FR) para hga-api. Parcha main.py y diseno.py con anclas por expresión
+regular y sólo escribe si TODAS las anclas se encuentran. Idempotente. Requiere haber corrido antes
+precip_v47.py (columnas `precip` y `zona` en la tabla `estaciones`).
+
+Cambios:
+  1) /api/evaluar devuelve en estacion_clima: precip_mm, zona y lluvioso (precipitación media anual de
+     1,200 mm o más); en modo segmento rige el extremo más lluvioso.
+  2) /api/diseno acepta agrietamiento (lt10 | 10-25 | 25-50 | gt50) y lluvioso; con más de 50 % de
+     agrietamiento no procede el tratamiento superficial (rehabilitación); con 10 a 50 % la única opción es
+     el calafateo inducido (scrub seal); con menos de 10 %: hasta 10,000 de TDPA se admiten riego de sello
+     (recomendado), premezclado y microaglomerado; de 10,000 a 50,000 premezclado (recomendado) y
+     microaglomerado; más de 50,000 microcarpeta discontinua en caliente (se conserva).
+  3) Riego de sello premezclado: estrictamente en planta (ECM-65 / ECL-62P) y cumple todo lo del riego de
+     sello convencional.
+  4) Capas discontinuas de 3 a 5 cm (y microcarpeta en caliente): CASAA obligatoria en zona lluviosa.
+Uso: python3 parche_v47.py [carpeta de la API, por omisión ~/hga-api]"""
+import io, sys, os, re
+
+base = sys.argv[1] if len(sys.argv) > 1 else os.path.expanduser("~/hga-api")
+aqui = os.path.dirname(os.path.abspath(__file__))
+pm, pd = os.path.join(base, "main.py"), os.path.join(base, "diseno.py")
+m = io.open(pm, encoding="utf-8").read()
+dz = io.open(pd, encoding="utf-8").read()
+m0, dz0 = m, dz
+fallas = []
+
+
+def sub1(s, patron, repl, nombre, flags=0, ya=None):
+    """Sustituye exactamente una vez; si `ya` está presente en s se considera aplicado."""
+    if ya and ya in s:
+        return s
+    n = len(re.findall(patron, s, flags))
+    if n != 1:
+        fallas.append("%s: %d coincidencias" % (nombre, n))
+        return s
+    return re.sub(patron, repl, s, count=1, flags=flags)
+
+
+# =============================================================== diseno.py: bloque de tratamientos
+bloque = io.open(os.path.join(aqui, "bloque_trat_v47.py"), encoding="utf-8").read()
+if "def tratamientos_admitidos" not in dz:
+    pat = r"# -{10,} tratamientos superficiales\n.*?(?=def _mil\()"
+    if len(re.findall(pat, dz, re.S)) == 1:
+        dz = re.sub(pat, lambda _: bloque, dz, count=1, flags=re.S)
+    else:
+        fallas.append("diseno.py: bloque de tratamientos (marcador '---- tratamientos superficiales' y 'def _mil(')")
+
+# =============================================================== main.py
+# 1) helper de zona lluviosa antes de eval_temp
+m = sub1(m, r"\ndef eval_temp\(lat, lon\):",
+         "\nPRECIP_LLUVIOSO = 1200   # mm/año; FR 21-sep-2026: CASAA obligatoria en capas discontinuas de 3 a 5 cm\n\n\n"
+         "def _lluvioso(est):\n"
+         "    p = est.get(\"precip\") if isinstance(est, dict) else None\n"
+         "    return bool(p is not None and p >= PRECIP_LLUVIOSO)\n\n\n"
+         "def eval_temp(lat, lon):", "main: def eval_temp", ya="def _lluvioso(est)")
+
+# 2) modo segmento: rige el extremo más lluvioso para la precipitación
+m = sub1(m, r"(        est, dist = eg\[\"s\"\], eg\[\"dist\"\]\n)",
+         lambda mm: mm.group(1) + '        _w = max((e1, e2), key=lambda x: x["s"].get("precip") or 0)["s"]\n'
+                                  '        est = dict(est, precip=_w.get("precip"), zona=_w.get("zona"), precip_estacion=_w.get("nombre"))\n',
+         "main: est, dist = eg[...] (modo segmento)", ya="est = dict(est, precip=")
+
+# 3) respuesta de /api/evaluar: precipitación en estacion_clima
+m = sub1(m, r"(\"estacion_clima\":\s*\{)",
+         lambda mm: mm.group(1) + '"precip_mm": est.get("precip"), "zona": est.get("zona"), "lluvioso": _lluvioso(est), "precip_estacion": est.get("precip_estacion") or est["nombre"], ',
+         "main: \"estacion_clima\": {", ya="\"precip_mm\": est.get(\"precip\")")
+
+# 4) modelo Diseno: agrietamiento y lluvioso
+m = sub1(m, r"(    tratamiento: Optional\[str\] = None[^\n]*\n)",
+         lambda mm: mm.group(1) + '    agrietamiento: str = "lt10"     # lt10 | 10-25 | 25-50 | gt50 (v47)\n'
+                                  '    lluvioso: bool = False           # precipitación media anual de 1,200 mm o más (v47)\n'
+                                  '    precip_mm: Optional[float] = None\n',
+         "main: modelo Diseno (tratamiento: Optional[str])", ya="agrietamiento: str = ")
+
+# 5) más de 50 % de agrietamiento: no procede (antes de la microcarpeta en caliente)
+REHAB_AGR = '''    # --- v47: agrietamiento mayor de 50 %: no procede ningún tratamiento superficial
+    if tc["clase"] == "delgada" and d.agrietamiento == "gt50":
+        area = ancho * largo
+        return {"clase": "delgada", "rehabilitacion": True, "motivo": "agrietamiento", "area": area,
+                "agrietamiento": d.agrietamiento, "opciones": {"agrietamientos": D.AGRIET},
+                "tarjeta": _tarjeta(
+                    "Rehabilitación",
+                    "No procede el tratamiento superficial, agrietamiento mayor de 50 % del área",
+                    [["Diagnóstico", "Superficie con agrietamiento mayor de 50 % del área"],
+                     ["Espesor capturado", "%g cm (tratamiento superficial)" % esp],
+                     ["Tratamientos superficiales", "No proceden: riego de sello, premezclado, microaglomerado ni calafateo inducido"],
+                     ["Acción recomendada", "Rehabilitación: fresado y reposición de la carpeta o sobrecarpeta, con evaluación estructural previa"],
+                     ["Evaluación previa", "Deflexiones FWD, vida remanente, diseño por II-UNAM / AASHTO-93"]],
+                    "Con más de 50 % del área agrietada un tratamiento superficial en frío no sella ni retarda el deterioro: "
+                    "las grietas se reflejan de inmediato y la capa pierde el pétreo (PPRA; Caltrans Maintenance Manual; "
+                    "UCPRC). El calafateo inducido (scrub seal) sólo se admite entre 10 y 50 % de agrietamiento. Corrija "
+                    "primero la superficie (fresado y reposición o sobrecarpeta) con evaluación estructural.",
+                    {"titulo": "No procede el tratamiento superficial, se requiere REHABILITACIÓN",
+                     "texto": "El agrietamiento se capturó como mayor de 50 % del área, por lo que no se diseña el "
+                              "tratamiento ni se genera el reporte. Si el agrietamiento es menor, cambie \\"Agrietamiento de la superficie\\"."})}
+
+'''
+m = sub1(m, r"(    if tc\[\"clase\"\] == \"delgada\" and tdpa > 50000:\n)",
+         lambda mm: REHAB_AGR + mm.group(1), "main: if tc[clase]==delgada and tdpa > 50000",
+         ya="v47: agrietamiento mayor de 50 %")
+
+# 6) microcarpeta en caliente: CASAA obligatoria en zona lluviosa y aviso por agrietamiento 10 a 50 %
+m = sub1(m, r"        tipo_mezcla = d\.tipo_mezcla or \"SMA\"\n",
+         "        tipo_mezcla = \"CASAA\" if d.lluvioso else (d.tipo_mezcla or \"SMA\")\n",
+         "main: tipo_mezcla = d.tipo_mezcla or \"SMA\" (microcarpeta caliente)",
+         ya="tipo_mezcla = \"CASAA\" if d.lluvioso else (d.tipo_mezcla or \"SMA\")")
+m = sub1(m, r"(                \"tarjeta\": _tarjeta\(\n                    \"%\.1f t de CA\" % ton_ca,\n                    \"Microcarpeta discontinua en caliente)",
+         lambda mm: '                "casaa_obligatoria": bool(d.lluvioso), "precip_mm": d.precip_mm, "agrietamiento": d.agrietamiento,\n'
+                    '                "avisos": _avisos_v47(d, tc),\n' + mm.group(1),
+         "main: tarjeta de microcarpeta caliente", ya='"avisos": _avisos_v47(d, tc),')
+m = sub1(m, r"(                     \[\"Material pétreo \(masa · volumen de acopio\)\", \"%\.1f t · %\.1f m³\" % \(ton_pet, ton_pet / dens_pet\)\]\],\n"
+            r"                    \"TDPA = %s \(> 50,000\))",
+         lambda mm: mm.group(1).replace("]],\n", "]] + _filas_v47(d, tc),\n"),
+         "main: filas de microcarpeta caliente", ya="]] + _filas_v47(d, tc),")
+m = sub1(m, r"por Grado PG\. Rangos de tránsito \(ISSA/FHWA/PPRA\): riego de sello hasta ~10,000 y microaglomerado \"\n"
+            r"                    \"hasta ~50,000 TDPA\.\" % D\._mil\(tdpa\)\)\}",
+         "por Grado PG. Tratamientos superficiales en frío hasta 50,000 de TDPA (FR, 27-ago-2026; práctica \"\n"
+         "                    \"ISSA/FHWA/PPRA).\" % D._mil(tdpa) + _nota_v47(d, tc))}",
+         "main: nota de microcarpeta caliente", ya="+ _nota_v47(d, tc))}")
+
+# 7) tratamiento superficial en frío: bloque nuevo
+TRAT_V47 = '''    if tc["clase"] == "delgada":
+        agriet = d.agrietamiento if d.agrietamiento in D.AGRIET_TXT else "lt10"
+        rec = D.recomendar_trat(tdpa, d.grado_alto if isinstance(d.grado_alto, int) else 64, agriet)
+        adm = [a[0] for a in rec["admitidos"]]
+        trat = d.tratamiento if d.tratamiento in adm else rec["tipo"]
+        opc_emul = D.emul_opts(trat, tdpa)
+        emul = d.emulsion if any(o[0] == d.emulsion for o in opc_emul) else rec["emul_por_tipo"][trat]
+        mat_id = d.material if any(o[0] == d.material for o in D.MAT_TRAT[trat]) else rec["mat_por_tipo"][trat]
+        mat_txt = dict(D.MAT_TRAT[trat]).get(mat_id, mat_id)
+        area = ancho * largo
+        dosis = D.DOSIS_TRAT.get(trat, D.DOSIS_TRAT["riego"])
+        emul_tot = area * dosis["emul"] / 1000.0
+        agg_tot = area * dosis["agg"] / 1000.0
+        rol = "recomendado" if trat == rec["tipo"] else "admitido"
+        filas = [["Geometría (ancho × largo)", "%g × %g m" % (ancho, largo)],
+                 ["Área a tratar", "%s m²" % D._mil(area)],
+                 ["Agrietamiento de la superficie", D.AGRIET_TXT[agriet]],
+                 ["Tipo de tratamiento (%s)" % rol, D.label_trat(trat)],
+                 ["Opciones admitidas (TDPA %s, agrietamiento %s)" % (format(int(tdpa), ",d"), D.AGRIET_TXT[agriet].lower()),
+                  ", ".join(a[1] for a in rec["admitidos"])]]
+        if trat == "premez":
+            filas.append(["Elaboración", "ESTRICTAMENTE EN PLANTA; cumple todo lo del riego de sello convencional"])
+        if trat == "scrub":
+            filas.append(["Alcance", "Intervención óptima (10 a 25 %)" if agriet == "10-25"
+                          else "Solución paliativa de 1 a 3 años (25 a 50 %)"])
+        filas += [["Emulsión asfáltica (N·CMT·4·05·005/22)", emul],
+                  ["Material pétreo (N·CMT·4·04/17)", mat_txt],
+                  ["Dosis de emulsión (típica)", "%.1f L/m² (%.1f m³ en total)" % (dosis["emul"], emul_tot)],
+                  ["Dosis de agregado (típica)", "%g kg/m² (%.1f t en total)" % (dosis["agg"], agg_tot)]]
+        if trat == "premez":
+            nota_tipo = ("El riego de sello premezclado se elabora ESTRICTAMENTE EN PLANTA (pétreo y emulsión mezclados en "
+                         "planta, extendidos y planchados en el camino) y debe cumplir con todo lo correspondiente al riego "
+                         "de sello convencional. ")
+        elif trat == "scrub":
+            nota_tipo = ("Calafateo inducido (scrub seal): la emulsión modificada se distribuye con escoba de calafateo que "
+                         "la introduce en las grietas antes del pétreo; es la única opción con agrietamiento de 10 a 50 % "
+                         "(10 a 25 %: óptimo; 25 a 50 %: paliativo de 1 a 3 años, PPRA). ")
+        else:
+            nota_tipo = ""
+        return {"clase": "tratamiento", "tratamiento": trat, "emulsion": emul, "material": mat_id,
+                "agrietamiento": agriet, "recomendado": rec["tipo"],
+                "opciones": {"tratamientos": rec["admitidos"], "emulsiones": opc_emul,
+                             "materiales": D.MAT_TRAT[trat], "agrietamientos": D.AGRIET},
+                "recomendacion": rec["texto"],
+                "cantidades": {"area": area, "emulsion_m3": emul_tot, "agregado_t": agg_tot},
+                "requisitos_emulsion": D.req_emulsion(emul),
+                "requisitos_petreo": D.REQ_PETREO_TRAT,
+                "criterios_nit": D.criterios_nit(trat),
+                "tarjeta": _tarjeta(
+                    "%s m²" % D._mil(area),
+                    "%s (< 3 cm), ligante EMULSIÓN, por m²" % D.label_trat(trat),
+                    filas,
+                    nota_tipo + "El ligante es EMULSIÓN asfáltica, NO cemento asfáltico por Grado PG (el PG que aparece por "
+                    "temperatura es sólo referencia climática; no es el ligante). Tratamientos superficiales en frío por "
+                    "tránsito y agrietamiento (FR, 21-sep-2026): con menos de 10 % de agrietamiento, hasta 10,000 de TDPA "
+                    "riego de sello (recomendado), premezclado y microaglomerado; de 10,000 a 50,000 premezclado en planta "
+                    "(recomendado) y microaglomerado; con 10 a 50 % sólo calafateo inducido; con más de 50 % no procede. "
+                    "TDPA > 5,000: emulsión modificada con polímero. Se construye por N·CTR·CAR·1·04·008/23 y se cuantifica "
+                    "por m² (dosis típicas, calíbrense en el tramo de prueba). " + D.REF_TRAT)}
+'''
+m = sub1(m, r"    if tc\[\"clase\"\] == \"delgada\":\n        rec = D\.recomendar_trat\(tdpa,.*?(?=\n    # --- capa densa o discontinua)",
+         lambda mm: TRAT_V47.rstrip("\n"), "main: bloque de tratamiento en frío", flags=re.S,
+         ya="rec = D.recomendar_trat(tdpa, d.grado_alto if isinstance(d.grado_alto, int) else 64, agriet)")
+
+# 8) capa discontinua 3 a 5 cm: CASAA obligatoria en zona lluviosa
+m = sub1(m, r"    tipo_mezcla = \(d\.tipo_mezcla or \"SMA\"\) if tc\[\"disc\"\] else \"densa\"\n",
+         "    tipo_mezcla = ((\"CASAA\" if d.lluvioso else (d.tipo_mezcla or \"SMA\")) if tc[\"disc\"] else \"densa\")\n",
+         "main: tipo_mezcla capa discontinua", ya="(\"CASAA\" if d.lluvioso else (d.tipo_mezcla or \"SMA\")) if tc[\"disc\"]")
+m = sub1(m, r"(    avisos = \[\]\n)",
+         lambda mm: mm.group(1) + "    avisos += _avisos_v47(d, tc)\n", "main: avisos = []", ya="avisos += _avisos_v47(d, tc)")
+m = sub1(m, r"(             \[\"Método de diseño\", metodo \+ \(\" — obligado \(∑L>10⁷\)\" if forzado else \"\"\)\]\]\n)",
+         lambda mm: mm.group(1).replace("]]\n", "]] + _filas_v47(d, tc)\n"),
+         "main: filas [Método de diseño]", ya="]] + _filas_v47(d, tc)\n")
+m = sub1(m, r"(    return \{\"clase\": tc\[\"clase\"\], \"metodo\": metodo, \"metodo_forzado\": forzado, \"tipo_mezcla\": tipo_mezcla,\n)",
+         lambda mm: mm.group(1) + '            "casaa_obligatoria": bool(d.lluvioso and tc["disc"]), "precip_mm": d.precip_mm,\n',
+         "main: return de capa densa/discontinua", ya="\"casaa_obligatoria\": bool(d.lluvioso and tc[\"disc\"])")
+
+# 9) auxiliares v47 (antes de @app.post("/api/diseno"))
+AUX = '''def _filas_v47(d, tc):
+    """Filas adicionales de la tarjeta (v47): CASAA obligatoria por precipitación en capas discontinuas."""
+    if not d.lluvioso or not (tc["disc"] or tc["clase"] == "delgada"):
+        return []
+    p = ("%s mm" % format(int(round(d.precip_mm)), ",d")) if d.precip_mm else "1,200 mm o más"
+    return [["Tipo de mezcla discontinua", "CASAA obligatoria: precipitación media anual de %s en la estación que rige (M·MMP·4·05·056/23)" % p]]
+
+
+def _avisos_v47(d, tc):
+    av = []
+    if d.lluvioso and (tc["disc"] or tc["clase"] == "delgada"):
+        av.append("Zona lluviosa (precipitación media anual de 1,200 mm o más): la capa discontinua debe ser CASAA "
+                  "(M·MMP·4·05·056/23); se desactivó SMA.")
+    if tc["clase"] == "delgada" and d.agrietamiento in ("10-25", "25-50"):
+        av.append("Agrietamiento de %s: sellar y calafatear las grietas antes de tender la microcarpeta en caliente."
+                  % ("10 a 25 %" if d.agrietamiento == "10-25" else "25 a 50 %"))
+    return av
+
+
+def _nota_v47(d, tc):
+    n = ""
+    if d.lluvioso:
+        n += (" Zona lluviosa (precipitación media anual de 1,200 mm o más en la estación que rige): la mezcla "
+              "discontinua debe ser CASAA, sin fibra (M·MMP·4·05·056/23), por su menor sensibilidad al agua.")
+    if tc["clase"] == "delgada" and d.agrietamiento in ("10-25", "25-50"):
+        n += " Con agrietamiento de 10 a 50 % se requiere sellar y calafatear las grietas antes de la microcarpeta."
+    return n
+
+
+'''
+m = sub1(m, r"(@app\.post\(\"/api/diseno\"\)\n)", lambda mm: AUX + mm.group(1),
+         "main: @app.post(\"/api/diseno\")", ya="def _filas_v47(d, tc):")
+
+# 10) barrido tipográfico en literales (FR: sin punto medio ni raya como separador, sin «», sin ≤ / ≥ / → en prosa)
+def _tipo(t):
+    for a, b in (('"SMA · M·MMP·4·05·043"', '"SMA, M·MMP·4·05·043/23"'), ('"CASAA · M·MMP·4·05·056"', '"CASAA, M·MMP·4·05·056/23"'),
+                 ("(N·CTR·CAR·1·04·008)", "(N·CTR·CAR·1·04·008/23)"), ("(N·CTR·CAR·1·04·008:", "(N·CTR·CAR·1·04·008/23:"),
+                 ("(N·CMT·4·05·003)", "(N·CMT·4·05·003/25)"), (" · ", ", "), (" — ", ", "), ("«", '\\"'), ("»", '\\"'), ("(3–5 cm)", "(3 a 5 cm)"),
+                 ("∑L ≤ 10 millones", "∑L hasta 10 millones"), ("∑L ≤ 30 millones", "∑L hasta 30 millones"),
+                 ("%.1f L/m² → %.1f m³", "%.1f L/m² (%.1f m³ en total)"), ("%g kg/m² → %.1f t", "%g kg/m² (%.1f t en total)")):
+        t = t.replace(a, b)
+    return t
+m, dz = _tipo(m), _tipo(dz)
+
+# =============================================================== escritura
+if fallas:
+    print("PARCHE_V47_FALLO, no se escribió nada:")
+    for f in fallas:
+        print("  -", f)
+    sys.exit(1)
+cambios = []
+if dz != dz0:
+    io.open(pd, "w", encoding="utf-8").write(dz); cambios.append("diseno.py")
+if m != m0:
+    io.open(pm, "w", encoding="utf-8").write(m); cambios.append("main.py")
+print("PARCHE_V47_OK" if cambios else "PARCHE_V47_YA_APLICADO", ", ".join(cambios))

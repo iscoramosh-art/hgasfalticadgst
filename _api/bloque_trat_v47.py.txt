@@ -1,0 +1,177 @@
+# ---------------------------------------------------------------- tratamientos superficiales
+# v47 (FR, 21-sep-2026): cuatro tipos de tratamiento; opciones admitidas y recomendada por TDPA y por
+# agrietamiento; riego de sello premezclado ESTRICTAMENTE en planta (cumple todo lo del riego de sello);
+# calafateo inducido (scrub seal) como única opción con 10 a 50 % de agrietamiento; > 50 % no procede.
+TDPA_MAX_TRAT = 50000        # límite superior de los tratamientos superficiales en frío (FR, 27-ago-2026)
+TDPA_RIEGO = 10000           # hasta aquí se admite el riego de sello convencional
+TDPA_POLIMERO = 5000         # arriba de esto la emulsión debe ser modificada con polímero
+LABEL_TRAT = {"riego": "Riego de sello", "premez": "Riego de sello premezclado (en planta)",
+              "micro": "Microaglomerado en frío", "scrub": "Calafateo inducido (scrub seal)"}
+DOSIS_TRAT = {"riego": {"emul": 1.5, "agg": 12}, "premez": {"emul": 1.8, "agg": 14},
+              "micro": {"emul": 1.2, "agg": 15}, "scrub": {"emul": 1.8, "agg": 12}}
+_MAT_SELLO = [["3A", "Un solo tamaño, sello 3-A (N·CMT·4·04/17)"], ["3B", "Un solo tamaño, 3-B (N·CMT·4·04/17)"]]
+MAT_TRAT = {
+    "riego": _MAT_SELLO, "premez": _MAT_SELLO, "scrub": _MAT_SELLO,
+    "micro": [["4A", "Fino graduado, Grado A, alto volumen (N·CMT·4·04/17)"],
+              ["4B", "Fino graduado, Grado B-C, volumen medio-bajo (N·CMT·4·04/17)"]],
+}
+AGRIET = [["lt10", "Menos del 10 % del área"], ["10-25", "De 10 a 25 % del área"],
+          ["25-50", "De 25 a 50 % del área"], ["gt50", "Más del 50 % del área"]]
+AGRIET_TXT = dict(AGRIET)
+REF_TRAT = ("Criterios de selección conforme a la práctica internacional: microaglomerado con emulsión "
+            "modificada con polímero (ISSA A143 / AASHTO PP 83); riegos de sello con emulsión modificada "
+            "con polímero para tránsito o clima exigentes (FHWA, Federal Lands Highway); selección por "
+            "condición del pavimento, tránsito y clima (PPRA, RoadResource.org); calafateo inducido (scrub "
+            "seal) para superficies con agrietamiento de 10 a 50 % (PPRA; Caltrans Maintenance Manual). Las "
+            "emulsiones y sus requisitos se toman de la N·CMT·4·05·005/22: riego de sello y calafateo ECR-65 / "
+            "ECR-68 (modificada ECR-68P); premezclado en planta ECM-65 (modificada ECL-62P); microaglomerado "
+            "ECCR-62P / ECCL-62P.")
+REQ_PETREO_TRAT = [["Desgaste Los Ángeles, máx.", "30 %"],
+                   ["Partículas alargadas y lajeadas, máx.", "35 %"],
+                   ["Equivalente de arena, mín.", "50 %"],
+                   ["Caras fracturadas (2 o más), mín.", "75 %"],
+                   ["Adherencia con la emulsión (recubrimiento), mín.", "90 %"],
+                   ["Intemperismo acelerado (Na₂SO₄), máx.", "12 %"]]
+
+
+def emul_opts(tipo, tdpa):
+    poli = tdpa > TDPA_POLIMERO
+    if tipo == "micro":
+        return [["ECCR-62P", "ECCR-62P, rompimiento rápido controlado (modificada con polímero)"],
+                ["ECCL-62P", "ECCL-62P, rompimiento lento controlado (modificada con polímero)"]]
+    if tipo == "premez":
+        if poli:
+            return [["ECL-62P", "ECL-62P, modificada con polímero para mezclas en frío en planta (obligatoria para TDPA > 5,000)"]]
+        return [["ECM-65", "ECM-65, rompimiento medio (mezclado en planta)"],
+                ["ECL-62P", "ECL-62P, modificada con polímero para mezclas en frío en planta"]]
+    if poli:
+        return [["ECR-68P", "ECR-68P, modificada con polímero (obligatoria para TDPA > 5,000)"]]
+    return [["ECR-65", "ECR-65, rompimiento rápido"],
+            ["ECR-68", "ECR-68, rompimiento rápido (clima cálido)"],
+            ["ECR-68P", "ECR-68P, modificada con polímero"]]
+
+
+def tratamientos_admitidos(tdpa, agriet="lt10"):
+    """[(tipo, etiqueta, recomendado)] según TDPA y agrietamiento (FR, 21-sep-2026). Vacío = no procede."""
+    if agriet == "gt50" or tdpa > TDPA_MAX_TRAT:
+        return []
+    if agriet in ("10-25", "25-50"):
+        return [("scrub", LABEL_TRAT["scrub"], True)]
+    if tdpa <= TDPA_RIEGO:
+        return [("riego", LABEL_TRAT["riego"], True), ("premez", LABEL_TRAT["premez"], False),
+                ("micro", LABEL_TRAT["micro"], False)]
+    return [("premez", LABEL_TRAT["premez"], True), ("micro", LABEL_TRAT["micro"], False)]
+
+
+def recomendar_trat(tdpa, ga, agriet="lt10"):
+    calido = (ga if isinstance(ga, int) else 64) >= 70
+    poli = tdpa > TDPA_POLIMERO
+    adm = tratamientos_admitidos(tdpa, agriet)
+    tipo = next((t for t, _, r in adm if r), adm[0][0] if adm else "riego")
+    emul_riego = "ECR-68P" if poli else ("ECR-68" if calido else "ECR-65")
+    emul_premez = "ECL-62P" if poli else "ECM-65"
+    emul_micro = "ECCL-62P" if calido else "ECCR-62P"
+    emul_scrub = "ECR-68P"
+    mat_micro = "4A" if tdpa > 15000 else "4B"
+    emul = {"riego": emul_riego, "premez": emul_premez, "micro": emul_micro, "scrub": emul_scrub}
+    mat = {"riego": "3A", "premez": "3A", "micro": mat_micro, "scrub": "3A"}
+    tdpa_txt = format(int(tdpa), ",d")
+    if agriet in ("10-25", "25-50"):
+        motivo = ("Agrietamiento %s: única opción el calafateo inducido (scrub seal), %s"
+                  % (AGRIET_TXT[agriet].lower(),
+                     "intervención óptima" if agriet == "10-25" else "solución paliativa de 1 a 3 años"))
+    elif tdpa <= TDPA_RIEGO:
+        motivo = "TDPA %s (hasta 10,000): se admiten riego de sello, premezclado y microaglomerado; se recomienda el riego de sello" % tdpa_txt
+    else:
+        motivo = "TDPA %s (de 10,000 a 50,000): se admiten premezclado y microaglomerado; se recomienda el riego de sello premezclado en planta" % tdpa_txt
+    txt = (LABEL_TRAT[tipo] + ", " + emul[tipo] + ", clima " + ("cálido" if calido else "templado") +
+           " (PG alto " + str(ga) + "). " + motivo +
+           (". TDPA > 5,000: emulsión modificada con polímero obligatoria." if poli else "."))
+    return {"tipo": tipo, "emul": emul[tipo], "mat": mat[tipo], "emul_riego": emul_riego, "emul_micro": emul_micro,
+            "emul_premez": emul_premez, "emul_scrub": emul_scrub, "emul_por_tipo": emul, "mat_por_tipo": mat,
+            "mat_riego": "3A", "mat_micro": mat_micro, "admitidos": [list(a) for a in adm], "texto": txt}
+
+
+def label_trat(tipo):
+    return LABEL_TRAT.get(tipo, LABEL_TRAT["riego"])
+
+
+def req_emulsion(emul):
+    """Requisitos de la emulsión según N·CMT·4·05·005/22 (Tablas 4 y 6)."""
+    e = emul or "ECR-65"
+    if e.startswith("ECC") or e == "ECL-62P":
+        r = [["Contenido de cemento asfáltico, mín.", "62 %"],
+             ["Viscosidad Saybolt-Furol 25 °C, mín.", "20 s"],
+             ["Retenido en malla N.º 20, máx.", "0.1 %"],
+             ["Disolvente en volumen, máx.", "3 %"],
+             ["Carga eléctrica de las partículas", "Positiva (catiónica)"],
+             ["Residuo, penetración 25 °C (100 g, 5 s)", "40 a 90 (10⁻¹ mm)"],
+             ["Residuo, recuperación elástica por torsión 25 °C, mín.", "20 %"],
+             ["Residuo, recuperación elástica en ductilómetro 10 °C, mín.", "20 %"],
+             ["Residuo, ductilidad 25 °C, mín.", "40 cm"]]
+        if e == "ECL-62P":
+            r.insert(0, ["Uso (N·CMT·4·05·005/22)", "Mezclas asfálticas en frío elaboradas en planta"])
+        return r
+    if e == "ECM-65":
+        return [["Contenido de cemento asfáltico, mín.", "65 %"],
+                ["Viscosidad Saybolt-Furol 25 °C, mín.", "25 s"],
+                ["Asentamiento 5 días, máx.", "5 %"],
+                ["Retenido en malla N.º 20, máx.", "0.1 %"],
+                ["Disolvente en volumen, máx.", "5 %"],
+                ["Carga eléctrica de las partículas", "Positiva (catiónica)"],
+                ["Residuo, penetración 25 °C (100 g, 5 s)", "110 a 250 (10⁻¹ mm)"],
+                ["Residuo, solubilidad, mín.", "97.5 %"]]
+    if e.endswith("P"):
+        return [["Contenido de cemento asfáltico, mín.", "68 %"],
+                ["Viscosidad Saybolt-Furol 50 °C", "50 a 200 s"],
+                ["Asentamiento 5 días, máx.", "3 %"],
+                ["Retenido en malla N.º 20, máx.", "0.1 %"],
+                ["Demulsibilidad, mín.", "60 %"],
+                ["Carga eléctrica de las partículas", "Positiva (catiónica)"],
+                ["Residuo, penetración 25 °C (100 g, 5 s)", "110 a 200 (10⁻¹ mm)"],
+                ["Residuo, recuperación elástica por torsión 25 °C, mín.", "30 %"],
+                ["Residuo, recuperación elástica en ductilómetro 10 °C, mín.", "50 %"],
+                ["Residuo, ductilidad 25 °C, mín.", "40 cm"]]
+    r68 = "68" in e
+    return [["Contenido de cemento asfáltico, mín.", ("68" if r68 else "65") + " %"],
+            ["Viscosidad Saybolt-Furol 50 °C, mín.", ("50" if r68 else "40") + " s"],
+            ["Asentamiento 5 días, máx.", "5 %"],
+            ["Demulsibilidad (0.8 % dioctilsulfosuccinato), mín.", "40 %"],
+            ["Retenido en malla N.º 20, máx.", "0.1 %"],
+            ["Carga eléctrica de las partículas", "Positiva (catiónica)"],
+            ["Residuo, penetración 25 °C (100 g, 5 s)", "110 a 250 (10⁻¹ mm)"],
+            ["Residuo, solubilidad, mín.", "97.5 %"],
+            ["Residuo, ductilidad 25 °C, mín.", "40 cm"]]
+
+
+def criterios_nit(trat):
+    """Aceptación NIT-SICT por tipo de tratamiento, N·CTR·CAR·1·04·008/23 (sistema de riegos o microaglomerado)."""
+    if trat == "micro":
+        c = [["Espesor de la capa", "1 a 2 cm (sin función estructural)"],
+             ["Diseño de la mezcla en frío", "N·CMT·4·05·003/25 (proyecto / Secretaría)"],
+             ["Tolerancia de ancho (eje a orilla)", "-1 cm, no mayor que el de proyecto"],
+             ["Pendiente transversal", "± 0.5 %"],
+             ["Temperatura mín. (superficie / ambiente)", "4 °C / 4 °C o más"]]
+    else:
+        c = [["Sistema de riegos", "1, 2 o 3 riegos (asfalto con o sin polímero/fibra, más pétreo)"]]
+        if trat == "premez":
+            c += [["Elaboración", "ESTRICTAMENTE EN PLANTA: el pétreo y la emulsión se mezclan en planta y la mezcla se "
+                                  "extiende y plancha en el camino; no se admite el premezclado en obra"],
+                  ["Emulsión", "ECM-65 (rompimiento medio) o ECL-62P (modificada, mezclas en frío en planta), N·CMT·4·05·005/22"],
+                  ["Requisitos del riego de sello", "Cumple TODOS los del riego de sello convencional (pétreo, planchado, "
+                                                    "temperatura, fricción, tramo de prueba, recolección del excedente)"]]
+        if trat == "scrub":
+            c += [["Aplicación", "Emulsión modificada distribuida con escoba de calafateo (scrub broom) que la introduce "
+                                 "en las grietas antes de tender el pétreo; después se plancha como un riego de sello"],
+                  ["Alcance por agrietamiento", "10 a 25 %: intervención óptima; 25 a 50 %: paliativa de 1 a 3 años; "
+                                                "más de 50 %: no procede, rehabilitación"]]
+        c += [["Tolerancia de ancho (eje a orilla)", "± 5 cm"],
+              ["Planchado", "4 pasadas o más de compactador ligero neumático"],
+              ["Temperatura mín. (superficie / ambiente)", "15 °C / 15 °C o más (o mayor de 10 °C al alza)"],
+              ["Recolección del excedente", "tras 3 días o más cerrado al tránsito"]]
+    c += [["Coeficiente de fricción (CF, mojado a 65 km/h)", "0.6 a 0.9 (M·MMP·4·07·010)"],
+          ["Sin afloramiento de asfalto ni pérdida de pétreo", "Requerido"],
+          ["Tramo de prueba", "400 m"]]
+    return c
+
+
