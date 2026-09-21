@@ -1,0 +1,139 @@
+# -*- coding: utf-8 -*-
+"""v48 (21-sep-2026, FR: "cierra el 16, 17 y 22") para hga-api. Parcha main.py con anclas por expresión regular y
+sólo escribe si TODAS las anclas se encuentran. Idempotente. Se aplica sobre la v47 (hga-api-00019-swt).
+
+  #17 Endurecer la API contra extracción masiva del catálogo: el limitador por IP pasa a dos niveles. Un cliente
+      identificado (cabecera X-HGA-Cliente que empieza con "HGA-", u Origin/Referer de hgasfaltica.com) conserva los
+      límites de siempre por minuto y recibe cuotas diarias amplias (catálogo 1,500 consultas y 300 vistas de trazos
+      por IP y día); una petición anónima (curl, scripts) queda en 12 por minuto, 6 al catálogo por minuto, 60 al
+      catálogo por día y 10 vistas de trazos por día. Las respuestas 429 llevan `detalle`. Los contadores viven en
+      memoria de la instancia (se reinician con ella): frenan la extracción, no la impiden; el catálogo sigue
+      siendo público a la velocidad de un usuario.
+  #22 Envolvente climática del segmento por coordenadas: en lugar de evaluar sólo los dos extremos, el eje recto se
+      muestrea cada 250 m (extremos incluidos, tope 400 puntos) y rigen la T máx mayor y la T mín menor de todos
+      los puntos; la estación que rige es la del punto con la T máx mayor y la precipitación la del punto más
+      lluvioso. `ubicacion.envolvente` informa puntos, paso, km, estaciones distintas, el punto que rige y si está en
+      el interior. Se conservan `pg_inicio`, `pg_fin` y `extremos`.
+Uso: python3 parche_v48.py [carpeta de la API, por omisión ~/hga-api]"""
+import io, sys, os, re
+
+base = sys.argv[1] if len(sys.argv) > 1 else os.path.expanduser("~/hga-api")
+pm = os.path.join(base, "main.py")
+m = io.open(pm, encoding="utf-8").read()
+m0 = m
+fallas = []
+
+
+def sub1(s, patron, repl, nombre, flags=0, ya=None):
+    if ya and ya in s:
+        return s
+    n = len(re.findall(patron, s, flags))
+    if n != 1:
+        fallas.append("%s: %d coincidencias" % (nombre, n))
+        return s
+    return re.sub(patron, repl, s, count=1, flags=flags)
+
+
+# =============================================================== #17 limitador por niveles
+LIMITADOR = '''# ------------------------------------------------------------------ límite por IP (v48, #17: dos niveles)
+CATALOGO = ("/api/buscar", "/api/trazos", "/api/tramo", "/api/estados")
+LIMITES = {"cliente": {"min": LIMITE_MIN, "cat_min": 40, "cat_dia": 1500, "trazos_dia": 300},
+           "anonimo": {"min": 12, "cat_min": 6, "cat_dia": 60, "trazos_dia": 10}}
+_visitas = defaultdict(deque)
+_visitas_cat = defaultdict(deque)
+_dia = defaultdict(lambda: {"dia": None, "cat": 0, "trazos": 0})
+
+
+def _nivel(request):
+    """Cliente identificado: cabecera X-HGA-Cliente ("HGA-...") u Origin/Referer del sitio. Lo demás es anónimo."""
+    if request.headers.get("x-hga-cliente", "").startswith("HGA-"):
+        return "cliente"
+    for h in ("origin", "referer"):
+        v = request.headers.get(h, "")
+        if any(v.startswith(o) for o in ORIGENES):
+            return "cliente"
+    return "anonimo"
+
+
+@app.middleware("http")
+async def limitar(request: Request, call_next):
+    ruta = request.url.path
+    if ruta.startswith("/api/"):
+        from fastapi.responses import JSONResponse
+        ip = (request.headers.get("x-forwarded-for", "") or request.client.host).split(",")[0].strip()
+        lim = LIMITES[_nivel(request)]
+        ahora = time.time(); q = _visitas[ip]
+        while q and ahora - q[0] > 60:
+            q.popleft()
+        if len(q) >= lim["min"]:
+            return JSONResponse({"detalle": "Demasiadas consultas; espera un momento."}, status_code=429)
+        q.append(ahora)
+        if any(ruta.startswith(c) for c in CATALOGO):
+            qc = _visitas_cat[ip]
+            while qc and ahora - qc[0] > 60:
+                qc.popleft()
+            d = _dia[ip]; hoy = time.strftime("%Y-%m-%d", time.gmtime(ahora))
+            if d["dia"] != hoy:
+                d["dia"], d["cat"], d["trazos"] = hoy, 0, 0
+            if len(qc) >= lim["cat_min"] or d["cat"] >= lim["cat_dia"] or \\
+                    (ruta.startswith("/api/trazos") and d["trazos"] >= lim["trazos_dia"]):
+                return JSONResponse({"detalle": "Se alcanzó el límite de consultas al catálogo para esta conexión; "
+                                                "vuelve a intentar más tarde."}, status_code=429)
+            qc.append(ahora); d["cat"] += 1
+            if ruta.startswith("/api/trazos"):
+                d["trazos"] += 1
+    return await call_next(request)
+'''
+m = sub1(m, r"# -{10,} límite por IP\n_visitas = defaultdict\(deque\)\n\n@app\.middleware\(\"http\"\)\nasync def limitar\(request: Request, call_next\):\n.*?    return await call_next\(request\)\n",
+         lambda mm: LIMITADOR, "main: middleware limitar", flags=re.S, ya="def _nivel(request):")
+
+# =============================================================== #22 envolvente del segmento
+ENVOLVENTE = '''        e1, e2 = eval_temp(c.lat, c.lon), eval_temp(c.lat2, c.lon2)
+        # v48 (#22): envolvente climática del eje. El segmento recto se muestrea cada 250 m (extremos incluidos,
+        # tope 400 puntos) y rigen la T máx mayor y la T mín menor de todos los puntos, no sólo de los extremos.
+        km_seg = math.hypot(c.lat2 - c.lat, (c.lon2 - c.lon) * math.cos(math.radians((c.lat + c.lat2) / 2))) * 111.0
+        n_pts = int(min(400, max(2, round(km_seg * 1000 / 250.0) + 1)))
+        muestras = []
+        for i in range(n_pts):
+            f = i / (n_pts - 1)
+            la_i, lo_i = c.lat + (c.lat2 - c.lat) * f, c.lon + (c.lon2 - c.lon) * f
+            ev = e1 if i == 0 else (e2 if i == n_pts - 1 else eval_temp(la_i, lo_i))
+            muestras.append((f, la_i, lo_i, ev))
+        eg_i = max(range(n_pts), key=lambda i: muestras[i][3]["tx"])
+        en_i = min(range(n_pts), key=lambda i: muestras[i][3]["tn"])
+        tx, tn = muestras[eg_i][3]["tx"], muestras[en_i][3]["tn"]
+        ga, gb = PG.grado_alto(tx), PG.grado_bajo(tn)
+        eg = muestras[eg_i][3]
+        est, dist = eg["s"], eg["dist"]
+        _w = max((x[3] for x in muestras), key=lambda x: x["s"].get("precip") or 0)["s"]
+        est = dict(est, precip=_w.get("precip"), zona=_w.get("zona"), precip_estacion=_w.get("nombre"))
+        claves = {x[3]["s"].get("clave") or x[3]["s"].get("nombre") for x in muestras}
+        lat, lon = (c.lat + c.lat2) / 2, (c.lon + c.lon2) / 2
+        ubicacion = {"inicio": [c.lat, c.lon], "fin": [c.lat2, c.lon2],
+                     "pg_inicio": PG.pg_texto(e1["ga"], e1["gb"]),
+                     "pg_fin": PG.pg_texto(e2["ga"], e2["gb"]),
+                     "extremos": {"inicio": {"ga": e1["ga"], "gb": e1["gb"], "tx": round(e1["tx"], 1), "tn": round(e1["tn"], 1)},
+                                  "fin": {"ga": e2["ga"], "gb": e2["gb"], "tx": round(e2["tx"], 1), "tn": round(e2["tn"], 1)}},
+                     "envolvente": {"puntos": n_pts, "paso_m": 250, "km": round(km_seg, 2), "estaciones": len(claves),
+                                    "punto_rige": [round(muestras[eg_i][1], 5), round(muestras[eg_i][2], 5),
+                                                   round(muestras[eg_i][0] * km_seg, 2)],
+                                    "punto_rige_tmin": [round(muestras[en_i][1], 5), round(muestras[en_i][2], 5),
+                                                        round(muestras[en_i][0] * km_seg, 2)],
+                                    "rige_interior": bool(0 < eg_i < n_pts - 1 or 0 < en_i < n_pts - 1),
+                                    "pg_extremos": PG.pg_texto(PG.grado_alto(max(e1["tx"], e2["tx"])),
+                                                               PG.grado_bajo(min(e1["tn"], e2["tn"])))}}
+'''
+m = sub1(m, r"        e1, e2 = eval_temp\(c\.lat, c\.lon\), eval_temp\(c\.lat2, c\.lon2\)\n.*?        ubicacion = \{\"inicio\".*?\n(?=\n    region = )",
+         lambda mm: ENVOLVENTE, "main: bloque modo segmento (e1, e2 = eval_temp … ubicacion)", flags=re.S,
+         ya="v48 (#22): envolvente climática del eje")
+
+if fallas:
+    print("PARCHE_V48_FALLO, no se escribió nada:")
+    for f in fallas:
+        print("  -", f)
+    sys.exit(1)
+if m != m0:
+    io.open(pm, "w", encoding="utf-8").write(m)
+    print("PARCHE_V48_OK main.py")
+else:
+    print("PARCHE_V48_YA_APLICADO")
