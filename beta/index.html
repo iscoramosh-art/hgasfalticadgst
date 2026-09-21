@@ -320,7 +320,7 @@ footer.sitio .actualizado{display:block;margin-top:10px;font-size:10.5px;color:#
           <div class="segmented" role="radiogroup">
             <label><input type="radio" name="modoUb" value="carretera" checked> Carretera (Anexo A)</label>
             <label><input type="radio" name="modoUb" value="punto"> Punto por coordenadas</label>
-            <label><input type="radio" name="modoUb" value="segmento"> Segmento por coordenadas <span class="ayuda" title="El Grado PG se rige por el extremo más desfavorable, como exige el M·MMP·4·05·064/22. Máximo 10 km entre las coordenadas de inicio y de fin: hasta ahí el grado entregado cubre al del interior del tramo en 99.6 % de los casos medidos. Arriba de 8 km el resultado sale marcado, porque ahí aparece la primera subestimación (0.4 %); de 0 a 8 km la cobertura fue del 100 %. Para tramos largos usa el modo Carretera con "Segmentos homogéneos".">ⓘ</span></label>
+            <label><input type="radio" name="modoUb" value="segmento"> Segmento por coordenadas <span class="ayuda" title="Envolvente climática del eje: el segmento recto entre las dos coordenadas se evalúa cada 250 m (extremos incluidos) y rigen la temperatura máxima mayor y la mínima menor de todos los puntos, con la estación del SMN más cercana a cada uno; con ello el grado cubre también al interior del tramo, no sólo a los extremos que pide el M·MMP·4·05·064/22. Máximo 10 km entre inicio y fin, porque el eje recto sólo representa a la carretera en distancias cortas; para tramos largos usa el modo Carretera con \"Segmentos homogéneos\", que sigue el trazo real.">ⓘ</span></label>
             <label><input type="radio" name="modoUb" value="mapa"> Elegir en el mapa</label>
           </div>
 
@@ -511,7 +511,7 @@ footer.sitio .actualizado{display:block;margin-top:10px;font-size:10.5px;color:#
     el −16 cubre el desempeño requerido a bajas temperaturas en el sitio en estudio.
     Ejes equivalentes por el método del Instituto de Ingeniería UNAM (factores de daño superficial a 6.0 kg/cm²; camión, eje estándar 5.8). Clima: estaciones del SMN con 20 años o más.
     Herramienta de referencia; el criterio del proyectista prevalece.
-    <span class="actualizado" id="hga-actualizado">Última actualización: 21 de septiembre de 2026, versión 26.47</span>
+    <span class="actualizado" id="hga-actualizado">Última actualización: 21 de septiembre de 2026, versión 26.48</span>
   </footer>
 
   <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
@@ -559,7 +559,7 @@ footer.sitio .actualizado{display:block;margin-top:10px;font-size:10.5px;color:#
     const ctrl = (typeof AbortController !== "undefined") ? new AbortController() : null;
     const reloj = ctrl ? setTimeout(function () { try { ctrl.abort(); } catch (e) {} }, 25000) : null;
     try {
-      const base = { headers: { "Content-Type": "application/json" } };
+      const base = { headers: { "Content-Type": "application/json", "X-HGA-Cliente": "HGA-web-v48" } };
       if (ctrl) base.signal = ctrl.signal;
       const r = await fetch(url, Object.assign(base, opciones || {}));
       if (reloj) clearTimeout(reloj);
@@ -625,8 +625,8 @@ footer.sitio .actualizado{display:block;margin-top:10px;font-size:10.5px;color:#
      entre dos puntos según su separación. Coincide 100 % hasta 2 km y 96,4 % entre 4 y 6 km;
      de 6 a 8 km cae a 91,4 % y a partir de ~10 km se estanca en 88-89 % (deja de empeorar).
      La mediana de la distancia de un punto a su estación gobernante es 5,3 km. */
-  const SEG_AVISO_KM = 8;      // primera subestimación real (0,4 %); antes de aquí la cobertura es 100 %
-  const SEG_TOPE_KM = 10;      // aquí la confianza baja de 99 %: no se calcula
+  const SEG_AVISO_KM = 8;      // v48: ya no genera aviso (la envolvente evalúa el interior); se conserva por compatibilidad
+  const SEG_TOPE_KM = 10;      // tope: el eje recto sólo representa a la carretera en distancias cortas
 
   /* Confianza ESPACIAL del segmento: probabilidad de que el grado entregado (el más desfavorable
      de los dos extremos) cubra al que rige en el interior. Se cita la cota inferior del IC 95 %,
@@ -641,9 +641,14 @@ footer.sitio .actualizado{display:block;margin-top:10px;font-size:10.5px;color:#
   }
 
   function confTexto(km) {
-    const c = confSegmento(km);
-    return "espacial de al menos " + (c.esp * 100).toFixed(1) + " % (IC 95 %), climática " +
-           (CONF_CLIMA * 100).toFixed(0) + " %, conjunta aprox. " + (c.conj * 100).toFixed(1) + " %";
+    // v48: con la envolvente el interior se evalúa punto a punto (cada 250 m), así que la componente espacial
+    // deja de ser una probabilidad y queda sólo la climática del método (98 %, z = 2.055).
+    return "climática " + (CONF_CLIMA * 100).toFixed(0) + " % (z = 2.055, M·MMP·4·05·064/22); interior evaluado cada 250 m";
+  }
+  function envTexto(env) {
+    if (!env) return "no disponible (servidor anterior a v48)";
+    return env.puntos + " puntos cada " + env.paso_m + " m, " + env.estaciones + (env.estaciones === 1 ? " estación" : " estaciones") + " del SMN" +
+           (env.pg_extremos ? "; sólo con los dos extremos: " + PG.pgNormaTxt(env.pg_extremos) : "");
   }
 
   function distKm(la1, lo1, la2, lo2) {
@@ -1387,14 +1392,11 @@ footer.sitio .actualizado{display:block;margin-top:10px;font-size:10.5px;color:#
         "El segmento mide " + segKm.toFixed(1) + " km", `
         <tr><td>Longitud capturada</td><td><b>${segKm.toFixed(1)} km</b></td></tr>
         <tr><td>Máximo admitido en este modo</td><td><b>${SEG_TOPE_KM} km</b></td></tr>`,
-        "Evaluar sólo los dos extremos deja de representar al tramo cuando éste supera la " +
-        "resolución de la red climatológica. Hasta 8 km el grado entregado cubre al del interior en el " +
-        "<b>100 %</b> de los casos medidos y entre 8 y 10 km en <b>99,6 %</b>; entre 10 y 12 km la " +
-        "cobertura baja de 99 % y a 20-30 km llega a " +
-        "94 %, es decir, <b>6 de cada 100 segmentos quedarían con un grado inferior al que exige " +
-        "algún punto interior</b>. <b>Captura coordenadas más cercanas</b>, o —si el tramo " +
-        "es largo de verdad— elige la vía en el modo <b>Carretera (Anexo A)</b> y usa el criterio " +
-        "<b>\"Segmentos homogéneos\"</b>, que divide el trazo justo donde cambia el Grado PG.",
+        "El eje recto entre dos coordenadas sólo representa a la carretera en distancias cortas: en un tramo " +
+        "largo el trazo real se aparta de la recta y la envolvente climática evaluaría puntos que no están " +
+        "sobre la vía. <b>Captura coordenadas más cercanas</b>, o, si el tramo es largo de verdad, elige la " +
+        "vía en el modo <b>Carretera (Anexo A)</b> y usa el criterio <b>\"Segmentos homogéneos\"</b>, que " +
+        "sigue el trazo real y lo divide justo donde cambia el Grado PG.",
         { titulo: "No se calculó el Grado PG",
           texto: "Reduce la distancia entre las coordenadas de inicio y de fin a " + SEG_TOPE_KM + " km o menos." });
       toast("Segmento de " + segKm.toFixed(1) + " km: excede el máximo de " + SEG_TOPE_KM + " km.", "warn");
@@ -1414,19 +1416,23 @@ footer.sitio .actualizado{display:block;margin-top:10px;font-size:10.5px;color:#
     segSel = g; capaPunto = quitar(capaPunto); capaSeg = quitar(capaSeg); capaSel = quitar(capaSel);
     try { volarA(L.latLngBounds(g), 14); } catch (e) {}
     etiquetasTrazo(g, "inicio", "fin", "Segmento (coordenadas)");
-    const segLargo = segKm > SEG_AVISO_KM;
-    $("res-ubicacion").innerHTML = tarjeta(PG.pgNorma(d.pg_base, d.grado_bajo), "Segmento por coordenadas, rige el extremo más desfavorable", `
+    const segLargo = false;   // v48: la envolvente evalúa el interior; el aviso por longitud desaparece
+    const env = u.envolvente || null;
+    if (estudio && estudio.segmento) estudio.segmento.env = env;
+    $("res-ubicacion").innerHTML = tarjeta(PG.pgNorma(d.pg_base, d.grado_bajo), "Segmento por coordenadas, envolvente climática del eje", `
       <tr><td>Longitud del segmento</td><td><b>${segKm.toFixed(1)} km</b></td></tr>
-      <tr><td>Nivel de confianza del segmento</td><td>${confTexto(segKm)}</td></tr>
+      <tr><td>Envolvente climática</td><td>${envTexto(env)}</td></tr>
+      <tr><td>Punto que rige (T. máx)</td><td>${env && env.punto_rige ? (env.punto_rige[0].toFixed(4) + ", " + env.punto_rige[1].toFixed(4) + " (km " + env.punto_rige[2].toFixed(1) + " desde el inicio" + (env.rige_interior ? ", en el interior del tramo" : "") + ")") : "extremo más desfavorable"}</td></tr>
+      <tr><td>Nivel de confianza</td><td>${confTexto(segKm)}</td></tr>
       <tr><td><b>Inicio (${la1.toFixed(4)}, ${lo1.toFixed(4)})</b></td><td><b>${PG.pgNormaTxt(u.pg_inicio || "—")}</b></td></tr>
       <tr class="sep"><td><b>Fin (${la2.toFixed(4)}, ${lo2.toFixed(4)})</b></td><td><b>${PG.pgNormaTxt(u.pg_fin || "—")}</b></td></tr>
       <tr class="sep"><td>Rige (más desfavorable)</td><td>T. máx ${d.t_max_pavimento} °C, T. mín ${d.t_min_pavimento} °C</td></tr>
       <tr><td>T. mín pavimento (20 mm)</td><td>${d.t_min_pavimento} °C</td></tr>
       <tr><td>PG por temperatura</td><td>${PG.pgNormaTxt(d.pg_base)}</td></tr>
       <tr><td>Grado bajo</td><td>−16, cubre el desempeño requerido a bajas temperaturas</td></tr>
-      <tr><td>Estación clima (extremo que rige)</td><td>${(d.estacion_clima || {}).nombre} (${(d.estacion_clima || {}).dist_km} km)</td></tr>
-      <tr><td>Precipitación media anual (extremo más lluvioso)</td><td>${precipTexto(d)}</td></tr>`,
-      "PG del segmento por los dos extremos (M·MMP·4·05·064/22). El aforo se propone del punto medio; edítalo en el paso ③ si tienes uno propio.",
+      <tr><td>Estación clima (punto que rige)</td><td>${(d.estacion_clima || {}).nombre} (${(d.estacion_clima || {}).dist_km} km)</td></tr>
+      <tr><td>Precipitación media anual (punto más lluvioso)</td><td>${precipTexto(d)}</td></tr>`,
+      "PG del segmento por la envolvente del eje: cada 250 m se evalúa la temperatura con la estación del SMN más cercana y rigen la máxima mayor y la mínima menor (extremos incluidos, M·MMP·4·05·064/22). El aforo se propone del punto medio; edítalo en el paso ③ si tienes uno propio.",
       segLargo ? { titulo: "Segmento de " + segKm.toFixed(1) + " km: confianza espacial de al menos " +
                (confSegmento(segKm).esp * 100).toFixed(1).replace(".", ",") + " %",
         texto: "Hasta 8 km, el grado que resulta de los dos extremos cubre al del interior del tramo en " +
@@ -2036,15 +2042,15 @@ footer.sitio .actualizado{display:block;margin-top:10px;font-size:10.5px;color:#
     if (estudio.segmento) {
       const g = estudio.segmento;
       if (g.coords) {
-        head(xL, y, Wd - 2 * mx, "Segmento por coordenadas (dos extremos)"); y += 6;
+        head(xL, y, Wd - 2 * mx, "Segmento por coordenadas (envolvente climática del eje)"); y += 6;
         if (g.km != null) {
           kv(xL, y, cw, "Longitud del segmento", g.km.toFixed(1) + " km");
-          kv(xR, y, cw, "Máximo admitido / aviso", SEG_TOPE_KM + " km / " + SEG_AVISO_KM + " km"); y += 5;
-          // Las dos fuentes de incertidumbre, declaradas por separado y compuestas.
-          const cf = confSegmento(g.km);
-          kv(xL, y, cw, "Confianza espacial del segmento", ">= " + (cf.esp * 100).toFixed(1) + " % (IC 95 %)");
-          kv(xR, y, cw, "Climática x espacial", (CONF_CLIMA * 100).toFixed(0) + " % x " +
-             (cf.esp * 100).toFixed(1) + " % = " + (cf.conj * 100).toFixed(1) + " %"); y += 5;
+          kv(xR, y, cw, "Máximo admitido", SEG_TOPE_KM + " km (eje recto)"); y += 5;
+          const ev = g.env || null;
+          kv(xL, y, cw, "Envolvente", ev ? (ev.puntos + " puntos cada " + ev.paso_m + " m, " + ev.estaciones + " estaciones del SMN") : "no disponible");
+          kv(xR, y, cw, "Punto que rige (T. máx)", ev && ev.punto_rige ? (fx(ev.punto_rige[0], 4) + ", " + fx(ev.punto_rige[1], 4) + " (km " + ev.punto_rige[2].toFixed(1) + (ev.rige_interior ? ", interior" : "") + ")") : "extremo"); y += 5;
+          kv(xL, y, cw, "Confianza climática", (CONF_CLIMA * 100).toFixed(0) + " % (z = 2.055)");
+          kv(xR, y, cw, "PG sólo con los extremos", ev && ev.pg_extremos ? PG.pgNormaTxt(ev.pg_extremos) : "-"); y += 5;
         }
         kv(xL, y, cw, "Inicio (lat, lon)", g.p1[0].toFixed(4) + ", " + g.p1[1].toFixed(4));
         kv(xR, y, cw, "PG que rige", PG.pgNorma(PG.pgTexto(estudio.ga, estudio.gb), estudio.gb)); y += 5;
@@ -2052,7 +2058,7 @@ footer.sitio .actualizado{display:block;margin-top:10px;font-size:10.5px;color:#
         kv(xR, y, cw, "Fin (lat, lon)", g.p2[0].toFixed(4) + ", " + g.p2[1].toFixed(4)); y += 5;
         if (g.e2) kv(xL, y, cw, "Fin: PG, T", PG.pgNorma(PG.pgTexto(g.e2.ga, g.e2.gb), g.e2.gb) + ", " + fx(g.e2.tx, 1) + "/" + fx(g.e2.tn, 1) + " C");
         y += 6.5;
-        if (g.km != null && g.km > SEG_AVISO_KM) {
+        if (false && g.km != null && g.km > SEG_AVISO_KM) {   // v48: sin aviso por longitud (envolvente)
           const av = doc.splitTextToSize(asc("AVISO: el segmento mide " + g.km.toFixed(1) + " km. Hasta 8 km el "
             + "grado que resulta de los dos extremos cubre al del interior del tramo en el 100 % de los casos "
             + "medidos (4 500 segmentos, interior interpolado cada 400 m). Entre 8 y 10 km aparece la primera "
@@ -2530,5 +2536,5 @@ footer.sitio .actualizado{display:block;margin-top:10px;font-size:10.5px;color:#
     document.body.insertBefore(b, document.body.firstChild);
   })();
 </script>
-<!-- HGA build v47 -->
+<!-- HGA build v48 -->
 </html>
