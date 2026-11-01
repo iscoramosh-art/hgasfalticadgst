@@ -258,7 +258,7 @@ footer.sitio .actualizado{display:block;margin-top:10px;font-size:10.5px;color:#
   </nav>
   <div class="intro-link"><button id="btn-intro">ⓘ ¿Cómo funciona?, Ver introducción</button>
         <button id="btn-manual" type="button" title="Abre el Manual de Usuario en una ventana nueva">📖 Manual de usuario</button>
-        <button id="btn-criterios" type="button" title="Abre el documento Criterios HG Asfáltica DGST en una ventana nueva">📐 Criterios HG Asfáltica DGST</button></div>
+        <button id="btn-criterios" type="button" title="Abre el documento Criterios HG Asfáltica DGST en una ventana nueva">📐 Criterios HG Asfáltica DGST</button><button id="btn-videos" type="button" title="Abre la guía en video (cinco videos cortos) en una ventana nueva">🎬 Videos de ayuda</button></div>
 
   <!-- Ventana de bienvenida -->
   <div id="bienvenida" class="modal-overlay oculto" role="dialog" aria-modal="true" aria-labelledby="bv-title">
@@ -320,7 +320,7 @@ footer.sitio .actualizado{display:block;margin-top:10px;font-size:10.5px;color:#
           <div class="segmented" role="radiogroup">
             <label><input type="radio" name="modoUb" value="carretera" checked> Carretera (Anexo A)</label>
             <label><input type="radio" name="modoUb" value="punto"> Punto por coordenadas</label>
-            <label><input type="radio" name="modoUb" value="segmento"> Segmento por coordenadas <span class="ayuda" title="Envolvente climática del eje: el segmento recto entre las dos coordenadas se evalúa cada 250 m (extremos incluidos) y rigen la temperatura máxima mayor y la mínima menor de todos los puntos, con la estación del SMN más cercana a cada uno; con ello el grado cubre también al interior del tramo, no sólo a los extremos que pide el M·MMP·4·05·064/22. Máximo 10 km entre inicio y fin, porque el eje recto sólo representa a la carretera en distancias cortas; para tramos largos usa el modo Carretera con \"Segmentos homogéneos\", que sigue el trazo real.">ⓘ</span></label>
+            <label><input type="radio" name="modoUb" value="segmento"> Segmento por coordenadas <span class="ayuda" title="Envolvente climática del eje: el segmento recto entre las dos coordenadas se evalúa cada 250 m (extremos incluidos) y rigen la temperatura máxima mayor y la mínima menor de todos los puntos, con la estación del SMN más cercana a cada uno; con ello el grado cubre también al interior del tramo, no sólo a los extremos que pide el M·MMP·4·05·064/22. Máximo 10 km entre inicio y fin, porque el eje recto sólo representa a la carretera en distancias cortas; para tramos largos usa el modo Carretera con &quot;Segmentos homogéneos&quot;, que sigue el trazo real.">ⓘ</span></label>
             <label><input type="radio" name="modoUb" value="mapa"> Elegir en el mapa</label>
           </div>
 
@@ -350,7 +350,7 @@ footer.sitio .actualizado{display:block;margin-top:10px;font-size:10.5px;color:#
           </div>
 
           <div id="ub-segmento" class="ub-grp oculto">
-            <p class="nota">El PG se rige por el extremo más desfavorable (T. máx mayor y T. mín menor).</p>
+            <p class="nota">Envolvente climática del eje: el segmento se evalúa cada 250 m y rige el punto más desfavorable (T. máx mayor y T. mín menor). Máximo 10 km.</p>
             <div class="fila">
               <div><label for="plat3">Latitud (inicio)</label><input id="plat3" type="number" step="0.0001" placeholder="19.4326"></div>
               <div><label for="plon3">Longitud (inicio)</label><input id="plon3" type="number" step="0.0001" placeholder="-99.1332"></div>
@@ -511,7 +511,7 @@ footer.sitio .actualizado{display:block;margin-top:10px;font-size:10.5px;color:#
     el −16 cubre el desempeño requerido a bajas temperaturas en el sitio en estudio.
     Ejes equivalentes por el método del Instituto de Ingeniería UNAM (factores de daño superficial a 6.0 kg/cm²; camión, eje estándar 5.8). Clima: estaciones del SMN con 20 años o más.
     Herramienta de referencia; el criterio del proyectista prevalece.
-    <span class="actualizado" id="hga-actualizado">Última actualización: 21 de septiembre de 2026, versión 26.48</span>
+    <span class="actualizado" id="hga-actualizado">Última actualización: 30 de octubre de 2026, versión 26.49</span>
   </footer>
 
   <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
@@ -559,7 +559,7 @@ footer.sitio .actualizado{display:block;margin-top:10px;font-size:10.5px;color:#
     const ctrl = (typeof AbortController !== "undefined") ? new AbortController() : null;
     const reloj = ctrl ? setTimeout(function () { try { ctrl.abort(); } catch (e) {} }, 25000) : null;
     try {
-      const base = { headers: { "Content-Type": "application/json", "X-HGA-Cliente": "HGA-web-v48" } };
+      const base = { headers: { "Content-Type": "application/json", "X-HGA-Cliente": "HGA-web-v49" } };
       if (ctrl) base.signal = ctrl.signal;
       const r = await fetch(url, Object.assign(base, opciones || {}));
       if (reloj) clearTimeout(reloj);
@@ -2463,6 +2463,7 @@ footer.sitio .actualizado{display:block;margin-top:10px;font-size:10.5px;color:#
   $("btn-pdf2") && $("btn-pdf2").addEventListener("click", generarPDF);
   $("btn-manual") && $("btn-manual").addEventListener("click", function () { window.open("/Manual_Usuario_HG_Asfaltica_DGST.pdf", "_blank", "noopener"); });
   $("btn-criterios") && $("btn-criterios").addEventListener("click", function () { window.open("/Criterios_HG_Asfaltica_DGST.pdf", "_blank", "noopener"); });
+  $("btn-videos") && $("btn-videos").addEventListener("click", function () { window.open("videos.html", "_blank", "noopener"); });
   window.AppPG = { pdf: generarPDF, analizar: analizarTodo };
   // Tooltips propios para los iconos de ayuda (ⓘ): hover y clic (táctil)
   (function initTips() {
@@ -2536,5 +2537,5 @@ footer.sitio .actualizado{display:block;margin-top:10px;font-size:10.5px;color:#
     document.body.insertBefore(b, document.body.firstChild);
   })();
 </script>
-<!-- HGA build v48 -->
+<!-- HGA build v49 -->
 </html>
