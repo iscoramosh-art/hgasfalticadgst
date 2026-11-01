@@ -1,0 +1,226 @@
+WEBVTT
+
+1
+00:00:04.750 --> 00:00:06.288
+Quinto y último video:
+
+2
+00:00:06.288 --> 00:00:11.530
+el reporte técnico en PDF, su validación y la solución de los problemas más
+
+3
+00:00:11.530 --> 00:00:12.299
+frecuentes.
+
+4
+00:00:13.099 --> 00:00:18.107
+Desde el Módulo dos, el botón Descargar PDF genera el documento en el propio
+
+5
+00:00:18.107 --> 00:00:18.766
+navegador.
+
+6
+00:00:18.766 --> 00:00:22.719
+Antes, la herramienta reencuadra el mapa sobre la selección,
+
+7
+00:00:22.719 --> 00:00:26.343
+pide al servicio el folio y el sello, y arma las hojas.
+
+8
+00:00:27.147 --> 00:00:30.358
+La hoja uno lleva el encabezado institucional,
+
+9
+00:00:30.358 --> 00:00:34.686
+el número de reporte con fecha y hora, los datos del proyecto,
+
+10
+00:00:34.686 --> 00:00:40.200
+el mapa de la ubicación, el punto de estudio con su estación climatológica y su
+
+11
+00:00:40.200 --> 00:00:42.852
+precipitación, el grado a especificar,
+
+12
+00:00:42.852 --> 00:00:47.389
+las temperaturas del aire y del pavimento con el método aplicado,
+
+13
+00:00:47.389 --> 00:00:50.042
+el segmento con el PG de cada extremo,
+
+14
+00:00:50.042 --> 00:00:54.160
+el tránsito con su fuente y la tasa aplicada con su origen.
+
+15
+00:00:54.160 --> 00:00:57.580
+Abajo, en grande, el PG a especificar y su nivel.
+
+16
+00:00:58.384 --> 00:01:02.802
+La hoja dos trae el bloque de validación, con folio, código QR y sello;
+
+17
+00:01:02.802 --> 00:01:07.842
+el resumen de parámetros, con todo lo capturado para que el supervisor reproduzca
+
+18
+00:01:07.842 --> 00:01:08.526
+el cálculo;
+
+19
+00:01:08.526 --> 00:01:13.441
+y los requisitos de calidad del cemento asfáltico según su grado y de la mezcla
+
+20
+00:01:13.441 --> 00:01:15.930
+según el método, como los fija la norma.
+
+21
+00:01:15.930 --> 00:01:19.601
+Los valores de control en obra son los del diseño aprobado;
+
+22
+00:01:19.601 --> 00:01:22.339
+los de la norma son criterios de aceptación.
+
+23
+00:01:23.140 --> 00:01:28.253
+Las hojas tres y cuatro contienen los requisitos del material pétreo por nivel de
+
+24
+00:01:28.253 --> 00:01:32.734
+tránsito, las cantidades de obra con su desglose y las recomendaciones.
+
+25
+00:01:32.734 --> 00:01:37.594
+Con segmentos homogéneos se agrega el análisis por segmentos y el apéndice de
+
+26
+00:01:37.594 --> 00:01:41.823
+estaciones consideradas, con el cálculo de cada estación del trazo,
+
+27
+00:01:41.823 --> 00:01:44.221
+de modo que cada corte queda trazable.
+
+28
+00:01:45.021 --> 00:01:49.698
+Cada reporte lleva un folio único emitido por el servicio, fecha y hora,
+
+29
+00:01:49.698 --> 00:01:53.791
+y un sello calculado con una llave que sólo conoce el servidor;
+
+30
+00:01:53.791 --> 00:01:55.999
+no puede reproducirse fuera de él.
+
+31
+00:01:55.999 --> 00:01:59.702
+Al escanear el código QR se abre la página de validación,
+
+32
+00:01:59.702 --> 00:02:02.495
+que consulta al servicio y da su veredicto:
+
+33
+00:02:02.495 --> 00:02:07.367
+si el sello corresponde, el reporte fue emitido por la herramienta y no fue
+
+34
+00:02:07.367 --> 00:02:07.951
+alterado;
+
+35
+00:02:07.951 --> 00:02:11.459
+si no, el documento se modificó o no proviene de ella.
+
+36
+00:02:11.459 --> 00:02:14.252
+La validación requiere conexión a internet.
+
+37
+00:02:15.054 --> 00:02:18.117
+Para terminar, los problemas más frecuentes.
+
+38
+00:02:18.117 --> 00:02:20.692
+Si no aparece la lista de carreteras,
+
+39
+00:02:20.692 --> 00:02:25.635
+escriba parte del nombre o de la clave y revise el estado seleccionado.
+
+40
+00:02:25.635 --> 00:02:31.412
+Si no se precarga el aforo, la ubicación no es una carretera del Anexo A y el aforo
+
+41
+00:02:31.412 --> 00:02:33.222
+es una propuesta regional;
+
+42
+00:02:33.222 --> 00:02:36.493
+el propio se captura con Capturar datos viales.
+
+43
+00:02:36.493 --> 00:02:41.783
+Si no aparece el método de diseño, el espesor corresponde a una discontinua.
+
+44
+00:02:41.783 --> 00:02:46.029
+Si Marshall está desactivado, los ejes rebasan diez millones.
+
+45
+00:02:46.029 --> 00:02:49.788
+Si el mapa no se mueve en el análisis, es intencional.
+
+46
+00:02:49.788 --> 00:02:54.730
+Si no genera el PDF, revise la conexión y que exista un cálculo previo.
+
+47
+00:02:54.730 --> 00:03:00.298
+Y si el QR no valida, el reporte fue alterado o no hay conexión con el servicio.
+
+48
+00:03:01.098 --> 00:03:03.395
+Tres buenas prácticas para cerrar.
+
+49
+00:03:03.395 --> 00:03:07.379
+Los valores de control en obra son los del diseño aprobado.
+
+50
+00:03:07.379 --> 00:03:11.228
+Una vez aprobado el diseño, no se cambian los materiales.
+
+51
+00:03:11.228 --> 00:03:15.010
+Y se ejecuta el tramo de prueba para calibrar espesores,
+
+52
+00:03:15.010 --> 00:03:16.901
+temperaturas y compactación.
+
+53
+00:03:16.901 --> 00:03:19.062
+La herramienta es de referencia:
+
+54
+00:03:19.062 --> 00:03:23.452
+la decisión final y su justificación corresponden al proyectista.
+
+55
+00:03:23.452 --> 00:03:28.787
+El Manual de usuario y los Criterios están en las ligas de la página principal.
+
+56
+00:03:28.787 --> 00:03:30.408
+Gracias por su atención.
+

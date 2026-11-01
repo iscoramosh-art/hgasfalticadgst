@@ -1,0 +1,222 @@
+WEBVTT
+
+1
+00:00:04.750 --> 00:00:05.622
+Tercer video:
+
+2
+00:00:05.622 --> 00:00:09.108
+la cuarta tarjeta del Módulo uno, Diseño de la capa.
+
+3
+00:00:09.108 --> 00:00:14.337
+Se ve cómo el espesor compactado define el tipo de capa y el método de diseño,
+
+4
+00:00:14.337 --> 00:00:18.761
+cómo se eligen la mezcla discontinua y el tratamiento superficial,
+
+5
+00:00:18.761 --> 00:00:23.454
+qué pasa con un pavimento deficiente, y cómo se capturan la geometría,
+
+6
+00:00:23.454 --> 00:00:27.610
+los valores del diseño y el agregado con pavimento recuperado.
+
+7
+00:00:27.610 --> 00:00:31.029
+Se continúa con la carretera Atlacomulco Maravatío.
+
+8
+00:00:31.829 --> 00:00:36.881
+La cuarta tarjeta define la capa, y el espesor compactado gobierna todo:
+
+9
+00:00:36.881 --> 00:00:40.670
+con cinco centímetros o más, mezcla densa estructural;
+
+10
+00:00:40.670 --> 00:00:44.669
+de tres a menos de cinco, mezcla discontinua de rodadura;
+
+11
+00:00:44.669 --> 00:00:47.686
+con menos de tres, tratamiento superficial.
+
+12
+00:00:47.686 --> 00:00:53.159
+Se captura el espesor del proyecto, sin ajustarlo para forzar un tipo de capa.
+
+13
+00:00:53.159 --> 00:00:56.807
+En la densa, el método es Marshall o Alto Desempeño:
+
+14
+00:00:56.807 --> 00:01:01.438
+hasta un millón de ejes equivalentes, Marshall a cincuenta golpes;
+
+15
+00:01:01.438 --> 00:01:06.700
+de uno a diez millones, Marshall a setenta y cinco golpes o Alto Desempeño;
+
+16
+00:01:06.700 --> 00:01:09.857
+arriba de diez millones, sólo Alto Desempeño,
+
+17
+00:01:09.857 --> 00:01:13.155
+y la herramienta desactiva Marshall y lo avisa.
+
+18
+00:01:13.962 --> 00:01:18.370
+Con cuatro centímetros la tarjeta pide el tipo de discontinua:
+
+19
+00:01:18.370 --> 00:01:23.844
+SMA, con fibra, cuando se requiere la mayor resistencia a la deformación bajo
+
+20
+00:01:23.844 --> 00:01:24.981
+tránsito pesado;
+
+21
+00:01:24.981 --> 00:01:28.109
+o CASAA, sin fibra, como rodadura funcional.
+
+22
+00:01:28.109 --> 00:01:33.938
+En zona lluviosa, cuando la estación que rige registra mil doscientos milímetros o
+
+23
+00:01:33.938 --> 00:01:38.204
+más de precipitación media anual, la herramienta fija CASAA,
+
+24
+00:01:38.204 --> 00:01:43.465
+desactiva SMA y lo indica bajo el selector, en la tarjeta y en el reporte.
+
+25
+00:01:43.465 --> 00:01:48.156
+Aquí, Villahermosa, con mil ochocientos noventa y seis milímetros.
+
+26
+00:01:51.510 --> 00:01:56.255
+Con menos de tres centímetros procede un tratamiento superficial en frío con
+
+27
+00:01:56.255 --> 00:02:00.874
+emulsión, elegido por el tránsito diario y por el estado de la superficie.
+
+28
+00:02:00.874 --> 00:02:04.245
+Primero se declara el porcentaje del área con grietas.
+
+29
+00:02:04.245 --> 00:02:09.364
+Con menos de diez por ciento, hasta diez mil vehículos diarios se admiten el riego
+
+30
+00:02:09.364 --> 00:02:12.610
+de sello, el riego premezclado y el microaglomerado;
+
+31
+00:02:12.610 --> 00:02:16.668
+de diez mil a cincuenta mil, el premezclado y el microaglomerado.
+
+32
+00:02:16.668 --> 00:02:20.414
+El selector muestra sólo lo admitido y marca lo recomendado.
+
+33
+00:02:20.414 --> 00:02:25.158
+Con más de cinco mil vehículos la emulsión debe ser modificada con polímero.
+
+34
+00:02:25.158 --> 00:02:29.965
+De diez a cincuenta por ciento de grietas la opción es el calafateo inducido;
+
+35
+00:02:29.965 --> 00:02:34.647
+con más de cincuenta, no procede ningún tratamiento y el reporte recomienda
+
+36
+00:02:34.647 --> 00:02:35.396
+rehabilitar.
+
+37
+00:02:36.281 --> 00:02:39.982
+Los tratamientos y las rodaduras delgadas son conservación:
+
+38
+00:02:39.982 --> 00:02:42.052
+no aportan capacidad estructural.
+
+39
+00:02:42.052 --> 00:02:45.314
+Si la condición del pavimento se declara deficiente,
+
+40
+00:02:45.314 --> 00:02:48.764
+la herramienta no diseña la capa ni calcula cantidades;
+
+41
+00:02:48.764 --> 00:02:53.469
+el reporte sale con el diagnóstico de rehabilitación requerida y recomienda
+
+42
+00:02:53.469 --> 00:02:55.351
+dimensionarla con deflexiones.
+
+43
+00:02:56.153 --> 00:02:59.249
+Por último, la geometría y los valores del diseño.
+
+44
+00:02:59.249 --> 00:03:04.389
+La longitud se precarga con la diferencia de cadenamientos y el ancho se corrige al
+
+45
+00:03:04.389 --> 00:03:05.194
+del proyecto.
+
+46
+00:03:05.194 --> 00:03:10.333
+El porcentaje de cemento asfáltico y las densidades de omisión sirven sólo para una
+
+47
+00:03:10.333 --> 00:03:14.234
+primera estimación y se sustituyen por los del diseño aprobado.
+
+48
+00:03:14.234 --> 00:03:16.959
+Si el agregado incluye pavimento recuperado,
+
+49
+00:03:16.959 --> 00:03:20.612
+se capturan el porcentaje de RAP y su contenido de asfalto;
+
+50
+00:03:20.612 --> 00:03:25.442
+la herramienta verifica el máximo que admite la norma según método y tránsito,
+
+51
+00:03:25.442 --> 00:03:26.743
+y avisa si se rebasa.
+
+52
+00:03:27.545 --> 00:03:32.611
+Con las cuatro tarjetas completas se da clic en Analizar y ver resultados.
+
+53
+00:03:32.611 --> 00:03:38.089
+En el cuarto video se leen las tarjetas de resultado y el análisis por segmentos
+
+54
+00:03:38.089 --> 00:03:38.842
+homogéneos.
+
+55
+00:03:38.842 --> 00:03:41.991
+El detalle está en la sección ocho del Manual.
+

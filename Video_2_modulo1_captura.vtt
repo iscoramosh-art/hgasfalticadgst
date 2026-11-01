@@ -1,0 +1,350 @@
+WEBVTT
+
+1
+00:00:04.750 --> 00:00:05.756
+Segundo video:
+
+2
+00:00:05.756 --> 00:00:08.057
+el Módulo uno, Captura de datos.
+
+3
+00:00:08.057 --> 00:00:12.513
+Se recorren las tres primeras tarjetas, de arriba hacia abajo:
+
+4
+00:00:12.513 --> 00:00:17.761
+datos del reporte, ubicación, y aforo y tránsito, con el caso del Manual,
+
+5
+00:00:17.761 --> 00:00:20.277
+la carretera Atlacomulco Maravatío.
+
+6
+00:00:20.277 --> 00:00:25.021
+La cuarta tarjeta, el diseño de la capa, se ve en el tercer video.
+
+7
+00:00:25.821 --> 00:00:28.550
+La primera tarjeta identifica el estudio:
+
+8
+00:00:28.550 --> 00:00:33.008
+proyecto, unidad responsable, a quién se dirige y quién lo elabora.
+
+9
+00:00:33.008 --> 00:00:38.199
+Son texto libre y se imprimen en el encabezado del PDF y dentro del código QR.
+
+10
+00:00:38.199 --> 00:00:39.996
+Conviene llenarlos siempre:
+
+11
+00:00:39.996 --> 00:00:45.387
+son lo que distingue dos reportes del mismo tramo hechos con supuestos distintos.
+
+12
+00:00:46.188 --> 00:00:51.140
+La ubicación define el clima del sitio y, si es una carretera del catálogo,
+
+13
+00:00:51.140 --> 00:00:52.263
+también el aforo.
+
+14
+00:00:52.263 --> 00:00:53.385
+Hay cuatro modos.
+
+15
+00:00:53.385 --> 00:00:58.535
+Si la obra está en la Red Carretera Federal se usa siempre Carretera, Anexo A:
+
+16
+00:00:58.535 --> 00:01:01.506
+es el único que toma el aforo real de la vía,
+
+17
+00:01:01.506 --> 00:01:06.921
+sus carriles y su tasa de crecimiento, y el único que admite segmentos homogéneos.
+
+18
+00:01:06.921 --> 00:01:10.354
+Los otros tres, punto, segmento y elegir en el mapa,
+
+19
+00:01:10.354 --> 00:01:12.665
+son para sitios fuera del catálogo:
+
+20
+00:01:12.665 --> 00:01:17.815
+el clima se obtiene igual, pero el aforo es una propuesta regional que hay que
+
+21
+00:01:17.815 --> 00:01:18.475
+verificar.
+
+22
+00:01:19.288 --> 00:01:24.598
+Se escribe cualquier parte del nombre, del tramo o de la clave PARCF,
+
+23
+00:01:24.598 --> 00:01:27.677
+y la lista se filtra mientras se teclea:
+
+24
+00:01:27.677 --> 00:01:33.911
+muestra carretera, tramo, clave, PG de referencia y cadenamiento con su longitud.
+
+25
+00:01:33.911 --> 00:01:39.298
+Si una carretera aparece varias veces, son cuerpos o tramos distintos:
+
+26
+00:01:39.298 --> 00:01:42.531
+la clave y el cadenamiento los distinguen.
+
+27
+00:01:42.531 --> 00:01:48.149
+Al elegir Atlacomulco Maravatío, clave A cero cero cuatro guion cero uno,
+
+28
+00:01:48.149 --> 00:01:50.766
+el mapa resalta el trazo completo.
+
+29
+00:01:51.567 --> 00:01:55.928
+Debajo aparece el segmento por cadenamiento con el rango completo.
+
+30
+00:01:55.928 --> 00:01:58.637
+Si se deja así, se estudia todo el tramo.
+
+31
+00:01:58.637 --> 00:02:02.535
+Si se acota, por ejemplo del kilómetro diez al veinticinco,
+
+32
+00:02:02.535 --> 00:02:07.622
+la herramienta evalúa el clima en los dos extremos del segmento y toma el más
+
+33
+00:02:07.622 --> 00:02:11.322
+desfavorable, y pasa la longitud a la tarjeta de diseño.
+
+34
+00:02:11.322 --> 00:02:15.286
+Así se estudia un subtramo de obra dentro de un tramo largo.
+
+35
+00:02:17.624 --> 00:02:21.765
+En Punto por coordenadas se capturan latitud y longitud decimales.
+
+36
+00:02:21.765 --> 00:02:26.094
+El clima es el de la estación más cercana del Servicio Meteorológico;
+
+37
+00:02:26.094 --> 00:02:28.290
+el aforo es una propuesta regional,
+
+38
+00:02:28.290 --> 00:02:33.434
+la mediana del tránsito y la composición promedio de las estaciones en un radio de
+
+39
+00:02:33.434 --> 00:02:35.881
+cuarenta a ciento cincuenta kilómetros,
+
+40
+00:02:35.881 --> 00:02:39.018
+y así se identifica en la tarjeta y en el reporte.
+
+41
+00:02:39.821 --> 00:02:43.144
+En Segmento por coordenadas se capturan inicio y fin.
+
+42
+00:02:43.144 --> 00:02:46.468
+El grado se rige por la envolvente climática del eje:
+
+43
+00:02:46.468 --> 00:02:50.293
+el segmento recto se evalúa cada doscientos cincuenta metros,
+
+44
+00:02:50.293 --> 00:02:52.738
+cada punto con su estación más cercana,
+
+45
+00:02:52.738 --> 00:02:56.751
+y mandan la temperatura máxima mayor y la mínima menor de todos.
+
+46
+00:02:56.751 --> 00:03:01.579
+Con eso se cumple la regla de los dos extremos y además se cubre el interior.
+
+47
+00:03:01.579 --> 00:03:06.596
+El límite es diez kilómetros, porque una recta sólo representa a la carretera en
+
+48
+00:03:06.596 --> 00:03:07.724
+distancias cortas;
+
+49
+00:03:07.724 --> 00:03:11.612
+para un tramo largo se usa Carretera con segmentos homogéneos.
+
+50
+00:03:12.424 --> 00:03:17.891
+En Elegir en el mapa, el punto se fija con un clic y las coordenadas se copian
+
+51
+00:03:17.891 --> 00:03:18.312
+solas;
+
+52
+00:03:18.312 --> 00:03:20.555
+el cálculo es el del modo punto.
+
+53
+00:03:20.555 --> 00:03:25.531
+Si el clic cae sobre un trazo del Anexo A, se selecciona esa carretera.
+
+54
+00:03:25.531 --> 00:03:31.068
+El botón Usar mi ubicación actual pide la posición al navegador, útil en campo.
+
+55
+00:03:31.068 --> 00:03:33.662
+El mapa se puede acercar y arrastrar.
+
+56
+00:03:36.043 --> 00:03:41.461
+La tercera tarjeta, Aforo y tránsito, se llena sola con una carretera del Anexo A:
+
+57
+00:03:41.461 --> 00:03:46.615
+la estación de Datos Viales dos mil veintiséis más cercana sobre la misma vía,
+
+58
+00:03:46.615 --> 00:03:47.739
+con su distancia;
+
+59
+00:03:47.739 --> 00:03:49.985
+el tránsito diario promedio anual;
+
+60
+00:03:49.985 --> 00:03:52.364
+la composición por tipo de vehículo;
+
+61
+00:03:52.364 --> 00:03:54.082
+el sentido de la estación;
+
+62
+00:03:54.082 --> 00:03:59.302
+los carriles por sentido del Anexo A, que fijan el factor del carril de diseño;
+
+63
+00:03:59.302 --> 00:04:02.078
+la velocidad de operación de los camiones;
+
+64
+00:04:02.078 --> 00:04:06.901
+el periodo, diez años por omisión, que puede cambiarse a quince o veinte;
+
+65
+00:04:06.901 --> 00:04:09.610
+y la tasa de crecimiento que se aplicará.
+
+66
+00:04:10.412 --> 00:04:12.340
+Dos datos merecen atención.
+
+67
+00:04:12.340 --> 00:04:15.840
+El sentido es de la estación, no de la carretera:
+
+68
+00:04:15.840 --> 00:04:21.268
+uno o dos significa que aforó un solo sentido y el tránsito se usa tal cual;
+
+69
+00:04:21.268 --> 00:04:26.696
+cero significa que aforó los dos sentidos y el tránsito se divide entre dos.
+
+70
+00:04:26.696 --> 00:04:30.553
+Es el error más común al comparar con otros programas.
+
+71
+00:04:30.553 --> 00:04:33.696
+Los carriles por sentido vienen del Anexo A;
+
+72
+00:04:33.696 --> 00:04:39.409
+donde no hay dato se asume uno en la red básica y secundaria y dos en las demás,
+
+73
+00:04:39.409 --> 00:04:40.766
+y se corrigen aquí.
+
+74
+00:04:41.574 --> 00:04:45.553
+Si el proyectista tiene un aforo propio o más reciente,
+
+75
+00:04:45.553 --> 00:04:47.652
+activa Capturar datos viales.
+
+76
+00:04:47.652 --> 00:04:51.558
+Desde ese momento la herramienta usa lo que se teclea:
+
+77
+00:04:51.558 --> 00:04:56.478
+tránsito, composición, sentido, carriles, velocidad, periodo y tasa,
+
+78
+00:04:56.478 --> 00:04:59.879
+y el reporte lo identifica como captura manual.
+
+79
+00:04:59.879 --> 00:05:05.450
+Aquí se capturan ocho mil quinientos vehículos y una tasa de tres por ciento.
+
+80
+00:05:06.251 --> 00:05:11.416
+En la misma tarjeta está el criterio de análisis, sólo para carreteras del Anexo A.
+
+81
+00:05:11.416 --> 00:05:16.518
+PG único entrega un solo grado para todo el tramo con la temperatura y el tránsito
+
+82
+00:05:16.518 --> 00:05:17.389
+más exigentes:
+
+83
+00:05:17.389 --> 00:05:20.002
+es el criterio conservador, el de omisión,
+
+84
+00:05:20.002 --> 00:05:24.607
+adecuado para obras cortas o cuando se comprará un solo cemento asfáltico.
+
+85
+00:05:24.607 --> 00:05:28.900
+Segmentos homogéneos recorre el trazo y lo divide donde cambia el PG:
+
+86
+00:05:28.900 --> 00:05:32.758
+es el adecuado para tramos largos, y se ve en el cuarto video.
+
+87
+00:05:32.758 --> 00:05:35.247
+En el siguiente video se define la capa.
+

@@ -1,0 +1,278 @@
+WEBVTT
+
+1
+00:00:04.750 --> 00:00:08.339
+Bienvenido a la guía en video de HG Asfáltica DGST,
+
+2
+00:00:08.339 --> 00:00:14.039
+la Herramienta Guía Asfáltica de la Dirección General de Servicios Técnicos de la
+
+3
+00:00:14.039 --> 00:00:14.390
+SICT.
+
+4
+00:00:14.390 --> 00:00:18.824
+En este primer video verá qué es, para qué sirve y qué entrega.
+
+5
+00:00:18.824 --> 00:00:22.412
+Los cuatro videos siguientes muestran, paso a paso,
+
+6
+00:00:22.412 --> 00:00:26.423
+cómo capturar los datos de la obra, cómo definir la capa,
+
+7
+00:00:26.423 --> 00:00:30.716
+cómo leer los resultados y cómo generar y validar el reporte.
+
+8
+00:00:31.516 --> 00:00:35.439
+La herramienta se usa desde el navegador, sin instalar nada:
+
+9
+00:00:35.439 --> 00:00:38.315
+basta escribir hache ge asfáltica punto com.
+
+10
+00:00:38.315 --> 00:00:43.742
+Con ella, el proyectista selecciona el cemento asfáltico por su Grado de Desempeño,
+
+11
+00:00:43.742 --> 00:00:47.142
+el Grado PG, el material pétreo y el tipo de mezcla,
+
+12
+00:00:47.142 --> 00:00:50.738
+a partir del clima y del tránsito del sitio de la obra,
+
+13
+00:00:50.738 --> 00:00:53.877
+en cualquier camino de la Red Carretera Federal.
+
+14
+00:00:54.678 --> 00:00:55.915
+Tiene dos módulos.
+
+15
+00:00:55.915 --> 00:00:59.970
+En Captura de datos se llena el estudio en cuatro tarjetas:
+
+16
+00:00:59.970 --> 00:01:04.643
+datos del reporte, ubicación, aforo y tránsito, y diseño de la capa.
+
+17
+00:01:04.643 --> 00:01:09.042
+En Análisis y reporte se leen los resultados y se genera el PDF.
+
+18
+00:01:09.042 --> 00:01:14.403
+Debajo de los botones están las ligas a la introducción, al Manual de usuario,
+
+19
+00:01:14.403 --> 00:01:18.527
+a los Criterios de la herramienta y a estos videos de ayuda,
+
+20
+00:01:18.527 --> 00:01:21.688
+y al pie se indica la versión que está usando.
+
+21
+00:01:22.490 --> 00:01:27.477
+Es la actualización dos mil veintiséis de la herramienta que la Dirección General
+
+22
+00:01:27.477 --> 00:01:29.078
+publicó en dos mil veinte.
+
+23
+00:01:29.078 --> 00:01:31.418
+Ya no es un archivo para Google Earth:
+
+24
+00:01:31.418 --> 00:01:36.282
+es una aplicación web que trabaja con el clima de dos mil cuatrocientas ochenta
+
+25
+00:01:36.282 --> 00:01:41.331
+estaciones del Servicio Meteorológico Nacional, con veinte años o más de registro;
+
+26
+00:01:41.331 --> 00:01:46.504
+con los aforos de Datos Viales dos mil veintiséis y su historia desde dos mil trece;
+
+27
+00:01:46.504 --> 00:01:50.137
+y con el catálogo del Anexo A del PARCF dos mil veintiséis,
+
+28
+00:01:50.137 --> 00:01:51.799
+con el trazo de cada tramo.
+
+29
+00:01:52.599 --> 00:01:54.801
+Así funciona, de principio a fin.
+
+30
+00:01:54.801 --> 00:01:56.268
+Se elige la carretera;
+
+31
+00:01:56.268 --> 00:02:01.738
+la herramienta toma el clima de la estación más cercana y calcula las temperaturas
+
+32
+00:02:01.738 --> 00:02:06.608
+máxima y mínima del pavimento con el manual M, M M P, cuatro, cero cinco,
+
+33
+00:02:06.608 --> 00:02:09.544
+cero sesenta y cuatro, de dos mil veintidós,
+
+34
+00:02:09.544 --> 00:02:12.679
+con noventa y ocho por ciento de confiabilidad:
+
+35
+00:02:12.679 --> 00:02:17.349
+de ahí sale el grado alto, sesenta y cuatro, setenta o setenta y seis.
+
+36
+00:02:17.349 --> 00:02:21.285
+Luego toma el aforo de Datos Viales de esa misma carretera,
+
+37
+00:02:21.285 --> 00:02:25.754
+los carriles del Anexo A y la tasa de crecimiento propia de la vía,
+
+38
+00:02:25.754 --> 00:02:31.225
+calcula los ejes equivalentes con el método del Instituto de Ingeniería de la UNAM
+
+39
+00:02:31.225 --> 00:02:35.894
+y, con la velocidad de operación, define la letra del nivel de ajuste:
+
+40
+00:02:35.894 --> 00:02:36.695
+S, H, V o E.
+
+41
+00:02:36.695 --> 00:02:39.296
+El resultado es el grado a especificar:
+
+42
+00:02:39.296 --> 00:02:42.232
+aquí, PG sesenta y cuatro V menos dieciséis.
+
+43
+00:02:43.035 --> 00:02:45.804
+El grado bajo es siempre menos dieciséis:
+
+44
+00:02:45.804 --> 00:02:51.072
+es el único que lista la norma N, C M T, cuatro, cero cinco, cero cero cuatro,
+
+45
+00:02:51.072 --> 00:02:56.610
+de dos mil veinticinco, y cubre el desempeño a bajas temperaturas en todo el país.
+
+46
+00:02:56.610 --> 00:02:59.649
+El espesor compactado define el tipo de capa:
+
+47
+00:02:59.649 --> 00:03:02.485
+con cinco centímetros o más, mezcla densa;
+
+48
+00:03:02.485 --> 00:03:06.403
+de tres a menos de cinco, mezcla discontinua, SMA o CASAA;
+
+49
+00:03:06.403 --> 00:03:09.307
+con menos de tres, tratamiento superficial.
+
+50
+00:03:09.307 --> 00:03:14.372
+Para cada caso la herramienta imprime los requisitos de calidad del cemento
+
+51
+00:03:14.372 --> 00:03:19.640
+asfáltico, de la mezcla y del material pétreo, conforme a la norma que aplica,
+
+52
+00:03:19.640 --> 00:03:21.801
+y estima las cantidades de obra.
+
+53
+00:03:22.601 --> 00:03:27.512
+Todo queda en un reporte técnico en PDF, con identidad institucional,
+
+54
+00:03:27.512 --> 00:03:33.420
+número de reporte, folio, código QR y un sello que sólo puede emitir el servicio de
+
+55
+00:03:33.420 --> 00:03:33.990
+la DGST.
+
+56
+00:03:33.990 --> 00:03:39.471
+Cualquier persona puede escanear el QR y comprobar en línea que el reporte es
+
+57
+00:03:39.471 --> 00:03:41.749
+auténtico y que no fue alterado.
+
+58
+00:03:42.549 --> 00:03:44.498
+Una precisión sobre su alcance.
+
+59
+00:03:44.498 --> 00:03:47.075
+Es una herramienta de referencia y apoyo:
+
+60
+00:03:47.075 --> 00:03:52.105
+determina el Grado PG, los requisitos de calidad y una estimación de cantidades.
+
+61
+00:03:52.105 --> 00:03:55.311
+No sustituye el diseño de la mezcla en laboratorio,
+
+62
+00:03:55.311 --> 00:03:59.021
+el estudio de banco ni el diseño estructural del pavimento,
+
+63
+00:03:59.021 --> 00:04:02.604
+y sus resultados valen lo que valen los datos capturados.
+
+64
+00:04:02.604 --> 00:04:06.817
+La decisión final, y su justificación, corresponden al proyectista.
+
+65
+00:04:07.617 --> 00:04:11.206
+En el siguiente video se recorre la captura de datos:
+
+66
+00:04:11.206 --> 00:04:16.150
+cómo identificar el estudio, cómo ubicar la obra y cómo revisar el aforo.
+
+67
+00:04:16.150 --> 00:04:18.588
+En el tercero, cómo definir la capa.
+
+68
+00:04:18.588 --> 00:04:24.006
+El detalle de todo lo dicho aquí está en las secciones uno a siete del Manual de
+
+69
+00:04:24.006 --> 00:04:25.902
+usuario, en la misma página.
+
